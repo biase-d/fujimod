@@ -54,5 +54,10 @@ fn main() {
         println!("cargo:rustc-link-lib=m");
         println!("cargo:rustc-link-lib=pthread");
     }
+    // AArch64 128-bit cmpxchg helpers call __atomic_compare_exchange_16, which
+    // GNU/Linux provides only in libatomic.
+    if std::env::var("CARGO_CFG_TARGET_OS").as_deref() == Ok("linux") && target_env == "gnu" {
+        println!("cargo:rustc-link-lib=atomic");
+    }
     println!("cargo:rerun-if-changed=../vendor/unicorn");
 }

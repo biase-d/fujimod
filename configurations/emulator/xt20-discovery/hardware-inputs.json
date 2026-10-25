@@ -1,0 +1,26 @@
+{
+  "$schema": "https://fujimod.com/schemas/emulator-hardware-inputs.generated.schema.json",
+  "schema": 1,
+  "id": "xt20-discovery",
+  "body_id": "xt20",
+  "reset": {
+    "kernel_unit": "kernel",
+    "loader_handoff": {
+      "address": 9437184,
+      "size": 1472,
+      "fill": 0,
+      "words": [
+        {
+          "offset": 0,
+          "value": 4,
+          "name": "power-on input snapshot bit 2"
+        }
+      ],
+      "basis": "Declared discovery input: a loader handoff in a free RAM gap (between section 2, ending 0x780330, and the section table at 0x950000), not a capture. The kernel copies 0x5c0 bytes from it. Word 0 bit 2 is set because the application powers down when boot reason 2 or 3 lacks it (0xc6ff14 via 0xc4da70(2)); the boot-reason word at +0x140 reads zero, which decodes to reason 3. Kernel entry bypasses the boot ROM."
+    },
+    "flash_aperture": {
+      "contents": "registered-update",
+      "basis": "Declared discovery input: the update image from its flash offset; bytes past it read erased. No flash capture exists."
+    }
+  }
+}
