@@ -2,13 +2,16 @@
 //!
 //! Control word +0: bit `16 + n` clear selects channel `n`, bit `n` then
 //! starts or stops it. Per-channel configuration words sit at `+0x10 + n*4`
-//! and retain writes. Channel blocks at `+0x100 + n*0x10` hold the count,
+//! and retain writes; bit 4 selects one-shot mode, in which a channel stops
+//! after it expires. Channel blocks at `+0x100 + n*0x10` hold the count,
 //! the reload and two retained words. The counting law is the XP4 one.
 use fujimod_emulator_xp4_io::interval_timers::Counter;
 
 /// Register window size in bytes.
 pub const WINDOW: u32 = 0x200;
 const CHANNELS: usize = 16;
+/// Per-channel configuration bit selecting one-shot mode.
+const ONE_SHOT: u32 = 0x10;
 
 #[derive(Clone, serde::Serialize, serde::Deserialize)]
 #[serde(deny_unknown_fields)]
@@ -63,10 +66,17 @@ impl TickTimers {
     pub fn tick(&mut self, now: u64) -> Vec<usize> {
         let mut fired = Vec::new();
         for (channel, c) in self.counters.iter_mut().enumerate() {
-            if c.expire(now)
-                && let Some(irq) = self.irqs[channel]
-            {
-                fired.push(irq);
+            if c.expire(now) {
+                // Configuration bit 4 selects one-shot mode: the kernel writes
+                // reload 0 and the channel stops after it expires.
+                if self.configuration[channel] & ONE_SHOT != 0 {
+                    c.enabled = false;
+                    c.next = None;
+                    c.value = 0;
+                }
+                if let Some(irq) = self.irqs[channel] {
+                    fired.push(irq);
+                }
             }
         }
         fired
@@ -170,5 +180,21 @@ mod tests {
         );
         assert!(t.access(110, WINDOW, 4, false, 0).is_err());
         assert!(TickTimers::new(&[(16, 63)]).is_err());
+    }
+
+    #[test]
+    fn one_shot_channel_fires_once_then_stops() {
+        // Channel 12 as the kernel starts a one-shot: configuration bit 4,
+        // count 9, reload 0, then the control word selects and starts it.
+        let mut t = TickTimers::new(&[(12, 60)]).unwrap();
+        t.access(100, 0x10 + 12 * 4, 4, true, 0x10010).unwrap();
+        t.access(100, 0x1c0, 4, true, 9).unwrap();
+        t.access(100, 0x1c4, 4, true, 0).unwrap();
+        t.access(100, 0, 4, true, !(1u32 << 28) & 0xffff_0000 | 1 << 12).unwrap();
+        assert_eq!(t.next_event_tick(100), Some(110));
+        assert_eq!(t.tick(110), vec![60]);
+        assert_eq!(t.next_event_tick(110), None);
+        assert_eq!(t.tick(1000), Vec::<usize>::new());
+        assert_eq!(t.access(1000, 0, 4, false, 0).unwrap() & 1 << 12, 0);
     }
 }
