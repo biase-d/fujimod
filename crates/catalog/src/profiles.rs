@@ -848,6 +848,21 @@ pub struct Touch {
     pub ticks_per_second: u64,
 }
 
+/// A serial NOR register device on one flash-controller chip select.
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+#[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
+#[serde(deny_unknown_fields)]
+pub struct SerialNor {
+    /// Flash-controller chip select.
+    pub chip_select: u8,
+    /// Enhanced volatile configuration register value after reset.
+    pub enhanced_volatile_reset: u8,
+    /// Ticks a register write keeps the device busy.
+    pub write_ticks: u64,
+    /// Declared basis.
+    pub basis: String,
+}
+
 /// Declared body profile facts.
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
@@ -909,6 +924,9 @@ pub struct BodyProfile {
     /// Declared preview activity.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub preview_activity: Option<PreviewActivity>,
+    /// Serial NOR register devices attached to flash-controller chip selects.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub serial_nor: Option<Vec<SerialNor>>,
     /// Declared touch.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub touch: Option<Touch>,
@@ -1223,6 +1241,9 @@ pub struct FlashController {
     pub aperture: u64,
     /// Read aperture size in bytes.
     pub size: u64,
+    /// Completion interrupt, asserted while a status bit is pending.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub irq: Option<u32>,
     /// Declared basis.
     pub basis: String,
 }

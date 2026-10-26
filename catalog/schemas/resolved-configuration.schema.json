@@ -1595,6 +1595,16 @@
           ],
           "description": "Declared preview activity."
         },
+        "serial_nor": {
+          "description": "Serial NOR register devices attached to flash-controller chip selects.",
+          "items": {
+            "$ref": "#/$defs/SerialNor"
+          },
+          "type": [
+            "array",
+            "null"
+          ]
+        },
         "touch": {
           "anyOf": [
             {
@@ -11114,6 +11124,15 @@
         "basis": {
           "description": "Declared basis.",
           "type": "string"
+        },
+        "irq": {
+          "description": "Completion interrupt, asserted while a status bit is pending.",
+          "format": "uint32",
+          "minimum": 0,
+          "type": [
+            "integer",
+            "null"
+          ]
         },
         "size": {
           "description": "Read aperture size in bytes.",
@@ -22304,6 +22323,43 @@
         "part_id",
         "controller_id",
         "connection_id"
+      ],
+      "type": "object"
+    },
+    "SerialNor": {
+      "additionalProperties": false,
+      "description": "A serial NOR register device on one flash-controller chip select.",
+      "properties": {
+        "basis": {
+          "description": "Declared basis.",
+          "type": "string"
+        },
+        "chip_select": {
+          "description": "Flash-controller chip select.",
+          "format": "uint8",
+          "maximum": 255,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "enhanced_volatile_reset": {
+          "description": "Enhanced volatile configuration register value after reset.",
+          "format": "uint8",
+          "maximum": 255,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "write_ticks": {
+          "description": "Ticks a register write keeps the device busy.",
+          "format": "uint64",
+          "minimum": 0,
+          "type": "integer"
+        }
+      },
+      "required": [
+        "chip_select",
+        "enhanced_volatile_reset",
+        "write_ticks",
+        "basis"
       ],
       "type": "object"
     },

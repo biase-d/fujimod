@@ -342,6 +342,7 @@ class BodyProfile(TypedDict, total=False):
     panel_notes: NotRequired[str | None]
     pin_interrupts: NotRequired[list[HardwarePinInterrupt] | None]
     preview_activity: NotRequired[HardwarePreviewActivity | None]
+    serial_nor: NotRequired[list[SerialNor] | None]
     touch: NotRequired[HardwareTouch | None]
 
 
@@ -2341,6 +2342,7 @@ class HardwareFlashController(TypedDict, total=False):
     aperture: Required[int]
     base: Required[int]
     basis: Required[str]
+    irq: NotRequired[int | None]
     size: Required[int]
 
 
@@ -4784,6 +4786,13 @@ class SerialAttachment(TypedDict, total=False):
     controller_id: Required[str]
     part_id: Required[str]
     select_connection_id: NotRequired[str | None]
+
+
+class SerialNor(TypedDict, total=False):
+    basis: Required[str]
+    chip_select: Required[int]
+    enhanced_volatile_reset: Required[int]
+    write_ticks: Required[int]
 
 
 type SerialOutputKind = Literal["panel", "registers", "command_data", "fixed"]

@@ -112,4 +112,19 @@ pub struct XppStorage {
     pub dma_irq_routes: Vec<u32>,
     pub dma_setup_ticks: u64,
     pub dma_bytes_per_tick: u64,
+    /// Flash-controller completion interrupt.
+    #[serde(default)]
+    pub flash_irq: Option<u32>,
+    /// Serial NOR register devices by chip select.
+    #[serde(default)]
+    pub nor: Vec<XppNor>,
+}
+
+/// One serial NOR register device on an X-Processor Pro flash chip select.
+#[derive(Clone, Debug, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct XppNor {
+    pub chip_select: u8,
+    pub enhanced_volatile_reset: u8,
+    pub write_ticks: u64,
 }

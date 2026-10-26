@@ -153,13 +153,88 @@
     "interrupt_inputs": [
       {
         "source_block_id": "interval-timer",
+        "output_id": "channel0",
+        "line": 48
+      },
+      {
+        "source_block_id": "interval-timer",
+        "output_id": "channel1",
+        "line": 49
+      },
+      {
+        "source_block_id": "interval-timer",
+        "output_id": "channel2",
+        "line": 50
+      },
+      {
+        "source_block_id": "interval-timer",
+        "output_id": "channel3",
+        "line": 51
+      },
+      {
+        "source_block_id": "interval-timer",
+        "output_id": "channel4",
+        "line": 52
+      },
+      {
+        "source_block_id": "interval-timer",
+        "output_id": "channel5",
+        "line": 53
+      },
+      {
+        "source_block_id": "interval-timer",
+        "output_id": "channel6",
+        "line": 54
+      },
+      {
+        "source_block_id": "interval-timer",
+        "output_id": "channel7",
+        "line": 55
+      },
+      {
+        "source_block_id": "interval-timer",
         "output_id": "channel8",
         "line": 56
       },
       {
         "source_block_id": "interval-timer",
+        "output_id": "channel9",
+        "line": 57
+      },
+      {
+        "source_block_id": "interval-timer",
+        "output_id": "channel10",
+        "line": 58
+      },
+      {
+        "source_block_id": "interval-timer",
+        "output_id": "channel11",
+        "line": 59
+      },
+      {
+        "source_block_id": "interval-timer",
+        "output_id": "channel12",
+        "line": 60
+      },
+      {
+        "source_block_id": "interval-timer",
+        "output_id": "channel13",
+        "line": 61
+      },
+      {
+        "source_block_id": "interval-timer",
+        "output_id": "channel14",
+        "line": 62
+      },
+      {
+        "source_block_id": "interval-timer",
         "output_id": "channel15",
         "line": 63
+      },
+      {
+        "source_block_id": "flash-controller",
+        "output_id": "completion",
+        "line": 35
       },
       {
         "source_block_id": "dma",
@@ -226,8 +301,64 @@
             "layout": "xpp",
             "routes": [
               {
+                "channel": 0,
+                "irq": 48
+              },
+              {
+                "channel": 1,
+                "irq": 49
+              },
+              {
+                "channel": 2,
+                "irq": 50
+              },
+              {
+                "channel": 3,
+                "irq": 51
+              },
+              {
+                "channel": 4,
+                "irq": 52
+              },
+              {
+                "channel": 5,
+                "irq": 53
+              },
+              {
+                "channel": 6,
+                "irq": 54
+              },
+              {
+                "channel": 7,
+                "irq": 55
+              },
+              {
                 "channel": 8,
                 "irq": 56
+              },
+              {
+                "channel": 9,
+                "irq": 57
+              },
+              {
+                "channel": 10,
+                "irq": 58
+              },
+              {
+                "channel": 11,
+                "irq": 59
+              },
+              {
+                "channel": 12,
+                "irq": 60
+              },
+              {
+                "channel": 13,
+                "irq": 61
+              },
+              {
+                "channel": 14,
+                "irq": 62
               },
               {
                 "channel": 15,
@@ -235,13 +366,14 @@
               }
             ],
             "clock": "one timer cycle per aggregate CPU instruction; synthetic ratio, not measured",
-            "basis": "Control +0 is written with an inverted select mask, per-channel configuration at +0x10+n*4, count and reload at +0x100+n*0x10; one channel is read as a running counter. Channel n raising IRQ 48+n is a declared discovery input inferred from the two enabled GIC lines, not traced."
+            "basis": "Control +0 is written with an inverted select mask, per-channel configuration at +0x10+n*4, count and reload at +0x100+n*0x10; one channel is read as a running counter. Channel n raises IRQ 48+n: X-T20 2.11's interrupt descriptor table (0xed4720, 12-byte rows) lists IRQs 48..63 consecutively at descriptors 0x02..0x11, and its serial-flash delay uses channel 12 (timer descriptor 0x2c in 0xed3b68)."
           },
           "flash_controller": {
             "base": 4294000640,
             "aperture": 4026531840,
             "size": 134217728,
-            "basis": "Flash reads go through the aperture at 0xf0000000+offset by CPU copies and DMA; the controller's configuration words are written around each copy and no status bit is polled. Registers only retain writes."
+            "irq": 35,
+            "basis": "Flash reads go through the aperture at 0xf0000000+offset by CPU copies and DMA; the controller's configuration words are written around each copy and no status bit is polled. Registers only retain writes. Completion interrupt 35: X-T20 2.11 registers its serial-flash handler on interrupt descriptor 0x13 (table 0xed4720), whose first word is 0x23."
           },
           "pl330": {
             "base": 4294017024,

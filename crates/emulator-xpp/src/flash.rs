@@ -20,6 +20,9 @@ pub const REGISTERS: u64 = 0x40;
 pub struct Options {
     pub base: u64,
     pub transfer_ticks: u64,
+    /// Level interrupt asserted while any completion status bit is pending.
+    #[serde(default)]
+    pub irq: Option<u32>,
 }
 
 #[derive(Clone, Serialize, Deserialize)]
@@ -30,6 +33,7 @@ struct Transaction {
     opcode: u8,
     transmit: Vec<u8>,
     receive: usize,
+    erase: Option<(u64, u64)>,
 }
 
 /// Passive union of every byte read through the aperture, including DMA reads.
@@ -61,11 +65,14 @@ impl ReadAudit {
     }
 }
 
-/// Read-only flash contents behind a physical window.
+/// Flash contents behind a physical window. Program and erase changes are kept
+/// as a sparse overlay on the supplied image.
 pub struct Aperture {
     base: u64,
     size: u64,
     image: Vec<u8>,
+    changes: Mutex<BTreeMap<u64, u8>>,
+    programmed: std::sync::atomic::AtomicBool,
     reads: Mutex<ReadAudit>,
 }
 impl Aperture {
@@ -81,6 +88,8 @@ impl Aperture {
             base,
             size,
             image,
+            changes: Mutex::new(BTreeMap::new()),
+            programmed: std::sync::atomic::AtomicBool::new(false),
             reads: Mutex::new(ReadAudit::default()),
         })
     }
@@ -106,11 +115,48 @@ impl Aperture {
             let n = len.min(self.image.len() - start);
             out[..n].copy_from_slice(&self.image[start..start + n]);
         }
+        let changes = self.changes.lock().unwrap();
+        for (&offset, &value) in changes.range(start as u64..start as u64 + len as u64) {
+            out[(offset - start as u64) as usize] = value;
+        }
+        drop(changes);
         self.reads
             .lock()
             .unwrap()
             .record(start as u64, start as u64 + len as u64)?;
         Ok(out)
+    }
+    /// Program bytes at a physical address: NOR programming only clears bits.
+    pub fn program(&self, address: u64, data: &[u8]) -> Result<(), String> {
+        if !self.contains(address, data.len()) {
+            return Err("Flash program outside the aperture".into());
+        }
+        let start = address - self.base;
+        let mut changes = self.changes.lock().unwrap();
+        for (i, &byte) in data.iter().enumerate() {
+            let offset = start + i as u64;
+            let old = changes.get(&offset).copied().unwrap_or_else(|| {
+                self.image.get(offset as usize).copied().unwrap_or(0xff)
+            });
+            changes.insert(offset, old & byte);
+        }
+        self.programmed.store(true, std::sync::atomic::Ordering::SeqCst);
+        Ok(())
+    }
+    /// Whether a program store arrived since the last call.
+    pub fn take_programmed(&self) -> bool {
+        self.programmed.swap(false, std::sync::atomic::Ordering::SeqCst)
+    }
+    /// Erase an aligned block at a medium offset to 0xff.
+    pub fn erase(&self, offset: u64, len: u64) -> Result<(), String> {
+        if offset % len != 0 || offset.checked_add(len).is_none_or(|end| end > self.size) {
+            return Err("Invalid flash erase block".into());
+        }
+        let mut changes = self.changes.lock().unwrap();
+        for at in offset..offset + len {
+            changes.insert(at, 0xff);
+        }
+        Ok(())
     }
     pub fn read_audit(&self) -> ReadAudit {
         self.reads.lock().unwrap().clone()
@@ -138,6 +184,7 @@ pub struct FlashController {
     aperture: Arc<Aperture>,
     registers: [u32; (REGISTERS / 4) as usize],
     nor: BTreeMap<u8, micron_nor::Registers>,
+    program_watch: bool,
     pending: Option<Transaction>,
     received: Option<u8>,
 }
@@ -159,9 +206,16 @@ impl FlashController {
             aperture,
             registers: [0; (REGISTERS / 4) as usize],
             nor,
+            program_watch: false,
             pending: None,
             received: None,
         })
+    }
+    fn update_irq(&self, cx: &mut Cx<'_>) {
+        if let Some(line) = self.options.irq {
+            let pending = self.registers[0x24 / 4] & !self.registers[0x28 / 4] & 0x3f;
+            cx.set_irq(line, pending != 0);
+        }
     }
     fn start(&mut self, cx: &mut Cx<'_>) -> Result<(), String> {
         if self.pending.is_some() || self.received.is_some() {
@@ -177,16 +231,40 @@ impl FlashController {
                 "Serial-flash chip select {chip_select} has no attached register device"
             ));
         }
-        let (transmit, receive) = match (self.registers[0x10 / 4], self.registers[0x20 / 4] & 0x7f)
-        {
+        // The driver rewrites a command's phase word as (old & 0xff00403f) | table
+        // value, so the low six bits, bit 14 and the top byte can be left over from
+        // the previous command; only the remaining bits identify the command.
+        let phases = self.registers[0x10 / 4] & 0x00ff_bfc0;
+        let opcode_word = self.registers[0];
+        let mut erase = None;
+        let (transmit, receive) = match (phases, self.registers[0x20 / 4] & 0x7f) {
+            (0x18040 | 0x18080, 3) if opcode_word == 0x21 || opcode_word == 0xdc => {
+                let len = if opcode_word == 0x21 { 0x1000 } else { 0x1_0000 };
+                let address = u64::from(self.registers[0x4 / 4]);
+                let offset = if address >= self.aperture.base() {
+                    address - self.aperture.base()
+                } else {
+                    address
+                };
+                erase = Some((offset, len));
+                (vec![], 0)
+            }
             (0x18040 | 0x18080, 1) => (vec![], 0),
-            (0x38040 | 0x38080 | 0x39041 | 0x39081, 0x21) => (vec![], 1),
-            (0x19041 | 0x19081, 0x41) => {
+            (0x38040 | 0x38080 | 0x39040 | 0x39080, 0x21) => (vec![], 1),
+            (0x19040 | 0x19080, 0x41) => {
                 let value = u8::try_from(self.registers[0x14 / 4])
                     .map_err(|_| "Serial-flash transmit byte overflow")?;
                 (vec![value], 0)
             }
-            _ => return Err("Unsupported serial-flash command phases".into()),
+            _ => {
+                return Err(format!(
+                    "Unsupported serial-flash command phases: opcode {:#04x}, phases {:#x}, receive {:#x}, address {:#x}",
+                    self.registers[0],
+                    self.registers[0x10 / 4],
+                    self.registers[0x20 / 4],
+                    self.registers[0x4 / 4]
+                ));
+            }
         };
         let opcode = u8::try_from(self.registers[0]).map_err(|_| "Serial-flash opcode overflow")?;
         let due = cx
@@ -199,6 +277,7 @@ impl FlashController {
             opcode,
             transmit,
             receive,
+            erase,
         });
         self.registers[0x1c / 4] = 1;
         cx.schedule(due, 0);
@@ -253,6 +332,15 @@ impl Device for FlashController {
                         cx.fail("Unsupported serial-flash status acknowledgement");
                     } else {
                         self.registers[0x24 / 4] &= !(value as u32);
+                        self.registers[0x28 / 4] = value as u32;
+                        // Unmasking bit 5 waits for the page programmed through the
+                        // aperture by DMA.
+                        if value & 0x20 == 0 && !self.program_watch {
+                            self.program_watch = true;
+                            self.aperture.take_programmed();
+                            cx.schedule(cx.now() + 1, 1);
+                        }
+                        self.update_irq(cx);
                     }
                 }
                 0x1c => {
@@ -270,16 +358,21 @@ impl Device for FlashController {
         if self.pending.as_ref().is_some_and(|p| p.due <= cx.now()) {
             let pending = self.pending.take().unwrap();
             let nor = self.nor.get_mut(&pending.chip_select).unwrap();
-            match nor.command(
-                pending.due,
-                pending.opcode,
-                &pending.transmit,
-                pending.receive,
-            ) {
+            let result = match pending.erase {
+                Some((offset, len)) => self.aperture.erase(offset, len).map(|()| vec![]),
+                None => nor.command(
+                    pending.due,
+                    pending.opcode,
+                    &pending.transmit,
+                    pending.receive,
+                ),
+            };
+            match result {
                 Ok(bytes) => {
                     self.received = bytes.first().copied();
                     self.registers[0x24 / 4] |= 1 | if bytes.is_empty() { 0 } else { 8 };
                     self.registers[0x1c / 4] = 0;
+                    self.update_irq(cx);
                 }
                 Err(error) => cx.fail(error),
             }
@@ -293,6 +386,15 @@ impl Device for FlashController {
     }
     fn event(&mut self, cx: &mut Cx<'_>, _: u64) {
         self.advance(cx);
+        if self.program_watch {
+            if self.aperture.take_programmed() {
+                self.program_watch = false;
+                self.registers[0x24 / 4] |= 0x20;
+                self.update_irq(cx);
+            } else {
+                cx.schedule(cx.now() + 64, 1);
+            }
+        }
     }
     fn next_deadline(&self, _: u64) -> Option<u64> {
         self.pending
@@ -368,6 +470,7 @@ mod tests {
             Options {
                 base,
                 transfer_ticks: 2,
+                irq: None,
             },
             aperture,
             BTreeMap::from([(1, nor)]),
@@ -412,6 +515,7 @@ mod tests {
             Options {
                 base,
                 transfer_ticks: 2,
+                irq: None,
             },
             aperture.clone(),
             BTreeMap::from([(0, nor)]),
@@ -472,6 +576,7 @@ mod tests {
             Options {
                 base: 0xfff14000,
                 transfer_ticks: 2,
+                irq: None,
             },
             aperture.clone(),
             BTreeMap::new(),
@@ -487,6 +592,7 @@ mod tests {
             Options {
                 base: 0xfff14000,
                 transfer_ticks: 2,
+                irq: None,
             },
             aperture,
             BTreeMap::new(),
@@ -507,6 +613,7 @@ mod tests {
             Options {
                 base: 0xfff14000,
                 transfer_ticks: 2,
+                irq: None,
             },
             aperture.clone(),
             BTreeMap::new(),

@@ -36,7 +36,15 @@
     "thermal_connection_ids": [],
     "profiles": {
       "xt20-discovery": {
-        "dram_basis": "Declared discovery input: synthetic 1 GiB physical backing; no measured RAM population or aliases. 512 MiB stopped discovery with a physical access beyond it."
+        "dram_basis": "Declared discovery input: synthetic 1 GiB physical backing; no measured RAM population or aliases. 512 MiB stopped discovery with a physical access beyond it.",
+        "serial_nor": [
+          {
+            "chip_select": 0,
+            "enhanced_volatile_reset": 255,
+            "write_ticks": 100,
+            "basis": "Declared discovery input: a Micron-style serial NOR register device on chip select 0. The update's serial-flash command table (two chip selects, twelve slots) uses Micron's enhanced volatile configuration commands 0x65/0x61; the reset value 0xff and the write time are not measured."
+          }
+        ]
       }
     }
   }

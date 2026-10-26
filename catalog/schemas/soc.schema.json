@@ -1131,6 +1131,15 @@
           "description": "Declared basis.",
           "type": "string"
         },
+        "irq": {
+          "description": "Completion interrupt, asserted while a status bit is pending.",
+          "format": "uint32",
+          "minimum": 0,
+          "type": [
+            "integer",
+            "null"
+          ]
+        },
         "size": {
           "description": "Read aperture size in bytes.",
           "format": "uint64",

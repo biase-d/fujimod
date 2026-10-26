@@ -18,6 +18,14 @@ pub trait Source: Send + Sync {
     fn contains(&self, address: u64, len: usize) -> bool;
     /// Bytes at `address`.
     fn read(&self, address: u64, len: usize) -> Result<Vec<u8>, String>;
+    /// Whether DMA stores into this window are accepted.
+    fn writable(&self) -> bool {
+        false
+    }
+    /// Store `data` at `address`; read-only windows refuse.
+    fn write(&self, _address: u64, _data: &[u8]) -> Result<(), String> {
+        Err("PL330 store into a read-only source".into())
+    }
 }
 
 /// Transfer time: `setup_ticks + ceil(bytes / bytes_per_tick)`.
@@ -156,10 +164,14 @@ impl Pl330 {
                     let data: Vec<u8> = fifo.drain(..count).collect();
                     first[1].get_or_insert(t.dar);
                     let at = u64::from(t.dar);
-                    if self.sources.iter().any(|s| s.contains(at, count)) {
-                        return Err("PL330 store into a read-only source".into());
-                    }
-                    if apply {
+                    if let Some(source) = self.sources.iter().find(|s| s.contains(at, count)) {
+                        if !source.writable() {
+                            return Err("PL330 store into a read-only source".into());
+                        }
+                        if apply {
+                            source.write(at, &data)?;
+                        }
+                    } else if apply {
                         cx.ram_write(at, &data)?;
                     }
                     bytes += count as u64;

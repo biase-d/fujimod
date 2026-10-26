@@ -669,15 +669,33 @@ impl Devices {
             fn read(&self, address: u64, len: usize) -> Result<Vec<u8>, String> {
                 self.0.read(address, len)
             }
+            fn writable(&self) -> bool {
+                true
+            }
+            fn write(&self, address: u64, data: &[u8]) -> Result<(), String> {
+                self.0.program(address, data)
+            }
         }
         let aperture = Arc::new(Aperture::new(
             storage.aperture,
             storage.aperture_size,
             image,
         )?);
+        let mut nor = BTreeMap::new();
+        for device in &storage.nor {
+            let registers = fujimod_emulator_devices::parts::micron_nor::Registers::new(
+                fujimod_emulator_devices::parts::micron_nor::Options {
+                    enhanced_volatile_reset: device.enhanced_volatile_reset,
+                    write_ticks: device.write_ticks,
+                },
+            )?;
+            if nor.insert(device.chip_select, registers).is_some() {
+                return Err("Repeated serial NOR chip select".into());
+            }
+        }
         let controller = FlashController::new(
-            flash::Options {base:storage.flash_controller,transfer_ticks:1},
-            aperture.clone(), BTreeMap::new())?;
+            flash::Options {base:storage.flash_controller,transfer_ticks:1,irq:storage.flash_irq},
+            aperture.clone(), nor)?;
         let dma = fujimod_emulator_ip_arm::pl330::Pl330::new(
             storage.dma,
             storage.dma_irq_routes,
