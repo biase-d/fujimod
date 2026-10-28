@@ -73,8 +73,10 @@ impl Device for VideoTiming {
         if let Some(due) = self.next
             && due <= cx.now()
         {
-            cx.set_irq(self.irq, true);
-            cx.set_irq(self.irq, false);
+            for offset in 0..3 {
+                cx.set_irq(self.irq + offset, true);
+                cx.set_irq(self.irq + offset, false);
+            }
             let next = due + self.frame_ticks;
             self.next = Some(next);
             cx.schedule(next, 0);
