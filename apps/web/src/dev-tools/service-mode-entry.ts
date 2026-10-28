@@ -5,5 +5,5 @@ export const serviceModeControls = controls as PhysicalControls;
 /** Service-mode entry, in order, around the shared control sequence. */
 export const serviceModeEntry = [
   'Switch the camera OFF.',
-  'Release the buttons when the green lamp lights.',
+  'Switch the camera ON while holding the buttons, then release them.',
 ];

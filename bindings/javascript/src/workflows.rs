@@ -239,12 +239,18 @@ impl Session {
         progress: Option<ByteProgressCallback>,
     ) -> Result<js_sys::Promise, JsValue> {
         let selection = crate::reference::resolve(firmware_id)?;
-        let bulk = selection
-            .bulk
-            .ok_or_else(|| workflow_error("Firmware has no located bulk reader"))?;
-        let state = selection
-            .state
-            .ok_or_else(|| workflow_error("Firmware has no located state regions"))?;
+        let bulk = selection.bulk.ok_or_else(|| {
+            workflow_error(fujimod_catalog::generation::missing_table_reason(
+                firmware_id,
+                "bulk",
+            ))
+        })?;
+        let state = selection.state.ok_or_else(|| {
+            workflow_error(fujimod_catalog::generation::missing_table_reason(
+                firmware_id,
+                "state",
+            ))
+        })?;
         self.call(Operation::StateDump(StateDump {
             bulk,
             state,
@@ -269,12 +275,18 @@ impl Session {
         progress: Option<ByteProgressCallback>,
     ) -> Result<js_sys::Promise, JsValue> {
         let selection = crate::reference::resolve(firmware_id)?;
-        let bulk = selection
-            .bulk
-            .ok_or_else(|| workflow_error("Firmware has no located bulk reader"))?;
-        let flash = selection
-            .flash
-            .ok_or_else(|| workflow_error("Firmware has no located flash reader"))?;
+        let bulk = selection.bulk.ok_or_else(|| {
+            workflow_error(fujimod_catalog::generation::missing_table_reason(
+                firmware_id,
+                "bulk",
+            ))
+        })?;
+        let flash = selection.flash.ok_or_else(|| {
+            workflow_error(fujimod_catalog::generation::missing_table_reason(
+                firmware_id,
+                "flash",
+            ))
+        })?;
         let payload: fujimod_workflows::flash::Payload =
             serde_json::from_str(payload_table).map_err(workflow_error)?;
         if selection

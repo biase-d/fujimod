@@ -2,6 +2,7 @@
 import { catalog, type CaptureScope, type ResolvedSelection } from 'fujimod';
 import type { CameraIdentity, ToolSession } from '../camera-model';
 import type { ControlDiff } from './mapping';
+import { generationFailure } from '../generation';
 
 /** Bytes requested per qualified bulk read. */
 export const PIECE_BYTES = 16 << 20;
@@ -18,6 +19,33 @@ export function bulkSelection(identity: CameraIdentity | undefined): ResolvedSel
       (selection) =>
         selection.bulk?.product === product && selection.bulk.internal_version === version,
     );
+}
+
+/** Preserve the published generation failure for a camera without bulk support. */
+export function bulkSupportError(identity: CameraIdentity | undefined): string {
+  const product = identity?.product?.trim();
+  const version = identity?.internalVersion?.trim();
+  const reports = catalog.generationResults();
+  const report = reports.find(
+    (entry) => entry.product === product && entry.internal_version === version,
+  );
+  if (report) return generationFailure(report.firmware_id, 'bulk');
+  const identityErrors = reports
+    .filter((entry) => entry.product === product && !entry.internal_version)
+    .flatMap((entry) => {
+      const errors =
+        entry.tables.versions?.errors ??
+        entry.tables.facts?.errors.filter(
+          (error) => error.locator === 'internal_version' || error.locator === 'inputs',
+        ) ??
+        [];
+      return errors.map(
+        (error) => `${entry.product} ${entry.version}: ${error.locator}: ${error.reason}`,
+      );
+    });
+  return identityErrors.length
+    ? `Firmware identity generation failed. ${identityErrors.join('; ')}`
+    : 'No bulk generation result was published for this camera and firmware.';
 }
 
 export function scopeBytes(scope: CaptureScope) {

@@ -39,3 +39,13 @@ pub fn catalog_firmware_versions() -> Result<JsValue, JsValue> {
         .map_err(|error| fail(ErrorKind::Definition, &error.to_string()))?;
     js_sys::JSON::parse(&json)
 }
+
+/// Per-firmware table outcomes, including failures for cameras without execution profiles.
+#[wasm_bindgen(js_name=catalogGenerationResults, unchecked_return_type="FirmwareGeneration[]")]
+pub fn catalog_generation_results() -> Result<JsValue, JsValue> {
+    let report = fujimod_catalog::generation::GenerationResults::bundled()
+        .map_err(|message| fail(ErrorKind::Definition, &message))?;
+    let json = serde_json::to_string(&report.firmwares)
+        .map_err(|error| fail(ErrorKind::Definition, &error.to_string()))?;
+    js_sys::JSON::parse(&json)
+}

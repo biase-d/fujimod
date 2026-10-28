@@ -546,8 +546,7 @@
 }
 .dt-workbench .dm-lead,
 .dt-workbench .dm-entry,
-.dt-workbench .dm-plan,
-.dt-workbench .dm-check {
+.dt-workbench .dm-plan {
   font-size: 15px;
 }
 .dt-workbench .dm-rail {

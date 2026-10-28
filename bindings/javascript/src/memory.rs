@@ -112,7 +112,10 @@ impl Session {
         let facts = crate::reference::resolve(firmware_id)?
             .bulk
             .ok_or_else(|| {
-                crate::workflows::workflow_error(format!("{firmware_id} has no located bulk reads"))
+                crate::workflows::workflow_error(fujimod_catalog::generation::missing_table_reason(
+                    firmware_id,
+                    "bulk",
+                ))
             })?;
         self.call(Operation::Memory(Box::new(MemoryOperation::Open {
             facts,

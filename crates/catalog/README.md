@@ -137,6 +137,13 @@ execute firmware, apply a guard, or authorize a camera operation.
 
 ## Capture facts
 
+`catalog/generation.generated.json` records each firmware's table outcomes and
+specific generation errors, including firmware without a body or execution
+profile. `generation::GenerationResults` validates the report, and JavaScript
+exposes it through `catalog.generationResults()`. An unavailable table retains
+its failed operation and reason; an available table has no errors. Consumers
+use these outcomes to explain absent artifacts beside the affected controls.
+
 `ResolvedSelection.flash` loads `flash.generated.json`: the installed device,
 CPU-visible window, update-image mapping, reader alignment, checked code spans,
 live driver preconditions and initial comparison read. The installed JEDEC ID

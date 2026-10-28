@@ -17,7 +17,10 @@ export function PersonalNote() {
         you can enable webcam input and give it a go.
       </p>
       <p>
-        <a href="#software">Try FujiMod</a>
+        Due to copyright, we can’t distribute ready-made builds of FujiMod since it’s based on the
+        official firmware. Use the search box near the release notes to find the download link from
+        Fujifilm for your firmware. Then upload it to this page so we can build FujiMod for your
+        camera. <a href="#software">Get started below</a>
       </p>
       <p class="signature">
         Yours truly,

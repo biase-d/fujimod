@@ -1038,7 +1038,7 @@
             },
             {
               "name": "audio",
-              "kind": "SerialAudioControlRegisters",
+              "kind": "SerialAudioTransmitSink",
               "refs": {}
             },
             {
@@ -1511,6 +1511,12 @@
                 "basis": "Declared catalog input."
               }
             ]
+          },
+          "display_timing": {
+            "phase_profile": "declared-external-phase-clock-unmeasured",
+            "frame_period_ticks": 400000,
+            "stop_delay_ticks": 2,
+            "basis": "Declared catalog input."
           }
         },
         "control_bus_order": [

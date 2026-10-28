@@ -116,6 +116,8 @@ export const catalog = Object.freeze({
   selections: native.catalogSelections,
   /** Public/internal release identities, including bodies without emulator support. */
   firmwareVersions: native.catalogFirmwareVersions,
+  /** Table generation outcomes for every attempted firmware. */
+  generationResults: native.catalogGenerationResults,
   FirmwareIdentity: native.FirmwareIdentity,
   DefinitionFailureKind: native.DefinitionFailureKind,
   isError: isDefinitionError,

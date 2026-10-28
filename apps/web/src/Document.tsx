@@ -7,7 +7,7 @@ export default function Document(props: { children: JSX.Element; developmentEntr
   const path = new URL(getRequestEvent()?.request.url ?? window.location.href).pathname;
   const bug = /^\/bug(?:\/|$)/.test(path);
   const metadata = pageMetadata(path);
-  const preview = featureMedia()('shape_aspect_item');
+  const preview = path === '/' ? featureMedia()('shape_aspect_item') : undefined;
   return (
     <html lang="en">
       <head>

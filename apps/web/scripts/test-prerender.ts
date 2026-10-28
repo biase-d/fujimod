@@ -84,14 +84,25 @@ try {
           canonical,
         );
         if (route.startsWith('/dev-tools/')) assert.ok(title.startsWith('Dev Tools: '));
-        const image = await page.locator('meta[property="og:image"]').getAttribute('content');
-        assert.ok(image);
-        assert.equal(new URL(image).origin, 'https://fujimod.com');
-        assert.equal((await noJs.request.get(base + new URL(image).pathname)).status(), 200);
         assert.equal(
-          await page.locator('meta[name="twitter:image"]').getAttribute('content'),
-          image,
+          await page.locator('meta[name="twitter:card"]').getAttribute('content'),
+          route === '/' ? 'summary_large_image' : 'summary',
         );
+        if (route === '/') {
+          const image = await page.locator('meta[property="og:image"]').getAttribute('content');
+          assert.ok(image);
+          assert.equal(new URL(image).origin, 'https://fujimod.com');
+          assert.equal((await noJs.request.get(base + new URL(image).pathname)).status(), 200);
+          assert.equal(
+            await page.locator('meta[name="twitter:image"]').getAttribute('content'),
+            image,
+          );
+        } else {
+          assert.equal(
+            await page.locator('meta[property^="og:image"], meta[name^="twitter:image"]').count(),
+            0,
+          );
+        }
         await page.close();
       }
       assert.equal((await noJs.request.get(base + '/setup/')).status(), 404);
@@ -243,7 +254,7 @@ try {
       assert.match(await note.innerText(), /without flashing your camera/);
       assert.equal(await note.locator('mark, em, strong, b, svg').count(), 0);
       assert.equal(await note.locator('a').count(), 1);
-      await note.getByRole('link', { name: 'Try FujiMod', exact: true }).click();
+      await note.getByRole('link', { name: 'Get started below', exact: true }).click();
       assert.equal(new URL(page.url()).hash, '#software');
       await page.locator('#features .catalog-ref').first().focus();
       assert.equal(await page.locator('.catalog-card.on').count(), 1);

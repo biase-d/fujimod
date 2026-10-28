@@ -1,4 +1,5 @@
 import { validateCatalog, type Catalog } from '../catalog';
+import { generationFailure } from './generation';
 
 declare const __FUJIMOD_CATALOG__: string;
 /** Load the generated service workflow selected by a checked firmware identity. */
@@ -11,8 +12,7 @@ export async function serviceWorkflow(
   const catalog = validateCatalog((await response.json()) as Catalog);
   const firmware = catalog.firmwares.find((entry) => entry.id === firmwareId);
   if (!firmware?.service_workflow) {
-    const name = firmware ? `${firmware.model} ${firmware.version}` : firmwareId;
-    throw Error(`Service setup is not supported for ${name}.`);
+    throw Error(generationFailure(firmwareId, 'service'));
   }
   const responseWorkflow = await fetch(new URL(firmware.service_workflow, document.baseURI));
   if (!responseWorkflow.ok) throw Error('Could not load the service workflow.');
@@ -20,7 +20,9 @@ export async function serviceWorkflow(
   const facts = JSON.parse(text) as { setup?: unknown; persistence?: unknown };
   if (!facts?.setup || (capability === 'persistence' && !facts.persistence)) {
     const operation = capability === 'persistence' ? 'Persistent debug mode' : 'Service setup';
-    throw Error(`${operation} is not supported for ${firmware.model} ${firmware.version}.`);
+    throw Error(
+      `${operation} facts are missing from the workflow for ${firmware.model} ${firmware.version}.`,
+    );
   }
   return [text, firmware.id, firmware.sha256] as const;
 }
@@ -31,7 +33,7 @@ export async function flashReader(firmwareId: string) {
   if (!response.ok) throw Error('Could not load the firmware catalog.');
   const catalog = validateCatalog((await response.json()) as Catalog);
   const firmware = catalog.firmwares.find((entry) => entry.id === firmwareId);
-  if (!firmware?.flash_reader) throw Error('The selected firmware has no built flash reader.');
+  if (!firmware?.flash_reader) throw Error(generationFailure(firmwareId, 'flash'));
   const url = new URL(firmware.flash_reader, document.baseURI);
   const metadata = await fetch(url);
   if (!metadata.ok) throw Error('Could not load the flash reader metadata.');

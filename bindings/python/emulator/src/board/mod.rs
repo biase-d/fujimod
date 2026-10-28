@@ -107,18 +107,30 @@ impl Board {
         if let Some((core, _, _)) = policy {
             self.board()?.harness_interrupt_delivery(core, false);
         }
-        let result = run::budget(
-            py,
-            self.board_mut()?,
-            if policy.is_some_and(|(_, _, step)| step) {
-                count.min(1)
-            } else {
-                count
-            },
-            quantum,
-            pause_after,
-            pause_at_tick,
-        );
+        let count = if policy.is_some_and(|(_, _, step)| step) {
+            count.min(1)
+        } else {
+            count
+        };
+        let result = if self.driver.is_some() {
+            run::budget(
+                py,
+                self.board_mut()?,
+                count,
+                quantum,
+                pause_after,
+                pause_at_tick,
+            )
+        } else {
+            run::session_budget(
+                py,
+                self.session_mut()?,
+                count,
+                quantum,
+                pause_after,
+                pause_at_tick,
+            )
+        };
         if let Some((core, allowed, _)) = policy {
             self.board()?.harness_interrupt_delivery(core, allowed);
         }
@@ -922,7 +934,11 @@ impl Board {
         Ok(self.board()?.instruction_counts())
     }
     fn run_until(&mut self, py: Python<'_>, tick: u64, quantum: usize) -> PyResult<()> {
-        let result = run::until(py, self.board_mut()?, tick, quantum);
+        let result = if self.driver.is_some() {
+            run::board_until(py, self.board_mut()?, tick, quantum)
+        } else {
+            run::session_until(py, self.session_mut()?, tick, quantum)
+        };
         self.outcome(result)
     }
     fn run_for_instructions(
@@ -938,8 +954,7 @@ impl Board {
             }
         }
         let mut owner = slf.try_borrow_mut()?;
-        let result = run::instructions(py, owner.board_mut()?, count, quantum);
-        owner.outcome(result)
+        owner.run_graph(py, count, quantum, None, None)
     }
     fn read_set_begin(&self) -> PyResult<()> {
         self.board()?.read_set_begin().map_err(error)
@@ -1013,7 +1028,7 @@ impl Board {
         self.begin_continuation(store_watches, device_watches)?;
         let result = run::window(
             py,
-            self.board_mut()?,
+            self.session_mut()?,
             end,
             quantum,
             pause_after,
