@@ -9,8 +9,8 @@ crate, so a consumer rebuilds only when the documents it reads change:
 - `fujimod-catalog-assets`: the content-addressed documents and assets a
   caller's provider supplies, and the file provider that reads them.
 - `fujimod-catalog-firmware-identity`: firmware identities, which service and
-  camera definitions qualify against.
-- `fujimod-catalog-camera`: camera definitions.
+  service workflow contracts qualify against.
+- `fujimod-catalog-workflows`: service workflow contracts.
 - `fujimod-catalog-service`: App80 service definitions, checked against a
   firmware identity.
 - `fujimod-catalog-construction`: exported device construction topology.
@@ -38,7 +38,7 @@ The facade exposes `fujimod-catalog` as `fujimod::catalog`,
 `fujimod-catalog-configuration` as `fujimod::catalog_configuration` and
 `fujimod-catalog-resolution` as `fujimod::catalog_resolution`; enabling
 `app80` exposes `fujimod-catalog-service` as `fujimod::catalog_service`,
-`workflows` exposes `fujimod-catalog-camera` as `fujimod::catalog_camera`, and
+`workflows` exposes `fujimod-catalog-workflows` as `fujimod::catalog_workflows`, and
 both expose `fujimod-catalog-firmware-identity` as
 `fujimod::catalog_firmware_identity`. Definitions stay in
 JSON rather than becoming another set of Rust constants. Callers supply the

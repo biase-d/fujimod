@@ -2,6 +2,7 @@
 #![forbid(unsafe_code)]
 pub mod image;
 pub mod green_led;
+pub mod early_led;
 mod exr;
 mod exr_loader;
 mod exr_firmware;
@@ -210,7 +211,7 @@ impl Recipe {
             .setup
             .as_ref()
             .ok_or_else(|| image::Error::Invalid("Missing DDR setup".into()))?;
-        let bytes = xp4::ffinit(
+        let mut bytes = xp4::ffinit(
             &fujimod_firmware::invert(source),
             setup,
             api,
@@ -218,6 +219,7 @@ impl Recipe {
             base,
             Some(workspace),
         )?;
+        early_led::stage(self, source, &mut bytes, base, xp4::indicator_entry()?, ((api.workspace - setup.linked_sram_base) & !0xfff) as usize - 0x1000)?;
         let mut layout = xp4::layout(setup, api, base);
         layout["workspace"] = workspace.into();
         layout["file_api"] = serde_json::json!(api);
@@ -340,13 +342,17 @@ impl Recipe {
                     let api = self.exr.as_ref().ok_or_else(|| {
                         image::Error::Invalid("Missing EXR filesystem ABI".into())
                     })?;
-                    exr::package(
+                    let mut ram = image::transform(&inverted, plan)?;
+                    green_led::preserve_loader_green(self, source, &mut ram)?;
+                    let mut files = exr::package(
                         api,
                         header,
                         &inverted,
                         plan,
-                        image::transform(&inverted, plan)?,
-                    )?
+                        ram,
+                    )?;
+                    early_led::stage(self, source, &mut files[1].bytes, 0, 0, 0xffff)?;
+                    files
                 }
                 Generation::Exr2 | Generation::Xpp => {
                     let packaging = self.packaging.as_ref().ok_or_else(|| {
@@ -364,6 +370,9 @@ impl Recipe {
                     } else {
                         xpp::install(&inverted, plan, &mut ram)?;
                     }
+                    if self.startup_lamp.is_none() {
+                        early_led::image(self, source, &mut ram)?;
+                    }
                     packaging.package_bytes(&inverted, plan.entry, ram)?
                 }
                 Generation::Xp4 => {
@@ -378,7 +387,10 @@ impl Recipe {
                     let api = self.file_api.as_ref().ok_or_else(|| {
                         image::Error::Invalid("Missing Topaz filesystem ABI".into())
                     })?;
-                    xp4::package(&inverted, plan, cold, setup, api)?
+                    let mut files = xp4::package(self, source, &inverted, plan, cold, setup, api)?;
+                    early_led::stage(self, source, &mut files[0].bytes, api.load_address, xp4::indicator_entry()?,
+                        ((api.workspace - setup.linked_sram_base) & !0xfff) as usize - 0x1000)?;
+                    files
                 }
                 Generation::Xp5 => {
                     let setup = self.xp5.as_ref().ok_or_else(|| {
@@ -452,7 +464,11 @@ pub fn availability(firmware_id: &str) -> Result<Availability> {
                     output_filenames.push("ffuser.bin".into());
                 }
             }
-            Generation::Xp4 => output_filenames.extend(["ffinit.bin".into(), "ffboot.bin".into()]),
+            Generation::Xp4 => output_filenames.extend([
+                "ffinit.bin".into(),
+                "ffboot.bin".into(),
+                "ffdata.bin".into(),
+            ]),
             Generation::Xp5 => {
                 output_filenames.extend(["marble_init.bin".into(), "ffboot.bin".into()])
             }

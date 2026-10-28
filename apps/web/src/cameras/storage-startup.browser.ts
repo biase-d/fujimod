@@ -13,9 +13,10 @@ for (const type of [chromium, webkit]) {
   try {
     const context = await browser.newContext({ ...devices['iPhone 13'] });
     await context.routeWebSocket('**/*', () => {});
+    await context.route('**/releases/current', (route) => route.fulfill({ status: 404 }));
     // Exercise the published page's storage behavior without development reporting.
     await context.route('**/*', async (route) => {
-      if (route.request().resourceType() !== 'document') return route.continue();
+      if (route.request().resourceType() !== 'document') return route.fallback();
       const response = await route.fetch();
       const body = (await response.text())
         // Server rendering adds hydration attributes (`_hk`) to these tags.
@@ -32,8 +33,9 @@ for (const type of [chromium, webkit]) {
         const request = getAll.apply(this, args);
         if (this.transaction.db.name === 'fujimod-cameras') {
           const root = document.documentElement;
-          const count = Number(root.dataset.cameraReads ?? 0) + 1;
-          root.dataset.cameraReads = String(count);
+          const key = this.name === 'library' ? 'firmwareReads' : 'cameraReads';
+          const count = Number(root.dataset[key] ?? 0) + 1;
+          root.dataset[key] = String(count);
           if (count === 1 || location.search.includes('abort-reads')) this.transaction.abort();
         }
         return request;
@@ -43,8 +45,21 @@ for (const type of [chromium, webkit]) {
     const errors: string[] = [];
     page.on('pageerror', (error) => errors.push(error.message));
     await page.goto(base);
-    await page.waitForFunction(() => performance.getEntriesByName('camera-catalog-ready').length);
+    await page
+      .waitForFunction(() => performance.getEntriesByName('camera-catalog-ready').length)
+      .catch(async (error: unknown) => {
+        console.error(
+          await page.evaluate(() => ({
+            reads: document.documentElement.dataset,
+            status: document.querySelector('#status')?.textContent,
+            fault: document.querySelector('#fault-raw')?.textContent,
+          })),
+          errors,
+        );
+        throw error;
+      });
     assert.equal(await page.locator('html').getAttribute('data-camera-reads'), '2');
+    assert.equal(await page.locator('html').getAttribute('data-firmware-reads'), '2');
     assert.equal(await page.locator('.camera-storage-status.error').count(), 0);
     assert.equal(await page.locator('#lcd-source').isVisible(), false);
     await page.locator('#workspace').scrollIntoViewIfNeeded();
@@ -64,7 +79,7 @@ for (const type of [chromium, webkit]) {
     if (type === chromium) {
       const session = await context.newCDPSession(page);
       // Swipe on the steps: the supported-camera list scrolls on its own.
-      const steps = (await page.locator('.launcher-actions').boundingBox())!;
+      const steps = (await page.locator('.file-drop').boundingBox())!;
       const x = steps.x + 8;
       const y = steps.y + steps.height / 2;
       await session.send('Input.dispatchTouchEvent', {
@@ -84,7 +99,7 @@ for (const type of [chromium, webkit]) {
     await page.waitForFunction((previous) => scrollY > previous + 50, before);
     await page.locator('#workspace').scrollIntoViewIfNeeded();
     const chooser = page.waitForEvent('filechooser');
-    await page.locator('#firmware-prompt').click();
+    await page.locator('label.file-drop-choose').click();
     await (await chooser).setFiles([]);
     await page.screenshot({ path: new URL(`${type.name()}-idle.png`, output).pathname });
 
@@ -95,14 +110,14 @@ for (const type of [chromium, webkit]) {
       const firmware = { id: 'storage-test', model: 'Storage test', version: '1', sha256: 'test' };
       const camera = await store.create(file, firmware, false);
       const another = { ...firmware, sha256: 'test-2' };
-      const add = IDBObjectStore.prototype.add;
+      const put = IDBObjectStore.prototype.put;
       let writes = 0;
-      IDBObjectStore.prototype.add = function (...args) {
+      IDBObjectStore.prototype.put = function (...args) {
         if (this.name === 'library-bytes') {
           writes++;
           throw new DOMException('Injected write abort', 'AbortError');
         }
-        return add.apply(this, args);
+        return put.apply(this, args);
       };
       let failed = false;
       try {
@@ -110,7 +125,7 @@ for (const type of [chromium, webkit]) {
       } catch (error) {
         failed = error instanceof DOMException && error.name === 'AbortError';
       } finally {
-        IDBObjectStore.prototype.add = add;
+        IDBObjectStore.prototype.put = put;
       }
       return { writes, failed, camera, records: await store.list() };
     });
@@ -127,9 +142,12 @@ for (const type of [chromium, webkit]) {
     await page.goto(failing.href);
     await page.locator('.camera-storage-status.error').waitFor();
     assert.equal(await page.locator('html').getAttribute('data-camera-reads'), '2');
+    assert.equal(await page.locator('html').getAttribute('data-firmware-reads'), '2');
     await page.goto(base);
-    await page.locator('.resume-camera').waitFor();
-    assert.equal(await page.locator('.resume-camera').count(), 1);
+    await page
+      .getByRole('radio', { name: 'Storage test · 1', exact: true })
+      .waitFor({ state: 'attached' });
+    assert.equal(await page.getByRole('radio').count(), 1);
     assert.equal(await page.locator('.camera-storage-status.error').count(), 0);
     assert.deepEqual(errors, []);
 
@@ -138,7 +156,11 @@ for (const type of [chromium, webkit]) {
     assert.equal(await page.locator('#lcd-source').isVisible(), false);
     const desktop = await page.locator('#viewer').boundingBox();
     const desktopLauncher = await page.locator('.launcher').boundingBox();
-    assert.ok(desktop && desktopLauncher && desktop.height <= desktopLauncher.height + 80);
+    const margins = await page.locator('.launcher').evaluate((element) => {
+      const style = getComputedStyle(element);
+      return parseFloat(style.marginTop) + parseFloat(style.marginBottom);
+    });
+    assert.ok(desktop && desktopLauncher && desktop.height <= desktopLauncher.height + margins + 2);
     console.log(
       `${type.name()}: transient read recovered; persistent error shown; write atomic and unrepeated; idle viewer fits the launcher, scrolls and opens chooser`,
     );

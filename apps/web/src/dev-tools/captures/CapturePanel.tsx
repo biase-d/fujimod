@@ -9,7 +9,6 @@ export const emptySet = (firmwareId: string): CaptureSet => ({
   states: [],
   mappings: [],
 });
-export const message = (error: unknown) => (error instanceof Error ? error.message : String(error));
 
 /** The capture tools' frame: connect first, then refuse cameras without located bulk reads. */
 export function CapturePanel(props: {

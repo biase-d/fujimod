@@ -1,19 +1,21 @@
-# Firmware download gates
+# Firmware downloads
 
-`src/flags.ts` controls the release gates `allowFpUpdateDownload` and
-`allowSdCardBootDownload`. Both default to `false`. With both disabled, a
-recognized DAT launches the camera directly. With an available download enabled,
-dropping or choosing a DAT offers that download, Launch camera, and Cancel.
-Restart, local automatic boot and replay keep launching directly.
+The homepage loads the current GitHub release through the same-origin release
+proxy. Each firmware's `downloads.sd_card` and `downloads.installable` switches
+control its download rows and firmware files in the emulator's card browser.
+Both switches default to false. Installable downloads also require a verified
+`fpupdate` output in the release patch.
 
-SD downloads use the verified release patch to create `sd-card.zip`, containing
-`ffboot.bin` and `ffsys.bin` at its root.
+Choosing a DAT adds it to the browser firmware library. The release panel offers
+available downloads separately from the emulator's Run actions. Run resumes the
+latest saved camera with that firmware hash and FujiMod setting; Start fresh
+creates an independent camera.
 
-FP downloads require a modified update supplied by the release patch; the
-original dropped DAT is never offered as a modified update. Existing releases
-only contain SD outputs. A release can additionally declare `outputs.fpupdate`
-with its byte count and SHA-256 in FJMODP01 metadata, and use command target 2
-for that output (targets 0 and 1 remain ffboot and ffsys). The interpreter verifies
-the source, patch program and every output before download. The FP gate alone
-does not create an installable update; the release producer must provide one.
-The browser downloads that output as `FPUPDATE.DAT`.
+SD boot ZIPs contain `ffboot.bin` and `ffsys.bin`. Installable ZIPs also include
+`FPUPDATE.DAT`. Archives follow the naming format in
+[RELEASE-DOWNLOADS.md](RELEASE-DOWNLOADS.md#download-filenames). Files inside each
+archive keep the names the camera requires.
+
+The FJMODP01 interpreter verifies the source, patch program and every output
+before download. Command targets 0, 1 and 2 identify `ffboot`, `ffsys` and
+`fpupdate`. The original DAT is never substituted for a modified update.

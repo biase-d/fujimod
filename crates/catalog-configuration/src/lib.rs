@@ -1517,7 +1517,7 @@ mod tests {
                 .filter(|key| key.pressed)
                 .map(|key| key.connection_id.as_str())
                 .collect::<std::collections::BTreeSet<_>>(),
-            std::collections::BTreeSet::from(["controls-gpio-2-11", "controls-gpio-1-1"])
+            std::collections::BTreeSet::from(["controls-gpio-2-11"])
         );
         assert_eq!(inputs.gpio.outputs.len(), 3);
         assert!(inputs.gpio.outputs.iter().all(|output| output.high));

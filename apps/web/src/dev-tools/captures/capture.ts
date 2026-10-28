@@ -67,43 +67,50 @@ async function sha256(data: Uint8Array<ArrayBuffer>) {
   return Array.from(digest, (byte) => byte.toString(16).padStart(2, '0')).join('');
 }
 
-/** Read every range in pieces, reporting bytes done of the total. */
+/** Read every range in pieces, reporting bytes done of the total. Aborting stops between pieces. */
 export async function captureRanges(
   session: ToolSession,
   firmwareId: string,
   scope: CaptureScope,
   progress: (done: number, total: number) => void,
+  signal?: AbortSignal,
   pieceBytes = PIECE_BYTES,
 ): Promise<Pick<StateCapture, 'ranges' | 'overwritten'>> {
   const total = scopeBytes(scope);
   let done = 0;
-  const overwritten = new Map<string, { address: number; size: number }>();
   const ranges: RangeCapture[] = [];
   progress(0, total);
-  for (const range of scope.ranges) {
-    const capture: RangeCapture = {
-      name: range.name,
-      address: range.address,
-      size: range.size,
-      parts: [],
-      pieces: [],
-    };
-    ranges.push(capture);
-    for (let offset = 0; offset < range.size; offset += pieceBytes) {
-      const size = Math.min(pieceBytes, range.size - offset);
-      const read = await session.readBulk(firmwareId, range.address + offset, size);
-      if (read.data.length !== size) throw Error('Bulk read returned a partial piece');
-      const data = new Uint8Array(read.data);
-      capture.parts.push(data);
-      capture.pieces.push({ offset, size, sha256: await sha256(data) });
-      if (read.overwritten)
-        overwritten.set(`${read.overwritten.address}:${read.overwritten.size}`, read.overwritten);
-      done += size;
-      progress(done, total);
+  const memory = await session.memory(firmwareId);
+  try {
+    for (const range of scope.ranges) {
+      const capture: RangeCapture = {
+        name: range.name,
+        address: range.address,
+        size: range.size,
+        parts: [],
+        pieces: [],
+      };
+      ranges.push(capture);
+      for (let offset = 0; offset < range.size; offset += pieceBytes) {
+        signal?.throwIfAborted();
+        const size = Math.min(pieceBytes, range.size - offset);
+        const data = new Uint8Array(await memory.read(range.address + offset, size));
+        signal?.throwIfAborted();
+        if (data.length !== size) throw Error('Bulk read returned a partial piece');
+        capture.parts.push(data);
+        capture.pieces.push({ offset, size, sha256: await sha256(data) });
+        done += size;
+        progress(done, total);
+      }
     }
+    const overwritten = memory.overwritten;
+    return { ranges, overwritten: overwritten ? [overwritten] : [] };
+  } finally {
+    await memory.close();
   }
-  return { ranges, overwritten: [...overwritten.values()] };
 }
+
+export const canceled = (error: unknown) => error instanceof Error && error.name === 'AbortError';
 
 /** One contiguous copy of a single-range capture, for comparisons. */
 export function contiguous(capture: Pick<StateCapture, 'ranges'>): Uint8Array<ArrayBuffer> {

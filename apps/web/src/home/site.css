@@ -41,7 +41,7 @@ header .meta a:first-child {
 .personal-note p {
   margin: 0 0 1em;
 }
-.personal-note .signature {
+.personal-note p:last-child {
   margin-bottom: 0;
 }
 .personal-note .signature-name {
@@ -74,6 +74,7 @@ header .meta a:first-child {
   width: 1.65em;
 }
 .section-heading {
+  scroll-margin-top: 24px;
   font-size: 13px;
   font-weight: 600;
   color: var(--dim);

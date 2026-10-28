@@ -246,3 +246,27 @@ pub fn buffer(value: JsValue) -> Result<Vec<u8>, JsValue> {
         .map(|bytes| bytes.to_vec())
         .map_err(|_| fail(ErrorKind::InvalidArgument, "expected a Uint8Array"))
 }
+
+/// Rust settles promises from a microtask, so errors it creates carry no
+/// JavaScript frames. Appends the stack of the call that started the operation.
+pub(crate) fn with_caller(error: JsValue, caller: &JsError) -> JsValue {
+    use wasm_bindgen::JsCast;
+    let stack = |value: &JsValue| {
+        Reflect::get(value, &"stack".into())
+            .ok()
+            .and_then(|stack| stack.as_string())
+    };
+    if let (Some(target), Some(own), Some(called)) = (
+        error.dyn_ref::<JsError>(),
+        stack(&error),
+        stack(caller.as_ref()),
+    ) {
+        let frames = called.split_once('\n').map_or("", |(_, rest)| rest);
+        property(
+            target.as_ref(),
+            "stack",
+            format!("{own}\n    --- operation started ---\n{frames}"),
+        );
+    }
+    error
+}

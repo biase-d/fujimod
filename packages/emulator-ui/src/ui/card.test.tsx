@@ -4,20 +4,15 @@ import { afterEach, expect, test, vi } from 'vite-plus/test';
 import { CardBrowser } from './card';
 import type { Engine } from '../engine/api';
 import type { CardEntry, CardState } from 'fujimod/emulator';
-import { flags } from '../flags';
 import { downloadBlob } from './download';
 import { zipBlob } from '../archive';
 vi.mock('./download', () => ({ downloadBlob: vi.fn() }));
 vi.mock('../archive', () => ({ zipBlob: vi.fn(async () => new Blob()) }));
-vi.mock('../flags', () => ({
-  flags: { allowFpUpdateDownload: false, allowSdCardBootDownload: false },
-}));
+
 let dispose: (() => void) | undefined;
 afterEach(() => {
   dispose?.();
   document.body.replaceChildren();
-  flags.allowFpUpdateDownload = false;
-  flags.allowSdCardBootDownload = false;
   vi.clearAllMocks();
 });
 const state: CardState = {
@@ -216,27 +211,21 @@ test('repeated observations of the same revision retain an in-flight listing', a
   expect(document.querySelector('#card-files')?.textContent).toContain('photo.JPG');
 });
 
-test.each([
-  { allowFpUpdateDownload: false, allowSdCardBootDownload: false },
-  { allowFpUpdateDownload: true, allowSdCardBootDownload: false },
-  { allowFpUpdateDownload: false, allowSdCardBootDownload: true },
-  { allowFpUpdateDownload: true, allowSdCardBootDownload: true },
-])('card firmware downloads follow the SD release gate: %j', async (gates) => {
-  Object.assign(flags, gates);
+test.each([false, true])('card downloads obey the host file policy: %j', async (allowBootFiles) => {
   let publish!: (state: CardState) => void;
   const bootFiles: CardEntry[] = [
     {
       kind: 'file',
       name: 'FFBoot.BIN',
       path: '/FFBoot.BIN',
-      bytes: gates.allowSdCardBootDownload ? 2 : 64 * 1024 ** 2,
+      bytes: allowBootFiles ? 2 : 64 * 1024 ** 2,
       children: [],
     },
     {
       kind: 'file',
       name: 'ffsys.bin',
       path: '/ffsys.bin',
-      bytes: gates.allowSdCardBootDownload ? 2 : 64 * 1024 ** 2,
+      bytes: allowBootFiles ? 2 : 64 * 1024 ** 2,
       children: [],
     },
   ];
@@ -281,6 +270,7 @@ test.each([
     () => (
       <CardBrowser
         engine={engine}
+        canDownload={(entry) => allowBootFiles || !/^ff(?:boot|sys)\.bin$/i.test(entry.name)}
         present={() => Promise.resolve()}
         format={() => Promise.resolve()}
       />
@@ -291,9 +281,7 @@ test.each([
   publish(state);
   await Promise.resolve();
   flush();
-  const allowed = gates.allowSdCardBootDownload
-    ? [...bootFiles, nestedBoot, photo, backup]
-    : [photo, backup];
+  const allowed = allowBootFiles ? [...bootFiles, nestedBoot, photo, backup] : [photo, backup];
   expect(
     [...document.querySelectorAll('#card-files .dl')].map((button) =>
       button.getAttribute('aria-label'),
@@ -321,7 +309,7 @@ test.each([
   );
 });
 
-test('a card containing only gated firmware files has no downloads', async () => {
+test('a host policy that hides every file disables all downloads', async () => {
   let publish!: (state: CardState) => void;
   const readCardFile = vi.fn();
   const engine = {
@@ -345,6 +333,7 @@ test('a card containing only gated firmware files has no downloads', async () =>
     () => (
       <CardBrowser
         engine={engine}
+        canDownload={() => false}
         present={() => Promise.resolve()}
         format={() => Promise.resolve()}
       />

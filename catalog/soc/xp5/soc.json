@@ -1371,6 +1371,7 @@
           }
         ],
         "engines": [
+          "unicorn",
           "hypervisor"
         ],
         "instructions_per_tick": {

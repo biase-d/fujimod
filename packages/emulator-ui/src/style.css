@@ -305,7 +305,7 @@ svg.i {
   width: 100%;
   display: grid;
 }
-.back .c1 .key {
+.back .c1 .key-wrapper {
   align-self: flex-start;
 }
 .back .c1 .keys {
@@ -413,36 +413,6 @@ hr {
   box-shadow:
     inset 0 1px 3px rgba(0, 0, 0, 0.7),
     0 0 0 1px #636366;
-}
-.combo .mini {
-  display: inline-grid;
-  place-items: center;
-  min-width: 24px;
-  height: 24px;
-  padding: 0 8px;
-  border-radius: 12px;
-  font-size: 9px;
-  font-weight: 700;
-  letter-spacing: 0.03em;
-  background: linear-gradient(#4a4a4e, #38383b);
-  box-shadow:
-    0 1px 0 #5c5c60 inset,
-    0 2px 4px rgba(0, 0, 0, 0.6);
-}
-.combo.hover .mini {
-  box-shadow:
-    0 0 0 2px #fff,
-    0 0 10px rgba(255, 255, 255, 0.35);
-}
-.combo .mini.rec {
-  padding: 0;
-  width: 24px;
-}
-.combo .mini.rec i {
-  width: 11px;
-  height: 11px;
-  border-radius: 50%;
-  background: #e8352b;
 }
 .combo .plus {
   font-size: 9.5px;
@@ -756,13 +726,6 @@ a:focus-visible,
   box-shadow:
     inset 0 1px 3px rgba(0, 0, 0, 0.7),
     0 0 0 1px #636366;
-}
-.combo:hover .mini,
-.combo:focus-visible .mini,
-.combo.held .mini {
-  box-shadow:
-    0 0 0 2px #fff,
-    0 0 10px rgba(255, 255, 255, 0.35);
 }
 /* Six 30px reference rows keep the viewer stable as card files change. */
 #card-files {

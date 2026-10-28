@@ -1,0 +1,66 @@
+/* The badge's left edge aligns with the title and the rail runs through its center. */
+.recovery-steps {
+  --badge: 26px;
+  --indent: calc(var(--badge) + 18px);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  counter-reset: step;
+}
+.recovery-steps > li {
+  counter-increment: step;
+  position: relative;
+  padding: 0 0 36px var(--indent);
+}
+.recovery-steps > li:last-child {
+  padding-bottom: 0;
+}
+.recovery-steps > li::before {
+  content: counter(step);
+  position: absolute;
+  top: 0;
+  left: 0;
+  display: grid;
+  place-items: center;
+  width: var(--badge);
+  height: var(--badge);
+  border-radius: 50%;
+  background: rgb(118 118 128 / 30%);
+  font-size: 13px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+.recovery-steps > li:not(:last-child)::after {
+  content: '';
+  position: absolute;
+  top: calc(var(--badge) + 6px);
+  bottom: 6px;
+  left: calc(var(--badge) / 2 - 0.5px);
+  width: 1px;
+  background: rgb(84 84 88 / 65%);
+}
+.recovery-steps h2 {
+  font-size: 17px;
+  font-weight: 600;
+  line-height: var(--badge);
+  margin: 0 0 10px;
+}
+.recovery-steps p {
+  font-size: 15px;
+  line-height: 1.45;
+  margin: 0 0 12px;
+}
+.recovery-steps p:last-child {
+  margin-bottom: 0;
+}
+.recovery-pending {
+  opacity: 0.45;
+}
+
+.recovery-steps code {
+  padding: 0 4px;
+  border-radius: 4px;
+  background: rgb(118 118 128 / 20%);
+  font-size: 0.9em;
+  overflow-wrap: anywhere;
+}

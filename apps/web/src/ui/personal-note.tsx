@@ -1,26 +1,23 @@
-import { createSignal, onSettled } from 'solid-js';
-
-export function projectAge(date: Date) {
-  const today = Date.UTC(date.getFullYear(), date.getMonth(), date.getDate());
-  return Math.max(0, Math.floor((today - Date.UTC(2026, 9, 3)) / 86_400_000));
-}
-
-declare const __FUJIMOD_BUILD_DAY__: string;
 export function PersonalNote() {
-  const [age, setAge] = createSignal(projectAge(new Date(`${__FUJIMOD_BUILD_DAY__}T12:00:00`)));
-  onSettled(() => {
-    setAge(projectAge(new Date()));
-  });
   return (
     <aside class="personal-note" aria-label="A note from Jake">
       <p>Hey,</p>
       <p>
-        FujiMod is not ready for your camera. It is <span id="project-age">{age()}</span> days old
-        and changing too quickly. I’ll release SD card dual boot and then installable firmware as I
-        gain confidence in our simulation testing.
+        I’m making FujiMod to unlock your camera’s full potential. We’re starting with the X70, with
+        23 new features and more freedom to make the camera work your way. I’d love to bring it to
+        more Fujifilm cameras over time.
       </p>
       <p>
-        Until then, you can try it in the <a href="#workspace">camera emulator</a> below.
+        You can try the first release by dual-booting from an SD card without flashing your camera.
+        I haven’t tested every feature on camera yet (there are a lot!) so I’m sharing it for other
+        X70 owners to test and help improve.
+      </p>
+      <p>
+        Even without an X70, you can try FujiMod in your browser. The emulator is a bit slow, but
+        you can enable webcam input and give it a go.
+      </p>
+      <p>
+        <a href="#software">Try FujiMod</a>
       </p>
       <p class="signature">
         Yours truly,

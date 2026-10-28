@@ -1,13 +1,16 @@
 import { PowerComboKeys } from '@fujimod/emulator-ui/ui/power-combo';
-import { For, Show, createMemo, createSignal, onSettled } from 'solid-js';
+import { For, Show, createEffect, createMemo, createSignal, onSettled } from 'solid-js';
 import { downloadBlob } from '@fujimod/emulator-ui/ui/download';
 import { zipBlob } from '@fujimod/emulator-ui/archive';
-import { initialize } from 'fujimod';
-import { Icon } from '@fujimod/emulator-ui/ui/icons';
+import { catalog as reference, initialize } from 'fujimod';
 import { SegmentedControl } from '@fujimod/emulator-ui/ui/SegmentedControl';
+import { shownError } from '@fujimod/emulator-ui/ui/shown-error';
 
-import { identify, recoveryCameras, recoveryPlan } from './identify';
-import { CameraStore, type LibraryFirmware } from '../cameras/store';
+import { recoveryCameras, recoveryPlan } from './identify';
+import type { LibraryFirmware } from '../cameras/store';
+import { FirmwarePicker } from '../cameras/FirmwarePicker';
+import { createFirmwareLibrary } from '../cameras/firmware-library';
+import { Steps, Step, FileList } from './Steps';
 import { FirmwareDownloads, type DownloadRow } from '../cameras/FirmwareDownloads';
 import '../cameras/launcher.css';
 import { recoveryCard, type RecoveryDownload } from './card';
@@ -16,66 +19,45 @@ import { SYSTEMS, FORMAT_STEPS, detectSystem, type System } from './format-guide
 import '../home/site.css';
 import '../navigation.css';
 import './recovery.css';
+import { firmwareDownloadName } from '../firmware-download';
 
 declare const __FUJIMOD_BUILD_SHA__: string;
 
-function message(error: unknown) {
-  return error instanceof Error ? error.message : String(error);
-}
-
 export default function Recovery() {
-  const store = new CameraStore();
+  const library = createFirmwareLibrary();
+  const store = library.store;
   const [system, setSystem] = createSignal<System>('macOS');
-  const [library, setLibrary] = createSignal<LibraryFirmware[]>([]);
-  const [selected, setSelected] = createSignal<string>();
   const [catalogReady, setCatalogReady] = createSignal(false);
   const [error, setError] = createSignal('');
-  const [adding, setAdding] = createSignal(false);
   const [building, setBuilding] = createSignal(false);
   const [buildError, setBuildError] = createSignal('');
   const [downloadType, setDownloadType] = createSignal<RecoveryDownload>('system');
-  const [dragging, setDragging] = createSignal(false);
   const [cameras, setCameras] = createSignal<DownloadRow[]>([]);
 
-  const chosen = () => library().find((firmware) => firmware.sha256 === selected());
+  const chosen = library.chosen;
+  createEffect(
+    () => library.selected(),
+    () => {
+      setBuildError('');
+      setDownloadType('system');
+    },
+  );
   // The card's files and boot buttons come from the Wasm catalog, without building the card.
   const plan = createMemo(() => {
     const firmware = chosen();
     return catalogReady() && firmware ? recoveryPlan(firmware.firmwareId) : undefined;
   });
 
-  let ready: Promise<unknown> = Promise.resolve();
   onSettled(() => {
-    ready = initialize().then(() => {
-      setCameras(recoveryCameras());
-      setCatalogReady(true);
-    });
-    ready.catch((caught: unknown) => setError(message(caught)));
+    initialize()
+      .then(() => {
+        setCameras(recoveryCameras());
+        setCatalogReady(true);
+      })
+      .catch((caught: unknown) => setError(shownError(caught)));
     setSystem(detectSystem(navigator.userAgent));
-    store.library().then(setLibrary, (caught: unknown) => setError(message(caught)));
   });
 
-  function select(sha256: string) {
-    setBuildError('');
-    setSelected(sha256);
-    setDownloadType('system');
-  }
-  async function chooseFile(file: File | undefined) {
-    if (!file) return;
-    setError('');
-    setAdding(true);
-    try {
-      await ready;
-      const firmware = await identify(new Uint8Array(await file.arrayBuffer()));
-      const entry = await store.addFirmware(file, firmware);
-      setLibrary(await store.library());
-      select(entry.sha256);
-    } catch (caught) {
-      setError(message(caught));
-    } finally {
-      setAdding(false);
-    }
-  }
   async function download(firmware: LibraryFirmware, kind: RecoveryDownload) {
     setBuildError('');
     setDownloadType(kind);
@@ -86,10 +68,21 @@ export default function Recovery() {
       const zip = await zipBlob(
         files.map((entry) => ({ path: entry.name, data: new Blob([entry.data]) })),
       );
-      const name = kind === 'green-led' ? 'fujimod-green-led' : 'fujimod-recovery';
-      downloadBlob(zip, `${name}-build-${__FUJIMOD_BUILD_SHA__}.zip`);
+      const release = reference
+        .firmwareVersions()
+        .find((entry) => entry.firmware_id === firmware.firmwareId);
+      if (!release) throw Error('Firmware is not in the catalog.');
+      downloadBlob(
+        zip,
+        firmwareDownloadName(
+          kind === 'green-led' ? 'green-led' : 'recovery',
+          'sd-boot',
+          { model: release.product, version: release.version },
+          __FUJIMOD_BUILD_SHA__,
+        ),
+      );
     } catch (caught) {
-      setBuildError(message(caught));
+      setBuildError(shownError(caught));
     } finally {
       setBuilding(false);
     }
@@ -105,9 +98,8 @@ export default function Recovery() {
           reflash the official firmware.
         </p>
 
-        <ol class="recovery-steps">
-          <li>
-            <h2>Format an SD card as FAT32</h2>
+        <Steps>
+          <Step title="Format an SD card as FAT32">
             <SegmentedControl
               label="System"
               options={SYSTEMS.map((name) => ({ value: name, label: name }))}
@@ -117,85 +109,21 @@ export default function Recovery() {
             <ol class="recovery-sub">
               <For each={FORMAT_STEPS[system()]}>{(step) => <li>{step}</li>}</For>
             </ol>
-          </li>
+          </Step>
 
-          <li>
-            <h2>Choose the official Fujifilm firmware</h2>
-            <div
-              class={{ launcher: true, dragging: dragging() }}
-              onDragOver={(event) => {
-                event.preventDefault();
-                setDragging(true);
-              }}
-              onDragLeave={() => setDragging(false)}
-              onDrop={(event) => {
-                event.preventDefault();
-                setDragging(false);
-                void chooseFile(event.dataTransfer?.files[0]);
-              }}
-            >
-              <div class="launcher-main">
-                <Show when={library().length > 0}>
-                  <div
-                    class="recovery-saved"
-                    role="radiogroup"
-                    aria-label="Firmware in this browser"
-                  >
-                    <For each={library()}>
-                      {(firmware) => (
-                        <label class="recovery-saved-row">
-                          <input
-                            class="visually-hidden"
-                            type="radio"
-                            name="recovery-saved"
-                            checked={selected() === firmware.sha256}
-                            onChange={() => select(firmware.sha256)}
-                          />
-                          <span class="recovery-radio" aria-hidden="true">
-                            <Icon name="check" size={12} />
-                          </span>
-                          <span class="launcher-row-text">
-                            <strong>{firmware.name}</strong>
-                            <span>In this browser</span>
-                          </span>
-                        </label>
-                      )}
-                    </For>
-                  </div>
-                </Show>
-                <p class="recovery-dat">
-                  Download your camera’s firmware update from Fujifilm.{' '}
-                  <span class="launcher-drop">Drop the downloaded .DAT file here.</span>
-                  <span class="launcher-touch">Choose the downloaded .DAT file.</span>
+          <Step title="Choose the official Fujifilm firmware">
+            <div class="recovery-firmware">
+              <FirmwarePicker library={library} inputId="recovery-file" disabled={building()} />
+              <Show when={error()}>
+                <p class="recovery-error" role="alert">
+                  {error()}
                 </p>
-                <div class="launcher-actions">
-                  <label class="launcher-button" for="recovery-file">
-                    Choose File…
-                  </label>
-                </div>
-                <input
-                  class="visually-hidden"
-                  id="recovery-file"
-                  type="file"
-                  accept=".dat,.DAT,application/octet-stream"
-                  disabled={adding()}
-                  onChange={(event) => {
-                    void chooseFile(event.currentTarget.files?.[0]);
-                    event.currentTarget.value = '';
-                  }}
-                />
-                <Show when={error()}>
-                  <p class="recovery-error" role="alert">
-                    {error()}
-                  </p>
-                </Show>
-              </div>
-              <FirmwareDownloads heading="Official firmware" rows={cameras()} />
+              </Show>
+              <FirmwareDownloads heading="Get from fujifilm.com" rows={cameras()} />
             </div>
-          </li>
+          </Step>
 
-          <li class={{ 'recovery-pending': !plan() }}>
-            <h2>Copy the recovery files onto the card</h2>
+          <Step title="Copy the recovery files onto the card" pending={!plan()}>
             <Show
               when={plan()}
               fallback={
@@ -229,30 +157,20 @@ export default function Recovery() {
                   </Show>
                   <p>
                     Unzip onto the card’s top level:{' '}
-                    <For
-                      each={downloadType() === 'green-led' ? card().greenLedFiles : card().files}
-                    >
-                      {(name, i) => (
-                        <span>
-                          {i() ? ', ' : ''}
-                          <code>{name}</code>
-                        </span>
-                      )}
-                    </For>
+                    <FileList
+                      files={downloadType() === 'green-led' ? card().greenLedFiles : card().files}
+                    />
                     .
                   </p>
                   <p>Insert the card into the camera.</p>
                 </>
               )}
             </Show>
-          </li>
+          </Step>
 
-          <li class={{ 'recovery-pending': !plan() }}>
-            <h2>Unplug the camera from USB</h2>
-          </li>
+          <Step title="Unplug the camera from USB" pending={!plan()}></Step>
 
-          <li class={{ 'recovery-pending': !plan() }}>
-            <h2>Boot from the SD card</h2>
+          <Step title="Boot from the SD card" pending={!plan()}>
             <Show
               when={plan()}
               fallback={
@@ -311,15 +229,14 @@ export default function Recovery() {
                 </>
               )}
             </Show>
-          </li>
+          </Step>
 
           <Show when={downloadType() === 'system'}>
-            <li class={{ 'recovery-pending': !plan() }}>
-              <h2>Flash the firmware as usual</h2>
+            <Step title="Flash the firmware as usual" pending={!plan()}>
               <p>Follow the on-screen firmware update to flash the official .DAT from the card.</p>
-            </li>
+            </Step>
           </Show>
-        </ol>
+        </Steps>
       </main>
     </div>
   );

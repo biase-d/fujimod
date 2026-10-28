@@ -394,6 +394,9 @@ pub enum Hint {
 }
 #[derive(Clone, Copy, Debug)]
 pub enum Exit {
+    /// A framework-owned instruction has not entered. PC names its unchanged
+    /// entry and progress excludes it; the owner completes and charges it.
+    BeforeInstruction(u32),
     Stopped,
     Hint(Hint),
     Trap(Trap),

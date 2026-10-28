@@ -3,16 +3,17 @@ import assert from 'node:assert/strict';
 import { mkdir, readFile } from 'node:fs/promises';
 import { unzipSync } from 'fflate';
 import { chromium, webkit } from 'playwright';
-import { execFileSync } from 'node:child_process';
+import { createHash } from 'node:crypto';
 import { catalog, initialize, recovery } from 'fujimod';
 
 const cases: { firmwareId: string; dat: string }[] = JSON.parse(
   process.env.FUJIMOD_RECOVERY_CASES ?? '[]',
 );
-const buildSha =
-  process.env.FUJIMOD_TEST_BUILD_SHA ??
-  execFileSync('git', ['rev-parse', 'HEAD'], { encoding: 'utf8' }).trim().slice(0, 8);
-assert.match(buildSha, /^[a-f0-9]{8}$/);
+const expectedFiles: Record<string, Record<string, { bytes: number; sha256: string }>> = JSON.parse(
+  process.env.FUJIMOD_RECOVERY_EXPECTED ?? '{}',
+);
+const expectedBuildSha = process.env.FUJIMOD_TEST_BUILD_SHA;
+if (expectedBuildSha) assert.match(expectedBuildSha, /^[a-f0-9]{8}$/);
 assert.ok(cases.length, 'Set FUJIMOD_RECOVERY_CASES to official update test cases');
 await initialize({
   module_or_path: await readFile(
@@ -31,7 +32,7 @@ for (const engine of engines) {
   console.log(`${engine.name()}: opening recovery page`);
   const browser = await engine.launch();
   try {
-    for (const [index, test] of cases.entries()) {
+    for (const test of cases) {
       const context = await browser.newContext({
         viewport: { width: 390, height: 844 },
         acceptDownloads: true,
@@ -49,9 +50,10 @@ for (const engine of engines) {
         .firmwareVersions()
         .find((entry) => entry.firmware_id === test.firmwareId);
       assert.ok(release);
+      const identity = `${release.product.toLowerCase().replace(/\s+/g, '-')}-${release.version}`;
       await page
         .getByRole('radio', {
-          name: `${release.product} · ${release.version} In this browser`,
+          name: `${release.product} · ${release.version}`,
           exact: true,
         })
         .check();
@@ -72,7 +74,13 @@ for (const engine of engines) {
         await led.click();
         console.log(`${engine.name()}: building ${test.firmwareId} LED ZIP`);
         const download = await pending;
-        assert.equal(download.suggestedFilename(), `fujimod-green-led-build-${buildSha}.zip`);
+        const buildSha = download.suggestedFilename().match(/-build-([a-f0-9]{8})\.zip$/)?.[1];
+        assert.ok(buildSha, 'Download names identify the serving application build');
+        if (expectedBuildSha) assert.equal(buildSha, expectedBuildSha);
+        assert.equal(
+          download.suggestedFilename(),
+          `fujimod-green-led-sd-boot-${identity}-build-${buildSha}.zip`,
+        );
         const zip = unzipSync(await readFile((await download.path())!));
         assert.deepEqual(Object.keys(zip).sort(), [...status.greenLedFilenames].sort());
         assert.ok(
@@ -98,7 +106,7 @@ for (const engine of engines) {
           0,
         );
         assert.ok((await page.locator('main').innerText()).includes('the green LED lights:'));
-        if (index === 0) {
+        if (status.canBuild) {
           const pendingSystem = Promise.race([
             page.waitForEvent('download'),
             page
@@ -113,18 +121,41 @@ for (const engine of engines) {
           const systemDownload = await pendingSystem;
           assert.equal(
             systemDownload.suggestedFilename(),
-            `fujimod-recovery-build-${buildSha}.zip`,
+            `fujimod-recovery-sd-boot-${identity}-build-${buildSha}.zip`,
           );
           const files = unzipSync(await readFile((await systemDownload.path())!));
           assert.deepEqual(Object.keys(files).sort(), [...status.outputFilenames].sort());
+          const checked = expectedFiles[test.firmwareId];
+          if (checked) {
+            assert.deepEqual(Object.keys(files).sort(), Object.keys(checked).sort());
+            for (const [name, bytes] of Object.entries(files)) {
+              assert.equal(bytes.length, checked[name].bytes);
+              assert.equal(createHash('sha256').update(bytes).digest('hex'), checked[name].sha256);
+            }
+          }
+          const expectedSystem = recovery.build(test.firmwareId, await readFile(test.dat));
+          try {
+            for (const file of expectedSystem.takeFiles()) {
+              try {
+                assert.deepEqual(files[file.name], file.bytes);
+              } finally {
+                file.free();
+              }
+            }
+          } finally {
+            expectedSystem.free();
+          }
           assert.equal(
             await page.getByRole('heading', { name: 'Flash the firmware as usual' }).count(),
             1,
           );
+        } else {
+          await system.waitFor({ state: 'visible' });
+          assert.equal(await system.isDisabled(), true);
         }
         assert.deepEqual(errors, []);
         console.log(
-          `${engine.name()}: ${test.firmwareId} green LED ZIP${index === 0 ? ' and full system ZIP' : ''}`,
+          `${engine.name()}: ${test.firmwareId} green LED ZIP${status.canBuild ? ' and full system ZIP' : ''}`,
         );
       } finally {
         status.free();

@@ -321,6 +321,8 @@ export function installWebUsb() {
         }
       },
     });
+  // A browser hands a replugged camera back as a new USBDevice object.
+  let current = device;
   const usbEvents = new EventTarget();
   Object.defineProperty(nav, 'usb', {
     configurable: true,
@@ -329,21 +331,31 @@ export function installWebUsb() {
       removeEventListener: usbEvents.removeEventListener.bind(usbEvents),
       async getDevices() {
         log.push(['list']);
-        return [other, device];
+        return [other, current];
       },
       async requestDevice(options: { filters: unknown }) {
         log.push(['picker', options.filters]);
         if (state.cancelPicker) throw new DOMException('Canceled', 'NotFoundError');
-        return device;
+        return current;
       },
     },
   });
   return {
-    device,
+    get device() {
+      return current;
+    },
     presence(present: boolean) {
-      if (!present) { device.opened = false; device.configuration = null; iface.claimed = false; }
+      if (present) {
+        const replugged = { ...current };
+        Reflect.deleteProperty(replugged, 'nusbUniqueId');
+        current = replugged;
+      } else {
+        current.opened = false;
+        current.configuration = null;
+        iface.claimed = false;
+      }
       const event = new Event(present ? 'connect' : 'disconnect');
-      Object.defineProperty(event, 'device', { value: device });
+      Object.defineProperty(event, 'device', { value: current });
       usbEvents.dispatchEvent(event);
     },
     iface,

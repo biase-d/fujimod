@@ -4,7 +4,8 @@ import { flush } from 'solid-js';
 import { expect, test, vi } from 'vite-plus/test';
 import BugReport from './Page';
 import { base64url } from './report-link';
-import { tar, link, hash } from './fixtures.test-helper';
+import { tar, link, hash, reportTar } from './fixtures.test-helper';
+import { listedReport } from './report-link';
 import type { UploadReport } from './upload';
 import type { ReportConnection } from './usb';
 vi.mock('../dev-tools/Page', () => ({
@@ -12,6 +13,7 @@ vi.mock('../dev-tools/Page', () => ({
 }));
 const receipt = {
   id: 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa',
+  shareUrl: 'https://share.fujimod.com/contribution/bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb',
   issueURL: 'https://github.com/justjake/fujimod/issues/123',
 };
 function mount(props: Parameters<typeof BugReport>[0]) {
@@ -166,6 +168,78 @@ test('failed upload retains USB report; retry reuses ID and deletes only after d
       expect(host.textContent).toContain('Dev Tools connected');
     });
     expect(handOff).toHaveBeenCalledOnce();
+  } finally {
+    dispose();
+  }
+});
+test("USB reports show their screen and time, list the camera's others and offer the next", async () => {
+  URL.createObjectURL ??= () => 'blob:screen';
+  URL.revokeObjectURL ??= () => {};
+  const first = reportTar({ 'screen.bmp': Uint8Array.of(0x42, 0x4d, 1) }, '2026-10-27T14:04:05');
+  const qr = { ...link, bytes: first.length };
+  const second = reportTar({ 'state.json': Uint8Array.of(123, 125) }, '2026-10-26T09:30:00');
+  const listing = [
+    { name: 'R1234567.TAR', bytes: first.length },
+    { name: 'R00000AB.TAR', bytes: second.length },
+    { name: 'R00000AC.TAR', bytes: second.length },
+  ];
+  const readListed = vi.fn(async (entry: { name: string }) => listedReport(second, qr, entry.name));
+  const upload = vi.fn<UploadReport>(async () => receipt);
+  const connection = {
+    initialize: async () => {},
+    choose: async () => ({ name: 'Camera', interfaces: [{ id: 0, label: 'USB' }] }),
+    read: async () => new Blob([first]),
+    list: async () => listing,
+    readListed,
+    remove: async () => {},
+    handOff: async () => {},
+    dispose: vi.fn(),
+  } as unknown as ReportConnection;
+  const { host, dispose } = mount({ hash: hash(qr), supported: true, connection, upload });
+  try {
+    await vi.waitFor(() => {
+      flush();
+      expect(button(host, 'Connect camera').disabled).toBe(false);
+    });
+    button(host, 'Connect camera').click();
+    await vi.waitFor(() => {
+      flush();
+      expect(host.querySelector('.bug-others')).not.toBeNull();
+    });
+    expect(host.querySelector<HTMLImageElement>('img.bug-screen')!.alt).toBe(
+      'Camera screen when the report was captured',
+    );
+    const when = new Date(2026, 9, 27, 14, 4, 5).toLocaleString(undefined, {
+      dateStyle: 'medium',
+      timeStyle: 'short',
+    });
+    expect(host.querySelector('.bug-contents')!.textContent).toContain(when);
+    const rows = [...host.querySelectorAll('.bug-others li')];
+    expect(rows.map((row) => row.querySelector('.bug-file')!.textContent)).toEqual(
+      listing.map((entry) => entry.name),
+    );
+    expect(rows[0].textContent).toContain('Showing');
+    contribute(host);
+    await vi.waitFor(() => {
+      flush();
+      expect(button(dialog(host), 'Next report')).toBeTruthy();
+    });
+    button(dialog(host), 'Next report').click();
+    await vi.waitFor(() => {
+      flush();
+      expect(dialog(host).open).toBe(true);
+      expect(button(dialog(host), 'Upload')).toBeTruthy();
+    });
+    expect(readListed.mock.calls[0]![0]).toMatchObject({ name: 'R00000AB.TAR' });
+    expect(host.querySelector('img.bug-screen')).toBeNull();
+    expect(host.querySelector('.bug-others li')!.textContent).toContain('Contributed');
+    contribute(host);
+    await vi.waitFor(() => {
+      flush();
+      expect(upload).toHaveBeenCalledTimes(2);
+      expect(button(dialog(host), 'Next report')).toBeTruthy();
+    });
+    expect(upload.mock.calls[1]![1].path).toBe('A:\\FUJIMOD\\REPORTS\\R00000AB.TAR');
   } finally {
     dispose();
   }

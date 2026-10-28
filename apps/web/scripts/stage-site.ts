@@ -3,13 +3,11 @@ import { createHash } from 'node:crypto';
 import { mkdir, mkdtemp, readFile, readdir, rename, rm, writeFile } from 'node:fs/promises';
 import { dirname, join, resolve } from 'node:path';
 import { validateCatalog, type Catalog } from '../src/catalog.ts';
-import { validateIndex, verifyPatch } from '../src/patch/catalog.ts';
 import { validateFeatureMedia, type FeatureMedia } from '../src/home/feature-media.ts';
 import { validateRuntimeApi } from './runtime-api.ts';
 
 export interface SiteInputs {
   runtime: string;
-  patches: string;
   media: string;
 }
 /** Files of the media for cards the homepage still shows; recordings of removed cards stay behind. */
@@ -120,11 +118,6 @@ export async function stageSite(inputs: SiteInputs, destination = 'public') {
       )
         throw Error(`Emulator qualification failed: ${firmware.id}`);
       await copyBundle(directory, config.bundle);
-      if (firmware.camera_table) {
-        if (firmware.camera_table !== config.bundle + 'camera.json')
-          throw Error(`Unexpected camera table location: ${firmware.id}`);
-        await copy(join(directory, 'camera.json'), firmware.camera_table);
-      }
       if (config.usb) {
         const bundle = config.usb.bundle;
         if (bundle !== `runtime/${firmware.id}-usb/`)
@@ -133,6 +126,13 @@ export async function stageSite(inputs: SiteInputs, destination = 'public') {
         await copyBundle(usb, bundle);
       }
     }
+    for (const firmware of catalog.firmwares) {
+      if (!firmware.service_workflow) continue;
+      const path = `runtime/${firmware.id}/service-workflow.generated.json`;
+      if (firmware.service_workflow !== path)
+        throw Error(`Unexpected service workflow location: ${firmware.id}`);
+      await copy(join(inputs.runtime, firmware.id, 'service-workflow.generated.json'), path);
+    }
     const catalogBytes = Buffer.from(JSON.stringify(catalog));
     await writeFile(join(temporary, 'runtime/catalog.json'), catalogBytes);
     files.push({
@@ -140,19 +140,6 @@ export async function stageSite(inputs: SiteInputs, destination = 'public') {
       bytes: catalogBytes.length,
       sha256: createHash('sha256').update(catalogBytes).digest('hex'),
     });
-    const index = validateIndex(
-      JSON.parse(await readFile(join(inputs.patches, 'patches.json'), 'utf8')),
-    );
-    await copy(join(inputs.patches, 'patches.json'), 'artifacts/patches.json');
-    for (const firmware of index.firmwares) {
-      const name = index.patches[firmware.sha256];
-      await verifyPatch(
-        index,
-        firmware,
-        new Uint8Array(await readFile(join(inputs.patches, name))),
-      );
-      await copy(join(inputs.patches, name), 'artifacts/' + name);
-    }
     const media = validateFeatureMedia(
       JSON.parse(await readFile(join(inputs.media, 'media.json'), 'utf8')),
     );

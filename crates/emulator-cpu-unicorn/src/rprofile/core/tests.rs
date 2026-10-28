@@ -1537,3 +1537,48 @@ fn fingerprint_reads_detached_banks_without_changing_live_context() {
     set(&cpu, arm::CORE[0], 43);
     assert_ne!(cpu.fingerprint().unwrap(), before);
 }
+
+#[test]
+fn observer_points_use_backend_hooks_without_installing_native_hooks() {
+    unsafe fn instruction(_: u64, _: u32, _: *mut c_void) {}
+    let hook = |begin, end| Hook::Instruction {
+        callback: instruction,
+        data: std::ptr::null_mut(),
+        range: HookRange::Inclusive { begin, end },
+    };
+    let cpu = processor_with_options(&Memory::default(), Options::default());
+    cpu.map_zeroed(0, 0x4000, 7).unwrap();
+    let native_hooks = cpu.execution.cpu.hooks.borrow().len();
+    assert!(matches!(
+        cpu.execution
+            .classify(0x1000, 0xe3a00001)
+            .unwrap()
+            .instruction,
+        InstructionDisposition::Execute
+    ));
+    let id = unsafe { cpu.install_hook(hook(0x1000, 0x1000)) }.unwrap();
+    assert_eq!(cpu.execution.cpu.hooks.borrow().len(), native_hooks);
+    assert!(matches!(
+        cpu.execution
+            .classify(0x1000, 0xe3a00001)
+            .unwrap()
+            .instruction,
+        InstructionDisposition::ObserveAndEndBlock
+    ));
+    assert!(matches!(
+        cpu.execution
+            .classify(0x1004, 0xe3a00001)
+            .unwrap()
+            .instruction,
+        InstructionDisposition::Execute
+    ));
+    cpu.remove_hook(id).unwrap();
+    assert!(matches!(
+        cpu.execution
+            .classify(0x1000, 0xe3a00001)
+            .unwrap()
+            .instruction,
+        InstructionDisposition::Execute
+    ));
+    assert_eq!(cpu.execution.cpu.hooks.borrow().len(), native_hooks);
+}

@@ -2,8 +2,8 @@
 use crate::image::{self, Edit, Plan, Result, extent, hash, put, require, word};
 use serde::{Deserialize, Serialize};
 const FLASH_APERTURE_BYTES: u64 = 0x08000000;
+pub mod preload;
 mod sd_loader;
-pub mod storage;
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
@@ -36,10 +36,26 @@ pub struct ColdStart {
     pub mode_flag: usize,
     pub mode_test: usize,
     #[serde(default, skip_serializing_if = "Option::is_none")]
-    pub firmware_transport: Option<storage::Transport>,
+    pub preload: Option<preload::Preload>,
+}
+
+/// The indication runs only after FFINIT's primary-core and endian setup.
+pub(crate) fn indicator_entry() -> Result<usize> {
+    let asset = &sd_loader::LAYOUT.ffinit;
+    let code = asset.text.bytes();
+    let mut calls = Vec::new();
+    for site in (asset.symbols["ffinit_entry"]..asset.symbols["ffinit_dram_ready"]).step_by(4) {
+        if word(code, site)? >> 24 == 0xea && branch(code, site, 0xea)? == asset.symbols["ffinit_prepare"] {
+            calls.push(site);
+        }
+    }
+    require(calls.len() == 1, "No unique primary FFINIT prepare branch")?;
+    Ok(0x4000 + calls[0])
 }
 
 pub fn package(
+    recipe: &crate::Recipe,
+    source: &[u8],
     inverted: &[u8],
     plan: &Plan,
     cold: &ColdStart,
@@ -48,17 +64,17 @@ pub fn package(
 ) -> Result<Vec<image::File>> {
     let plan = cold_plan(inverted, plan, cold)?;
     let mut ram = image::transform(inverted, &plan)?;
-    if let Some(transport) = &cold.firmware_transport {
-        require(
-            transport.dat_offset == setup.dat_offset,
-            "Card firmware namespace has a different DAT bias",
-        )?;
-        transport.install(inverted, &plan, &mut ram)?;
-    }
+    let preload = cold
+        .preload
+        .as_ref()
+        .ok_or_else(|| image::Error::Invalid("Missing XP4 preloaded data map".into()))?;
+    let data = preload.install(inverted, &plan, setup.dat_offset, &mut ram)?;
+    crate::green_led::preserve_loader_green(recipe, source, &mut ram)?;
     let init = ffinit(inverted, setup, api, &ram, api.load_address, None)?;
     Ok(vec![
         image::File::new("ffinit.bin", init)?,
         image::File::new("ffboot.bin", ram)?,
+        image::File::new("ffdata.bin", data)?,
     ])
 }
 

@@ -14,6 +14,8 @@ export interface ErrorLogRecord {
   kind: ErrorLogKind;
   message: string;
   stack?: string;
+  /** The error's own properties (such as a USB error's `kind` and limits) and its `cause` chain. */
+  details?: unknown;
   fault?: EngineFault;
   /** Origin and path only: queries and fragments can carry share links. */
   page: string;
@@ -30,7 +32,12 @@ export interface DeviceInfo {
   browser: string;
   os: string;
   mobile: boolean;
-  screen: { width: number; height: number; pixelRatio: number; orientation?: string };
+  screen: {
+    width: number;
+    height: number;
+    pixelRatio: number;
+    orientation?: string;
+  };
   viewport: { width: number; height: number };
   touchPoints: number;
   cores?: number;
@@ -48,7 +55,11 @@ export interface DeviceInfo {
 }
 
 interface NavigatorExtras {
-  userAgentData?: { brands: { brand: string; version: string }[]; mobile: boolean; platform: string };
+  userAgentData?: {
+    brands: { brand: string; version: string }[];
+    mobile: boolean;
+    platform: string;
+  };
   deviceMemory?: number;
   connection?: { effectiveType?: string; saveData?: boolean };
 }
@@ -133,14 +144,58 @@ function safeDeviceInfo(): DeviceInfo | { unavailable: string } {
 }
 
 const clip = (text: string) => (text.length > TEXT ? `${text.slice(0, TEXT)}…` : text);
-function describe(value: unknown): { message: string; stack?: string } {
+interface Description {
+  message: string;
+  stack?: string;
+  details?: unknown;
+}
+/** Own properties other than message and stack, then the cause chain. */
+function errorDetails(error: Error, depth = 0): Record<string, unknown> | undefined {
+  const details: Record<string, unknown> = {};
+  for (const key of Object.keys(error)) {
+    const value = (error as unknown as Record<string, unknown>)[key];
+    if (key !== 'cause' && typeof value !== 'function') details[key] = value;
+  }
+  if (error.cause !== undefined)
+    details.cause =
+      error.cause instanceof Error && depth < 3
+        ? {
+            message: `${error.cause.name}: ${error.cause.message}`,
+            stack: error.cause.stack,
+            ...errorDetails(error.cause, depth + 1),
+          }
+        : describe(error.cause).message;
+  return Object.keys(details).length ? details : undefined;
+}
+function describe(value: unknown): Description {
   if (value instanceof Error)
-    return { message: clip(`${value.name}: ${value.message}`), stack: value.stack && clip(value.stack) };
+    return {
+      message: clip(`${value.name}: ${value.message}`),
+      stack: value.stack && clip(value.stack),
+      details: errorDetails(value),
+    };
   if (typeof value === 'string') return { message: clip(value) };
   try {
     return { message: clip(JSON.stringify(value) ?? String(value)) };
   } catch {
     return { message: clip(String(value)) };
+  }
+}
+/** Console arguments as one record: every argument in the message, and the first
+ * error's stack and details. */
+function describeConsole(values: unknown[]): Description {
+  const error = values.find((value) => value instanceof Error);
+  const message = clip(values.map((value) => describe(value).message).join(' '));
+  return error ? { ...describe(error), message } : { message };
+}
+
+/** JSON-safe details within the text limit; anything else becomes clipped text. */
+function bounded(details: unknown) {
+  try {
+    const text = JSON.stringify(details);
+    return text.length > TEXT ? { text: clip(text) } : details;
+  } catch {
+    return { text: clip(String(details)) };
   }
 }
 
@@ -150,29 +205,36 @@ export function installErrorLog(send: (record: ErrorLogRecord) => void = post) {
   const seen = new Set<string>();
   const session = crypto.randomUUID();
   let sent = 0;
-  function log(kind: ErrorLogKind, value: unknown, fault?: EngineFault) {
+  function log(kind: ErrorLogKind, description: Description, fault?: EngineFault) {
     // Logging must never become a page error of its own.
     try {
-      record(kind, value, fault);
+      record(kind, description, fault);
     } catch {
       /* Drop this record. */
     }
   }
-  function record(kind: ErrorLogKind, value: unknown, fault?: EngineFault) {
-    const { message, stack } = describe(value);
+  function record(
+    kind: ErrorLogKind,
+    { message, stack, details }: Description,
+    fault?: EngineFault,
+  ) {
     const key = `${kind}\n${message}`;
     if (sent >= LIMIT || seen.has(key)) return;
     seen.add(key);
     sent++;
-    // The intake refuses records over 16 KiB; oversized fault details become text.
-    const details = fault && JSON.stringify(fault.details);
-    if (fault && details && details.length > TEXT) fault = { ...fault, details: { text: clip(details) } };
+    // The intake refuses records over 16 KiB; oversized details become text.
+    if (fault)
+      fault = {
+        ...fault,
+        details: bounded(fault.details) as EngineFault['details'],
+      };
     send({
       id: crypto.randomUUID(),
       session,
       kind,
       message,
       stack,
+      details: details === undefined ? undefined : bounded(details),
       fault,
       page: location.origin + location.pathname,
       build: __FUJIMOD_SIMULATOR_BUILD__,
@@ -182,18 +244,17 @@ export function installErrorLog(send: (record: ErrorLogRecord) => void = post) {
       uptime: Math.round(performance.now()),
     });
   }
-  addEventListener('error', (event) => log('error', event.error ?? event.message));
-  addEventListener('unhandledrejection', (event) => log('rejection', event.reason));
+  addEventListener('error', (event) => log('error', describe(event.error ?? event.message)));
+  addEventListener('unhandledrejection', (event) => log('rejection', describe(event.reason)));
   addEventListener('fujimod-fault', (event) => {
     const fault = (event as CustomEvent<EngineFault>).detail;
     const cause = [fault.details.type, fault.details.error].filter(Boolean).join(': ');
-    log('fault', cause ? `${fault.message} ${cause}` : fault.message, fault);
+    log('fault', describe(cause ? `${fault.message} ${cause}` : fault.message), fault);
   });
   const error = console.error.bind(console);
   console.error = (...values: unknown[]) => {
     error(...values);
-    const first = values.find((value) => value instanceof Error);
-    log('console', first ?? values.map((value) => describe(value).message).join(' '));
+    log('console', describeConsole(values));
   };
 }
 

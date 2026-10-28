@@ -1,0 +1,47 @@
+.br-empty {
+  margin: 0;
+  padding: 8px 10px;
+  font-size: 12px;
+  color: var(--wb-dim);
+}
+.br-list {
+  margin: 0;
+  padding: 4px 0;
+  list-style: none;
+}
+.br-list li {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 3px 10px;
+  font: 12px var(--wb-mono);
+}
+.br-size {
+  color: var(--wb-dim);
+}
+.br-actions {
+  display: grid;
+  padding: 6px 10px 8px;
+  border-top: 1px solid var(--wb-line);
+}
+/* Draws the eye once when a connected camera has reports. */
+.br-wiggle {
+  animation: br-wiggle 0.5s ease-in-out 2;
+}
+@keyframes br-wiggle {
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+  25% {
+    transform: translateX(-4px);
+  }
+  75% {
+    transform: translateX(4px);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .br-wiggle {
+    animation: none;
+  }
+}

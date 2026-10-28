@@ -1328,11 +1328,11 @@ name = "fujimod"
 version = "0.1.0"
 dependencies = [
  "fujimod-catalog",
- "fujimod-catalog-camera",
  "fujimod-catalog-configuration",
  "fujimod-catalog-firmware-identity",
  "fujimod-catalog-resolution",
  "fujimod-catalog-service",
+ "fujimod-catalog-workflows",
  "fujimod-emulator",
  "fujimod-emulator-cpu",
  "fujimod-emulator-cpu-hvf",
@@ -1398,18 +1398,6 @@ dependencies = [
  "sha2 0.10.9",
  "tsify",
  "wasm-bindgen",
-]
-
-[[package]]
-name = "fujimod-catalog-camera"
-version = "0.1.0"
-dependencies = [
- "fujimod-catalog-firmware-identity",
- "fujimod-workspace-hack",
- "serde",
- "serde_json",
- "sha2 0.10.9",
- "thiserror",
 ]
 
 [[package]]
@@ -1567,6 +1555,17 @@ dependencies = [
  "sha2 0.10.9",
  "tsify",
  "wasm-bindgen",
+]
+
+[[package]]
+name = "fujimod-catalog-workflows"
+version = "0.1.0"
+dependencies = [
+ "fujimod-catalog-firmware-identity",
+ "fujimod-workspace-hack",
+ "serde",
+ "serde_json",
+ "thiserror",
 ]
 
 [[package]]
@@ -2276,6 +2275,7 @@ dependencies = [
  "serde",
  "serde-wasm-bindgen",
  "serde_json",
+ "sha2 0.10.9",
  "tsify",
  "wasm-bindgen",
 ]
@@ -2461,9 +2461,9 @@ dependencies = [
  "fujimod-bindgen",
  "fujimod-catalog",
  "fujimod-catalog-bulk",
- "fujimod-catalog-camera",
  "fujimod-catalog-firmware-identity",
  "fujimod-catalog-service",
+ "fujimod-catalog-workflows",
  "fujimod-recovery",
  "fujimod-usb",
  "fujimod-usb-app80",
@@ -2667,11 +2667,12 @@ dependencies = [
 name = "fujimod-python-usb"
 version = "0.1.0"
 dependencies = [
- "fujimod-catalog-camera",
  "fujimod-catalog-firmware-identity",
+ "fujimod-catalog-workflows",
  "fujimod-firmware",
  "fujimod-python-usb-base",
  "fujimod-recovery",
+ "fujimod-runtime-install",
  "fujimod-usb",
  "fujimod-workflows",
  "fujimod-workspace-hack",
@@ -2745,6 +2746,17 @@ dependencies = [
  "futures-lite",
  "serde",
  "serde_json",
+]
+
+[[package]]
+name = "fujimod-runtime-install"
+version = "0.1.0"
+dependencies = [
+ "fujimod-usb",
+ "futures-lite",
+ "serde",
+ "serde_json",
+ "thiserror",
 ]
 
 [[package]]
@@ -2857,8 +2869,8 @@ version = "0.1.0"
 dependencies = [
  "fujimod-catalog",
  "fujimod-catalog-bulk",
- "fujimod-catalog-camera",
  "fujimod-catalog-firmware-identity",
+ "fujimod-catalog-workflows",
  "fujimod-corpus",
  "fujimod-firmware",
  "fujimod-usb",

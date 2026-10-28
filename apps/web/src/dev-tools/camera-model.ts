@@ -84,20 +84,22 @@ export interface CameraLogEntry {
   detail?: string;
 }
 
+/** Reads through one qualified bulk path, and writes. Close it to restore the camera's bulk source. */
+export interface ToolMemory {
+  read(address: number, length: number): Promise<Uint8Array>;
+  write(address: number, data: Uint8Array<ArrayBuffer>): Promise<void>;
+  /** Diagnostic scratch the stock setup overwrote, which may lie inside read bytes. */
+  readonly overwritten: { address: number; size: number } | null;
+  close(): Promise<void>;
+}
+
 /** An open ff80 session. Close it when the tool's operation is done. */
 export interface ToolSession {
   deviceInfo(selector: string): Promise<{ text?: string; data: Uint8Array }>;
   configurationGeometry(): Promise<{ capacity: number; pageBytes: number }>;
   readConfiguration(offset: number, length: number): Promise<Uint8Array>;
-  /**
-   * Qualify the firmware's stock bulk path and read a range through it. The
-   * result names diagnostic scratch the stock setup overwrote.
-   */
-  readBulk(
-    firmwareId: string,
-    address: number,
-    length: number,
-  ): Promise<{ data: Uint8Array; overwritten: { address: number; size: number } | null }>;
+  /** Qualify the firmware's stock bulk path once for any number of reads. */
+  memory(firmwareId: string): Promise<ToolMemory>;
   submitConsole(data: Uint8Array): Promise<void>;
   pollConsole(): Promise<{ complete: boolean; status: number; output: Uint8Array }>;
   /** The debug-mode workflows, run by the Enter and Leave debug mode tools. */

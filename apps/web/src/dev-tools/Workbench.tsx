@@ -9,10 +9,12 @@ import {
   onSettled,
   untrack,
 } from 'solid-js';
+import { shownError } from '@fujimod/emulator-ui/ui/shown-error';
 import type { CameraModel } from './camera-model';
 import { CameraDetails } from './CameraDetails';
 import { CameraStrip } from './CameraStrip';
 import { CameraTools } from './CameraTools';
+import { BugReports } from './reports/BugReports';
 import { Wizard, toolAt, toolPath } from './routes';
 import { ConsoleLog } from './ConsoleLog';
 import { ToolDeck, type SavedCamera } from './ToolDeck';
@@ -97,7 +99,7 @@ export function Workbench(props: {
       const added = cameras().find((entry) => !known.has(entry.id));
       if (added) setSelected(added.id);
     } catch (error) {
-      setConnectError(error instanceof Error ? error.message : String(error));
+      setConnectError(shownError(error));
     } finally {
       setConnecting(false);
     }
@@ -110,7 +112,7 @@ export function Workbench(props: {
     try {
       await start.call(props.model, savedCamera);
     } catch (error) {
-      setConnectError(error instanceof Error ? error.message : String(error));
+      setConnectError(shownError(error));
     } finally {
       setConnecting(false);
     }
@@ -258,6 +260,11 @@ export function Workbench(props: {
                         onFile={fileFor(current().id)}
                         debug={operations()}
                         onWizard={setWizard}
+                      />
+                      <BugReports
+                        camera={current()}
+                        model={props.model}
+                        onFile={fileFor(current().id)}
                       />
                       <CameraTools
                         camera={current()}

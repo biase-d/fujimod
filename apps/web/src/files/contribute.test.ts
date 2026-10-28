@@ -3,11 +3,39 @@ import { createHash, randomFillSync } from 'node:crypto';
 import { gunzipSync } from 'node:zlib';
 import { contribute, type ContributionProgress } from './contribute';
 const id = 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa';
+const shareUrl = 'https://share.fujimod.com/contribution/bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb';
 function urlText(value: Parameters<typeof fetch>[0]) {
   return value instanceof Request ? value.url : value.toString();
 }
 const failure = 'Upload failed. Your files are still on this device. Try again.';
 afterEach(() => vi.unstubAllGlobals());
+test('untrusted share URLs are rejected instead of being offered for copying', async () => {
+  const blob = new Blob(['data']);
+  const input = {
+    id,
+    files: [{ model: 'X70', serial: '1', name: 'flash.bin', blob }],
+    manifest: {},
+    message: '',
+  };
+  for (const shareUrl of [
+    'javascript:alert(1)',
+    'https://other.example/contribution/123',
+    undefined,
+  ]) {
+    vi.stubGlobal(
+      'fetch',
+      vi.fn(async () =>
+        Response.json({
+          id,
+          files: [{ complete: true, parts: [] }],
+          finished: true,
+          shareUrl,
+        }),
+      ),
+    );
+    await expect(contribute(input, () => {})).rejects.toThrow(failure);
+  }
+});
 function server(blobs: Blob[]) {
   const files = blobs.map(() => ({
     complete: false,
@@ -18,11 +46,12 @@ function server(blobs: Blob[]) {
   const fetcher = vi.fn<typeof fetch>(async (url, init) => {
     expect(init?.credentials).toBe('omit');
     const path = urlText(url).split(`/contributions/${id}`)[1];
-    if (path === '') return Response.json({ id, files, finished });
+    if (path === '')
+      return Response.json({ id, files, finished, shareUrl: finished ? shareUrl : undefined });
     if (path === '/finish') {
       expect(files.every((file) => file.complete)).toBe(true);
       finished = true;
-      return Response.json({ id });
+      return Response.json({ id, shareUrl });
     }
     const match = /^\/files\/(\d+)(?:\/(parts\/(\d+)|complete))?$/.exec(path)!;
     const index = Number(match[1]),
@@ -74,7 +103,7 @@ test('streams gzip in 8 MiB parts, reports uncompressed progress, and resumes sa
   fail = false;
   fake.fetcher.mockClear();
   progress.length = 0;
-  expect(await contribute(input, (p) => progress.push(p))).toEqual({ id });
+  expect(await contribute(input, (p) => progress.push(p))).toEqual({ id, shareUrl });
   expect(fake.fetcher.mock.calls.some(([url]) => urlText(url).endsWith('/files/0/parts/1'))).toBe(
     false,
   );

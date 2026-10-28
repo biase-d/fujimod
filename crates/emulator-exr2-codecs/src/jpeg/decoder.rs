@@ -2,9 +2,12 @@
 //! zune-jpeg with SIMD features disabled and unsafe code disabled in options.
 //! RGB box downsampling and full-range packed422 conversion are declared;
 //! Playback output follows these register-selected decoding steps.
-use fujimod_emulator_imaging::exr2_isp::{dma::{Raster, Transfer, physical}, due, word};
 use fujimod_emulator_devices::exr2::irq_routes::Irq;
 use fujimod_emulator_devices::{Cx, Device};
+use fujimod_emulator_imaging::exr2_isp::{
+    dma::{Raster, Transfer, physical},
+    due, word,
+};
 use serde::{Deserialize, Serialize};
 use std::sync::Arc;
 use zune_core::{bytestream::ZCursor, colorspace::ColorSpace, options::DecoderOptions};
@@ -19,6 +22,7 @@ enum Pending {
     Reset(u64),
     Clear(u64),
     Decode(u32),
+    Input(u64),
 }
 pub struct Decoder {
     r: Vec<u32>,
@@ -27,6 +31,63 @@ pub struct Decoder {
     source: Arc<[u8]>,
     dma: Transfer,
     pending: Option<Pending>,
+    waiting_input: bool,
+}
+
+// Marker lengths exclude embedded marker-like data. Within entropy FF00
+// is data, and restart markers do not end the scan. Split markers wait.
+fn complete_jpeg(bytes: &[u8]) -> Result<bool, String> {
+    if !bytes.starts_with(&[255, 216]) {
+        return Err("JPEG input has no SOI".into());
+    }
+    let mut position = 2;
+    let mut scan = false;
+    while position < bytes.len() {
+        if scan {
+            while position < bytes.len() && bytes[position] != 255 {
+                position += 1;
+            }
+            if position == bytes.len() {
+                return Ok(false);
+            }
+        } else if bytes[position] != 255 {
+            return Err("JPEG marker prefix is invalid".into());
+        }
+        while position < bytes.len() && bytes[position] == 255 {
+            position += 1;
+        }
+        if position == bytes.len() {
+            return Ok(false);
+        }
+        let marker = bytes[position];
+        position += 1;
+        if scan && (marker == 0 || (208..=215).contains(&marker)) {
+            continue;
+        }
+        if marker == 217 {
+            return Ok(true);
+        }
+        scan = false;
+        if marker == 0 || marker == 216 {
+            return Err("JPEG marker is invalid".into());
+        }
+        if marker == 1 || (208..=215).contains(&marker) {
+            continue;
+        }
+        if position + 2 > bytes.len() {
+            return Ok(false);
+        }
+        let size = u16::from_be_bytes([bytes[position], bytes[position + 1]]) as usize;
+        if size < 2 {
+            return Err("JPEG marker length is invalid".into());
+        }
+        if size > bytes.len() - position {
+            return Ok(false);
+        }
+        position += size;
+        scan = marker == 218;
+    }
+    Ok(false)
 }
 
 #[inline]
@@ -70,6 +131,7 @@ impl Decoder {
             source: Arc::from([]),
             dma: Transfer::default(),
             pending: None,
+            waiting_input: false,
         })
     }
     fn valid(o: usize) -> bool {
@@ -78,7 +140,7 @@ impl Decoder {
             0 | 4 | 8 | 0x10 | 0x14 | 0x18 | 0x1c | 0xa0 | 0x100..=0x128
         )
     }
-    fn start(&mut self, cx: &Cx<'_>) -> Result<(), String> {
+    fn start(&mut self, cx: &Cx<'_>, refill: bool) -> Result<(), String> {
         let r = &self.r;
         let (src, dst) = (
             (r[0x10c / 4] & 0x3fffffff) as u64,
@@ -93,9 +155,25 @@ impl Decoder {
         }
         physical(src, count)?;
         physical(dst, capacity)?;
-        self.source = vec![0; count].into();
-        cx.ram_read(src, Arc::get_mut(&mut self.source).unwrap())?;
-        if !self.source.starts_with(&[255, 0xd8]) {
+        if refill != self.waiting_input {
+            return Err("JPEG input refill requires a preceding input request".into());
+        }
+        let prior = if refill { self.source.len() } else { 0 };
+        if count == 0
+            || prior
+                .checked_add(count)
+                .is_none_or(|n| n > 64 * 1024 * 1024)
+        {
+            return Err("JPEG accumulated input exceeds the byte bound".into());
+        }
+        let mut input = Vec::with_capacity(prior + count);
+        if refill {
+            input.extend_from_slice(&self.source);
+        }
+        input.resize(prior + count, 0);
+        cx.ram_read(src, &mut input[prior..])?;
+        self.source = input.into();
+        if !refill && !self.source.starts_with(&[255, 0xd8]) {
             if count > 4
                 && self.source[2] == 255
                 && matches!(self.source[3], 0xc4 | 0xdb | 0xe0..=0xef)
@@ -105,6 +183,15 @@ impl Decoder {
                 return Err("JPEG decode input has no supported stream header".into());
             }
         }
+        if !complete_jpeg(&self.source)? {
+            self.waiting_input = true;
+            self.pending = Some(Pending::Input(due(
+                cx.now(),
+                self.options.completion_ticks,
+            )?));
+            return Ok(());
+        }
+        self.waiting_input = false;
         // SOF dimensions are U16. Bound decoded work by the pixel budget and
         // programmed output allocation below, including downsampled images.
         let options = DecoderOptions::new_safe()
@@ -191,7 +278,7 @@ impl Decoder {
             self.dma.cancel();
             return Err(error);
         }
-        self.pending = Some(Pending::Decode(count as u32));
+        self.pending = Some(Pending::Decode(self.source.len() as u32));
         Ok(())
     }
     fn store(&mut self, cx: &Cx<'_>, o: usize, v: u32) -> Result<(), String> {
@@ -204,12 +291,19 @@ impl Decoder {
         }
         match (o, v) {
             (0x118, 1) => {
+                self.waiting_input = false;
+                self.source = Arc::from([]);
                 self.pending = Some(Pending::Reset(due(cx.now(), self.options.reset_ticks)?))
             }
             (0, 0x100) => {
                 self.pending = Some(Pending::Clear(due(cx.now(), self.options.reset_ticks)?))
             }
-            (0, 1) => self.start(cx)?,
+            (0, 1) => self.start(cx, false)?,
+            (0x118, 4) => {
+                self.start(cx, true)?;
+                self.r[0x118 / 4] = 0;
+                return Ok(());
+            }
             (8 | 0xa0 | 0x100 | 0x104 | 0x10c | 0x110 | 0x11c | 0x120 | 0x124 | 0x128, _) => {}
             _ => return Err("unsupported JPEG decoder register write".into()),
         }
@@ -222,6 +316,7 @@ impl Device for Decoder {
         r: Vec<u32>,
         dma: Transfer,
         pending: Option<Pending>,
+        waiting_input: bool,
         ; blobs: [source]
     );
     fn fingerprint(&self) -> std::result::Result<serde_json::Value, String> {
@@ -255,7 +350,7 @@ impl Device for Decoder {
     }
     fn next_deadline(&self, _: u64) -> Option<u64> {
         match self.pending {
-            Some(Pending::Reset(t) | Pending::Clear(t)) => Some(t),
+            Some(Pending::Reset(t) | Pending::Clear(t) | Pending::Input(t)) => Some(t),
             Some(Pending::Decode(_)) => self.dma.deadline(),
             None => None,
         }
@@ -270,6 +365,12 @@ impl Device for Decoder {
                 self.r[0x118 / 4] = 0;
             }
             Pending::Clear(_) => self.r[0] = 0,
+            Pending::Input(_) => {
+                // Request the next programmed input pair. No output DMA or
+                // decode-complete event exists before the final input.
+                self.r[1] |= 0x1000000;
+                Transfer::interrupt(cx, self.irq);
+            }
             Pending::Decode(count) => {
                 match self.dma.write(cx) {
                     Ok(true) => {}
@@ -290,12 +391,20 @@ impl Device for Decoder {
         self.advance(cx)
     }
     fn save(&self) -> serde_json::Value {
-        serde_json::json!((&self.r, &self.dma, &self.pending))
+        serde_json::json!((&self.r, &self.dma, &self.pending, self.waiting_input))
     }
     fn diagnostic_state(&self) -> serde_json::Value {
-        serde_json::json!((&self.r, self.dma.fingerprint(), &self.pending))
+        serde_json::json!((
+            &self.r,
+            self.dma.fingerprint(),
+            &self.pending,
+            self.waiting_input
+        ))
     }
     fn diagnostic_buffer(&self, name: &str) -> Result<&[u8], String> {
+        if name == "encoded-input" {
+            return Ok(&self.source);
+        }
         if name != "dma-output" {
             return Err(format!("JPEG decoder has no diagnostic buffer {name}"));
         }
@@ -303,7 +412,7 @@ impl Device for Decoder {
         Ok(&self.dma.pixels)
     }
     fn restore(&mut self, v: &serde_json::Value) -> Result<(), String> {
-        let (r, d, p): (Vec<u32>, Transfer, Option<Pending>) =
+        let (r, d, p, waiting_input): (Vec<u32>, Transfer, Option<Pending>, bool) =
             serde_json::from_value(v.clone()).map_err(|e| e.to_string())?;
         if r.len() != self.r.len() {
             return Err("JPEG decoder bank size".into());
@@ -311,6 +420,7 @@ impl Device for Decoder {
         self.r = r;
         self.dma = d;
         self.pending = p;
+        self.waiting_input = waiting_input;
         Ok(())
     }
 }
@@ -318,6 +428,21 @@ impl Device for Decoder {
 #[cfg(test)]
 mod pixel_tests {
     use super::*;
+
+    #[test]
+    fn marker_completion_ignores_app_payload_and_stuffed_entropy() {
+        let prefix = [
+            255, 216, 255, 224, 0, 4, 255, 217, 255, 218, 0, 2, 7, 255, 0, 217, 255, 208,
+        ];
+        assert!(!complete_jpeg(&prefix).unwrap());
+        let mut complete = prefix.to_vec();
+        complete.extend_from_slice(&[255, 217]);
+        for length in 2..complete.len() {
+            assert!(!complete_jpeg(&complete[..length]).unwrap());
+        }
+        assert!(complete_jpeg(&complete).unwrap());
+        assert!(complete_jpeg(&[255, 216, 255, 224, 0, 1]).is_err());
+    }
 
     #[test]
     fn box_scaling_and_full_size_fast_path_preserve_i64_reference_colors() {
@@ -403,8 +528,16 @@ mod checkpoint_tests {
         }
         device.pending = Some(Pending::Decode(41));
         let identity = device.fingerprint().unwrap();
-        assert!(serde_json::to_vec(&device.diagnostic_state()).unwrap().len() < 4096);
-        assert_eq!(device.diagnostic_buffer("dma-output").unwrap(), &*device.dma.pixels);
+        assert!(
+            serde_json::to_vec(&device.diagnostic_state())
+                .unwrap()
+                .len()
+                < 4096
+        );
+        assert_eq!(
+            device.diagnostic_buffer("dma-output").unwrap(),
+            &*device.dma.pixels
+        );
         assert!(device.diagnostic_buffer("missing").is_err());
         assert_eq!(device.fingerprint().unwrap(), identity);
         let saved = device.checkpoint().unwrap();

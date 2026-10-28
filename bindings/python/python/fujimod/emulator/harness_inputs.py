@@ -15,7 +15,7 @@ class CallerBoard(Protocol):
     """Paused board services used by the ARM caller, on the common Session."""
 
     cpus: tuple[Processor, ...] | list[Processor]
-    identity: list[int]
+    identity: list[int | None]
     selected_core: int
     quantum: int
     transaction_limit: int

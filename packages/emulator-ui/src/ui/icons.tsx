@@ -19,6 +19,8 @@ const paths: Record<string, string> = {
   upload: '<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M17 8l-5-5-5 5M12 3v12"/>',
   download: '<path d="M12 15V3M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5"/>',
   chevron: '<path d="m6 9 6 6 6-6"/>',
+  'arrow-right': '<path d="M5 12h14m-6-6 6 6-6 6"/>',
+  'sd-card': '<path d="M6 3h10l3 4v14H5V3Z"/><path d="M8 3v5h7V3M8 21v-8h8v8M10 3v3M13 3v3"/>',
   forward: '<path d="m9 18 6-6-6-6"/>',
   plus: '<path d="M5 12h14M12 5v14"/>',
   gauge: '<path d="m12 14 4-4"/><path d="M3.34 19a10 10 0 1 1 17.32 0"/>',

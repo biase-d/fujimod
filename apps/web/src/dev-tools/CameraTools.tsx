@@ -1,11 +1,8 @@
 import { Show, createSignal } from 'solid-js';
+import { shownError } from '@fujimod/emulator-ui/ui/shown-error';
 import type { Camera, CameraModel, ToolSession } from './camera-model';
 import type { AddFile } from '../files/shelf';
 import { Wizard } from './routes';
-
-function message(error: unknown) {
-  return error instanceof Error ? error.message : String(error);
-}
 
 /** The tools for the selected camera: Read, Console and Write. */
 export function CameraTools(props: {
@@ -33,7 +30,7 @@ export function CameraTools(props: {
     try {
       await model.withSession(id, tool, (session) => operation(session, file));
     } catch (error) {
-      setStatus(message(error));
+      setStatus(shownError(error));
     } finally {
       setRunning('');
     }

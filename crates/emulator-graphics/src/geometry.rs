@@ -1,7 +1,7 @@
 //! Path recovery, curve flattening and stroke construction
 //! (`_ui_transform`, `_ui_curve`, `_ui_paths`, `_ui_stroke`).
 //!
-//! Declared software laws, not measured hardware: 0.125px flattening
+//! Declared software laws, not measured hardware: 1/32px flattening
 //! tolerance, adaptive de Casteljau subdivision to depth 14, round/bevel/miter
 //! (limit 4) joins, butt/round/square caps and polygonal circles.
 
@@ -119,7 +119,11 @@ pub fn paths(draw: &Draw) -> Result<Vec<(Vec<Point>, bool)>> {
         pmax(hypot2(matrix[0], matrix[3]), hypot2(matrix[1], matrix[4])),
         1.0,
     );
-    let tolerance = if object_stroke { 0.125 / scale } else { 0.125 };
+    let tolerance = if object_stroke {
+        0.03125 / scale
+    } else {
+        0.03125
+    };
     let mut paths: Vec<(Vec<Point>, bool)> = Vec::new();
     let mut current: Vec<Point> = Vec::new();
     let mut closed = false;
@@ -342,4 +346,34 @@ pub fn stroke_with_style(
         }
     }
     Ok(polygons)
+}
+
+#[cfg(test)]
+mod cap_tests {
+    use super::*;
+    #[test]
+    fn butt_and_square_cap_codes_have_distinct_extents() {
+        let paths = vec![(vec![(0., 0.), (4., 0.)], false)];
+        for (cap, expected) in [(0, (0., 4.)), (2, (-1., 5.))] {
+            let polygons = stroke_with_style(
+                &paths,
+                &StrokeStyle {
+                    radius: 1.,
+                    matrix: [1., 0., 0., 0., 1., 0.],
+                    device_radius: true,
+                    cap,
+                    join: 0,
+                },
+            )
+            .unwrap();
+            let xs: Vec<_> = polygons.iter().flatten().map(|p| p.0).collect();
+            assert_eq!(
+                (
+                    xs.iter().copied().fold(f64::INFINITY, f64::min),
+                    xs.iter().copied().fold(f64::NEG_INFINITY, f64::max)
+                ),
+                expected
+            );
+        }
+    }
 }

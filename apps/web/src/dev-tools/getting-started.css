@@ -40,6 +40,9 @@
   background: #16211a;
   color: var(--wb-accent);
 }
+.gs-number .i {
+  stroke-width: 3;
+}
 .gs-step[data-state='running'] .gs-number {
   border-color: var(--wb-accent);
   color: var(--wb-text);

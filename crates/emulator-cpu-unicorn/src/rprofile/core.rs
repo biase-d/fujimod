@@ -1,7 +1,7 @@
 //! Counted R-profile execution over the pinned Unicorn accelerator.
 //! The owner supplies physical backing and interrupt pins; devices never see
 //! translation metadata or the processor's architectural state.
-use super::{
+use crate::{
     accounting::{Accounting, Span},
     memory::{Memory, OwnerBarrierLease},
 };
@@ -21,7 +21,7 @@ mod clock_poll;
 mod exclusive;
 mod loops;
 mod mapping;
-mod observers;
+use crate::observers;
 mod pmu;
 mod run;
 mod snapshot;
@@ -224,7 +224,8 @@ impl Core {
             at_block: Cell::new(false),
             at_instruction: Cell::new(false),
         });
-        e.id.set(e.memory.register(Rc::downgrade(&e)));
+        let owner: Rc<dyn crate::memory::CodeOwner> = e.clone();
+        e.id.set(e.memory.register(Rc::downgrade(&owner)));
         unsafe {
             let r = &mut *record.as_ptr();
             r.ring = (*e.ring.get()).as_mut_ptr();
@@ -1012,3 +1013,15 @@ unsafe fn exception(exception: arm::Exception, data: *mut c_void) {
     });
 }
 unsafe fn device_boundary(_: Access, _: u64, _: i32, _: i64, _: *mut c_void) {}
+
+impl crate::memory::CodeOwner for Execution {
+    fn watch_code(&self, address: u64, bytes: u64) -> Result<(), String> {
+        self.cpu.watch_stores(address, bytes)
+    }
+    fn invalidate_code_page(&self, address: u64) -> Result<(), String> {
+        self.cpu.invalidate_code(Some((address, address + 4096)))
+    }
+    fn prepare_code_write(&self) -> Result<(), String> {
+        self.prepare_flush()
+    }
+}

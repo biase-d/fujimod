@@ -3,6 +3,7 @@ import { simulatorIssue, type SimulatorIssueContext } from './simulator-feedback
 import { LocalReports, type ReportCapture } from './local-reports';
 import { downloadBlob } from './download';
 import { deliverReport, storePendingReport } from './report-delivery';
+import { shownError } from './shown-error';
 import type { ReportSubmission } from '../engine/report';
 import './feedback.css';
 export function Feedback(props: {
@@ -69,7 +70,7 @@ export function Feedback(props: {
         setStatus('Report downloaded');
       }
     } catch (error) {
-      setStatus(`Could not save report: ${String(error)}`);
+      setStatus(`Could not save report: ${shownError(error)}`);
     } finally {
       setBusy(false);
     }

@@ -2,6 +2,7 @@ import type { Contributions } from './contributions.ts';
 import type { IssueReports } from './issue-reports.ts';
 import type { ShareRoom, TurnBudget } from './worker.ts';
 export interface Env {
+  SHARED_FILES: R2Bucket;
   ISSUE_REPORTS: R2Bucket;
   REPORTS_INDEX: D1Database;
   CONTRIBUTIONS: DurableObjectNamespace<Contributions>;

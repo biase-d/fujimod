@@ -1,6 +1,7 @@
 import { DurableObject } from 'cloudflare:workers';
 import type { BudgetRecord, Env } from './env.ts';
 import { completeUpload, indexExisting, putObject, startUpload } from './bucket.ts';
+import { publishUpload } from './publications.ts';
 
 const MiB = 1024 * 1024;
 const uuid = /^[a-f0-9]{8}-[a-f0-9]{4}-[1-8][a-f0-9]{3}-[89ab][a-f0-9]{3}-[a-f0-9]{12}$/i;
@@ -116,6 +117,14 @@ function segment(value: unknown): string {
 
 /** A single coordinator makes creation and the daily budget atomic with respect to requests. */
 export class Contributions extends DurableObject<Env> {
+  private async receipt(id: string, contribution: Contribution) {
+    const shareUrl = await publishUpload(this.env, `contribution:${id}`, [
+      ...contribution.files.map((file) => ({ key: file.key, name: `${file.name}.gz` })),
+      { key: `contributions/${id}/manifest.json`, name: 'manifest.json' },
+      { key: `contributions/${id}/message.json`, name: 'message.json' },
+    ]);
+    return { id, shareUrl };
+  }
   async fetch(request: Request) {
     return this.ctx.blockConcurrencyWhile(async () => {
       try {
@@ -174,7 +183,11 @@ export class Contributions extends DurableObject<Env> {
           )
         )
           throw new Invalid('Contribution files changed', 409);
-        return json({ id, ...contribution });
+        return json({
+          id,
+          ...contribution,
+          ...(contribution.finished ? await this.receipt(id, contribution) : {}),
+        });
       }
       const day = new Date().toISOString().slice(0, 10);
       const budget = await this.ctx.storage.get<BudgetRecord>('budget');
@@ -187,7 +200,7 @@ export class Contributions extends DurableObject<Env> {
     if (!contribution) throw new Invalid('Contribution not found', 404);
     if (!match[2] && !match[5] && request.method === 'GET') return json({ id, ...contribution });
     if (match[5] && request.method === 'POST') {
-      if (contribution.finished) return json({ id });
+      if (contribution.finished) return json(await this.receipt(id, contribution));
       if (!contribution.files.every((file) => file.complete))
         throw new Invalid('Files incomplete', 409);
       const body = record(await metadata(request));
@@ -224,7 +237,7 @@ export class Contributions extends DurableObject<Env> {
       contribution.finished = true;
       await this.ctx.storage.put(key, contribution);
       await this.ctx.storage.delete(pendingKey);
-      return json({ id });
+      return json(await this.receipt(id, contribution));
     }
     const file = match[2] === undefined ? undefined : contribution.files[Number(match[2])];
     if (!file) throw new Invalid('File not found', 404);

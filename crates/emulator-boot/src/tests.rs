@@ -161,16 +161,14 @@ fn checked_run_configuration_selects_runtime_and_supplies_scene_and_quantum() {
 }
 
 #[test]
-fn rec_configuration_starts_with_manual_lever_and_tilted_lcd() {
+fn rec_configuration_starts_with_manual_lever_and_normal_lcd() {
     let spec = prepare("x70-110-rec", &[]).unwrap();
     let levels = &model(&spec, "serial_gpio")["options"]["input_levels"];
-    for (port, pin) in [(2, 11), (1, 1)] {
-        assert_eq!(levels[port].as_u64().unwrap() & (1 << pin), 0);
-    }
-    let controls: fujimod_catalog_controls::FirmwareControlIds = serde_json::from_value(
-        spec.resolved.reference.control_ids.clone().unwrap(),
-    )
-    .unwrap();
+    // The manual lever is asserted (low); the LCD tilt switch is released (high).
+    assert_eq!(levels[2].as_u64().unwrap() & (1 << 11), 0);
+    assert_ne!(levels[1].as_u64().unwrap() & (1 << 1), 0);
+    let controls: fujimod_catalog_controls::FirmwareControlIds =
+        serde_json::from_value(spec.resolved.reference.control_ids.clone().unwrap()).unwrap();
     for (control, key, connection) in [
         (
             "auto_mode_selector_lever",
@@ -909,4 +907,38 @@ fn browser_graphs_select_portable_encoding_on_every_host() {
             "software"
         );
     }
+}
+
+#[path = "tests/pwic.rs"]
+mod pwic;
+
+#[test]
+fn statistics_dma_uses_its_selected_latency_instead_of_the_scene_frame_period() {
+    // Owner report (2026-10-26): restarted X70 live view washes out before
+    // AE recovers. A transfer longer than the sensor frame skips metering
+    // samples and breaks the exposure command/readout pipeline's cadence.
+    for (latency, frame) in [(1024, 400000), (321, 480000)] {
+        let mut resolved =
+            ResolvedConfiguration::with_overlays("x70-110-rec", &["x70-110-browser-camera".into()])
+                .unwrap();
+        resolved
+            .configuration
+            .preset
+            .as_mut()
+            .unwrap()
+            .factory_options
+            .producer_data_ticks = Some(latency);
+        run_scene(&mut resolved).frame_period_ticks = frame;
+        let run = prepared(resolved).unwrap();
+        assert_eq!(
+            model(&run, "statistics")["options"]["clock"]["ticks"],
+            latency
+        );
+        assert_eq!(model(&run, "live_frames")["options"]["period_ticks"], frame);
+    }
+    let base = prepare("x70-110-rec", &[]).unwrap();
+    assert_eq!(
+        model(&base, "statistics")["options"]["clock"]["ticks"],
+        400000
+    );
 }

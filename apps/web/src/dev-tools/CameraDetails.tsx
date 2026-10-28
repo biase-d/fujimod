@@ -1,4 +1,5 @@
 import { Show, createMemo, createSignal } from 'solid-js';
+import { shownError } from '@fujimod/emulator-ui/ui/shown-error';
 import { catalog } from 'fujimod';
 import type { Camera, CameraModel } from './camera-model';
 import { cameraState } from './CameraStrip';
@@ -31,7 +32,7 @@ export function CameraDetails(props: { camera: Camera; model: CameraModel }) {
     try {
       await props.model.setSharing(props.camera.id, on);
     } catch (error) {
-      setSharingError(error instanceof Error ? error.message : String(error));
+      setSharingError(shownError(error));
     } finally {
       setSharingBusy(false);
     }

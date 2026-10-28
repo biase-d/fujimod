@@ -10,30 +10,7 @@ use usb::ff80::{
     commands::memory::{Address, MemoryRange},
 };
 
-enum NativeReader {
-    Memory(usb::operations::memory::MemoryReader<NativeSession>),
-    Data(usb::operations::data::DataReader<NativeSession>),
-}
-impl NativeReader {
-    fn completed(&self) -> u32 {
-        match self {
-            Self::Memory(r) => r.bytes_completed(),
-            Self::Data(r) => r.bytes_completed(),
-        }
-    }
-    fn into_session(self) -> NativeSession {
-        match self {
-            Self::Memory(r) => r.into_inner(),
-            Self::Data(r) => r.into_inner(),
-        }
-    }
-    async fn next(&mut self) -> usb::Result<Option<Vec<u8>>> {
-        match self {
-            Self::Memory(r) => r.next_chunk().await,
-            Self::Data(r) => r.next_chunk().await,
-        }
-    }
-}
+type NativeReader = usb::operations::data::DataReader<NativeSession>;
 pub(crate) struct ReaderState {
     reader: Option<NativeReader>,
     owner: Rc<RefCell<Slot>>,
@@ -45,8 +22,8 @@ pub(crate) struct ReaderState {
 impl ReaderState {
     fn restore(&mut self) {
         if let Some(reader) = self.reader.take() {
-            self.completed = reader.completed();
-            let native = reader.into_session();
+            self.completed = reader.bytes_completed();
+            let native = reader.into_inner();
             let mut owner = self.owner.borrow_mut();
             if matches!(*owner, Slot::Range(_)) {
                 *owner = Slot::Open(native);
@@ -77,7 +54,7 @@ impl Drop for ChunkLease {
         state.busy = false;
         state.cancel.take();
         if let Some(reader) = self.reader.take() {
-            state.completed = reader.completed();
+            state.completed = reader.bytes_completed();
             state.reader = Some(reader);
         }
         if state.closed {
@@ -136,7 +113,7 @@ impl RangeReader {
                         .reader
                         .as_mut()
                         .expect("chunk lease")
-                        .next()
+                        .next_chunk()
                         .await
                         .map_err(error)
                 },
@@ -185,23 +162,12 @@ impl RangeReader {
 fn create(
     session: &Session,
     range: MemoryRange,
-    window: Option<usb::operations::data::DataWindow>,
+    window: usb::operations::data::DataWindow,
 ) -> Result<RangeReader, JsValue> {
-    if let Some(window) = window {
-        window.validate(range).map_err(error)?;
-    }
+    window.validate(range).map_err(error)?;
     let native = take_native(&session.owner, Slot::Range(std::rc::Weak::new()), false)?;
-    let reader = match window {
-        Some(window) => NativeReader::Data(
-            usb::operations::data::DataReader::new(native, window, range)
-                .expect("window checked before taking session"),
-        ),
-        None => NativeReader::Memory(usb::operations::memory::MemoryReader::new(
-            native,
-            range,
-            session.limits.memory,
-        )),
-    };
+    let reader = usb::operations::data::DataReader::new(native, window, range)
+        .expect("window checked before taking session");
     let inner = Rc::new(RefCell::new(ReaderState {
         reader: Some(reader),
         owner: session.owner.clone(),
@@ -212,21 +178,6 @@ fn create(
     }));
     *session.owner.borrow_mut() = Slot::Range(Rc::downgrade(&inner));
     Ok(RangeReader { inner })
-}
-#[wasm_bindgen(js_name=memoryChunks)]
-pub fn memory_chunks(
-    session: &Session,
-    #[wasm_bindgen(unchecked_param_type = "number")] address: JsValue,
-    #[wasm_bindgen(unchecked_param_type = "number")] length: JsValue,
-) -> Result<RangeReader, JsValue> {
-    let address = error::integer(address, u32::MAX)?;
-    let length = error::integer(length, u32::MAX)?;
-
-    create(
-        session,
-        MemoryRange::new(Address(address), nz(length)?).map_err(error)?,
-        None,
-    )
 }
 #[wasm_bindgen(js_name=dataChunks)]
 pub fn data_chunks(
@@ -241,6 +192,6 @@ pub fn data_chunks(
     create(
         session,
         MemoryRange::new(Address(address), nz(length)?).map_err(error)?,
-        Some(window.inner),
+        window.inner,
     )
 }

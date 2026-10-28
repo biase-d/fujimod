@@ -59,8 +59,9 @@ try {
   await page.locator('#viewer-tools[data-ready="true"]').waitFor({ state: 'attached' });
   console.log('Viewer ready; selecting firmware.');
   const chooser = page.waitForEvent('filechooser');
-  await page.locator('#firmware-prompt').click();
+  await page.locator('label.file-drop-choose').click();
   await (await chooser).setFiles(dat);
+  await page.getByRole('button', { name: 'Run unmodified in your browser', exact: true }).click();
   console.log('Firmware selected; waiting for the real camera boot.');
   await page.waitForFunction(
     () => document.querySelector('#live-label')?.textContent === 'LIVE',

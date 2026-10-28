@@ -69,3 +69,33 @@ test('user agents name the browser and OS', () => {
     { browser: 'Chrome 156', os: 'Android 16' },
   );
 });
+
+test('console errors keep their context, own properties and cause chain', () => {
+  const records: ErrorLogRecord[] = [];
+  const error = console.error;
+  console.error = () => {};
+  try {
+    installErrorLog((record) => records.push(record));
+    const cause = Object.assign(Error('request length 16384 exceeds the supported limit 256'), {
+      kind: 7,
+      requested: 16384,
+      limit: 256,
+    });
+    console.error('Reading report failed:', Error('Camera read failed', { cause }));
+  } finally {
+    console.error = error;
+  }
+  const [record] = records;
+  assert.equal(record.message, 'Reading report failed: Error: Camera read failed');
+  assert.ok(record.stack?.includes('error-log.test'));
+  const details = record.details as { cause: Record<string, unknown> };
+  assert.equal(
+    details.cause.message,
+    'Error: request length 16384 exceeds the supported limit 256',
+  );
+  assert.deepEqual(
+    [details.cause.kind, details.cause.requested, details.cause.limit],
+    [7, 16384, 256],
+  );
+  assert.ok(String(details.cause.stack).includes('error-log.test'));
+});

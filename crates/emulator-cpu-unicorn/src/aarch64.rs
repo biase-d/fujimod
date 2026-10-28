@@ -32,7 +32,19 @@ impl Core {
         register: arm::SystemRegister,
         value: Option<u64>,
     ) -> Result<u64, String> {
-        register.encoding()?;
+        let encoding = register.encoding()?;
+        if encoding == 0xc000
+            && let Some(value) = value
+        {
+            let actual = self.aarch64_system(register, None)?;
+            return if actual == value {
+                Ok(actual)
+            } else {
+                Err(format!(
+                    "MIDR_EL1 is fixed by the CPU model: {actual:#x}, requested {value:#x}"
+                ))
+            };
+        }
         let mut raw = SystemRegister {
             crn: register.crn.into(),
             crm: register.crm.into(),
@@ -116,6 +128,20 @@ mod tests {
         let size = cpu.read_register(register, &mut bytes).unwrap();
         assert!(matches!(size, 4 | 8));
         u64::from_le_bytes(bytes)
+    }
+    #[test]
+    fn midr_handoff_verifies_the_immutable_cpu_model_identity() {
+        let cpu = crate::test_support::library()
+            .open(Model::ArmV8A, 1 << 20)
+            .unwrap();
+        let midr = Register::Arm64System(arm::SystemRegister::from_encoding(0xc000));
+        let actual = value(&cpu, midr);
+        cpu.write_register(midr, &actual.to_le_bytes()).unwrap();
+        assert!(
+            cpu.write_register(midr, &(actual ^ 1).to_le_bytes())
+                .unwrap_err()
+                .contains("fixed by the CPU model")
+        );
     }
     #[test]
     fn physical_affinity_is_visible_to_el3_without_overwriting_x0() {
@@ -225,7 +251,8 @@ mod interception_tests {
             .unwrap();
         cpu.write_register(Register::X(0), &0x2000u64.to_le_bytes())
             .unwrap();
-        cpu.write_register(Register::X(1), &0x12345678u64.to_le_bytes()).unwrap();
+        cpu.write_register(Register::X(1), &0x12345678u64.to_le_bytes())
+            .unwrap();
         // STR x1,[x0].
         cpu.write_memory(0x1000, &0xf9000001u32.to_le_bytes())
             .unwrap();
@@ -254,3 +281,6 @@ mod interception_tests {
         cpu.remove_hook(hook).unwrap();
     }
 }
+
+#[cfg(test)]
+mod accounting_tests;

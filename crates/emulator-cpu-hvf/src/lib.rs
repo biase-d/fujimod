@@ -60,6 +60,7 @@ pub struct Core {
     next_hook: Cell<usize>,
     mmio: RefCell<BTreeMap<u64, Window>>,
     running: Cell<bool>,
+    instruction_hook: Cell<bool>,
     _owner: PhantomData<Rc<()>>,
 }
 struct State {
@@ -103,6 +104,7 @@ impl Core {
                 next_hook: Cell::new(0),
                 mmio: RefCell::new(BTreeMap::new()),
                 running: Cell::new(false),
+                instruction_hook: Cell::new(false),
                 _owner: PhantomData,
             }),
             Err(e) => {
@@ -151,9 +153,11 @@ impl Core {
                 break;
             }
             if self.hooks.borrow().contains_key(&key) {
+                self.instruction_hook.set(true);
                 unsafe {
                     callback(pc, 4, data);
                 }
+                self.instruction_hook.set(false);
             }
             if self.scalar(Register::Pc).ok() != Some(pc) {
                 break;
@@ -630,6 +634,14 @@ impl Cpu for Core {
     fn stop(&self) -> Result<(), String> {
         self.shared.stop.store(true, Ordering::Release);
         Ok(())
+    }
+    fn stop_before_instruction(&self) -> Result<(), String> {
+        if !self.instruction_hook.get() {
+            return Err("instruction interception requires an instruction observer".into());
+        }
+        // The worker is paused before entry and checks stop before accounting
+        // or executing the observed instruction.
+        self.stop()
     }
     fn set_interrupt(&self, line: Interrupt, asserted: bool) -> Result<(), String> {
         self.rpc(Op::Interrupt(line, asserted))?;

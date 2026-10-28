@@ -71,8 +71,9 @@ try {
   );
   await page.locator('#feedback-dialog button[value="cancel"]').click();
   const chooser = page.waitForEvent('filechooser');
-  await page.locator('#firmware-prompt').click();
+  await page.locator('label.file-drop-choose').click();
   await (await chooser).setFiles(dat);
+  await page.getByRole('button', { name: 'Run unmodified in your browser', exact: true }).click();
   await ready(page);
   console.log('Created first camera from native file chooser and booted firmware');
   assert.equal(await page.locator('#camera-exit').isVisible(), true);
@@ -127,7 +128,7 @@ try {
   await closeMenu(page);
   assert.equal(await page.locator('.firmware-menu').count(), 0);
   await menu(page);
-  await page.locator('#emulator-heading').click();
+  await page.locator('#software').click();
   assert.equal(await page.locator('.firmware-menu').count(), 0);
   for (const label of ['Unmodded', 'FujiMod']) {
     await menu(page);

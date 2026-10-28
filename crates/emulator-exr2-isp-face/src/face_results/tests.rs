@@ -55,7 +55,7 @@ fn ready(profile: Profile) -> (FaceResults, IrqRoutes, Clock) {
     routes.set(47, Some(0)).unwrap();
     let mut model = FaceResults::new(profile, routes.clone());
     let mut host = Clock::default();
-    assert_eq!(write(&mut model, &mut host, 0, 0x48, 0x42750000), None);
+    assert_eq!(write(&mut model, &mut host, 0, 0x48, 0), None);
     (model, routes, host)
 }
 
@@ -124,11 +124,11 @@ fn invalid_start_refuses_without_mutation_and_reset_cancels_pending_job() {
     let before = model.save();
     assert!(write(&mut model, &mut host, 1, 4, 1).is_some());
     assert_eq!(model.save(), before);
-    assert_eq!(write(&mut model, &mut host, 0, 0x48, 0x42750002), None);
+    assert_eq!(write(&mut model, &mut host, 0, 0x48, 4), None);
     let before = model.save();
     assert!(write(&mut model, &mut host, 0, 4, 1).is_some());
     assert_eq!(model.save(), before);
-    assert_eq!(write(&mut model, &mut host, 0, 0x48, 0x42750000), None);
+    assert_eq!(write(&mut model, &mut host, 0, 0x48, 0), None);
     assert_eq!(write(&mut model, &mut host, 0, 4, 1), None);
     let before = model.save();
     assert!(write(&mut model, &mut host, 0, 4, 1).is_some());

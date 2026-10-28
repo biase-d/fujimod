@@ -51,7 +51,9 @@ pub const CLEAR_PROFILE: &str = "stock-vg-clear-only";
 pub const UI_PROFILE: &str = "declared-vg-ui-primitives-unmeasured";
 const COMMAND: [u32; 6] = [0x10d4, 0x10dc, 0x10e4, 0x10ec, 0x20e0, 0x20e8];
 const COPY: [u32; 8] = [0xc00, 0xc04, 0xc08, 0xc0c, 0xc10, 0xc20, 0xc24, 0xc28];
-const TRIGGERS: [u32; 3] = [0x10d0, 0x10e0, 0x20f0];
+// Stock GL submits its shader/uniform command list through logical register 0x20f0.
+const GLES_SUBMIT: u32 = 0x20f0;
+const TRIGGERS: [u32; 3] = [0x10d0, 0x10e0, GLES_SUBMIT];
 pub type DmaOutput = Vec<(u64, Arc<Vec<u8>>)>;
 pub type RenderedBatch = (DmaOutput, u64);
 pub type Fields = Vec<(&'static str, Value)>;
@@ -420,7 +422,7 @@ impl CommandProcessor {
         if o == 0x34 || o == 0x105c {
             return fail("Graphics completion status is read-only");
         }
-        if o == 0x20f0 {
+        if o == GLES_SUBMIT {
             return self.start_gles(cpu, value, host, actions, record_receipts);
         }
         if TRIGGERS.contains(&o) {
@@ -565,7 +567,7 @@ impl CommandProcessor {
         record_receipts: bool,
     ) -> Result<()> {
         let o = offset(address, 4)?;
-        if o == 0x20f0 {
+        if o == GLES_SUBMIT {
             return self.start_gles(cpu, value, host, actions, record_receipts);
         }
         if TRIGGERS.contains(&o) {
@@ -686,6 +688,23 @@ impl CommandProcessor {
                 host.read(cpu, address, length as u64)
             })
             .map_err(Unsupported)?;
+        // Raster snapshots include untouched destination pixels. Commit only
+        // actual color/depth writes so concurrent accesses elsewhere survive.
+        let output: Vec<(u64, Vec<u8>)> = self
+            .gles
+            .written_ranges()
+            .iter()
+            .map(|&(address, length)| {
+                let (base, snapshot) = output
+                    .iter()
+                    .find(|(base, bytes)| {
+                        *base <= address && address + length as u64 <= *base + bytes.len() as u64
+                    })
+                    .ok_or_else(|| Unsupported("DMP write range outside target snapshot".into()))?;
+                let offset = (address - base) as usize;
+                Ok((address, snapshot[offset..offset + length].to_vec()))
+            })
+            .collect::<Result<_>>()?;
         let count = output.iter().map(|(_, b)| b.len() as u64).sum::<u64>();
         let job = self.new_job_with_receipts(receipts, || {
             vec![
@@ -700,7 +719,7 @@ impl CommandProcessor {
         self.busy = true;
         self.jobs_started += 1;
         self.clear_ack_offsets.clear();
-        self.store(0x20f0, trigger);
+        self.store(GLES_SUBMIT, trigger);
         self.schedule(
             Completion {
                 cpu,
@@ -830,9 +849,10 @@ impl CommandProcessor {
         Ok(())
     }
     fn native_pixmap_descriptor(&self) -> bool {
-        self.regs.get_or_zero(0xc10) == 1
-            && self.regs.get_or_zero(0xc0c) > 0
-            && self.regs.get_or_zero(0xc0c) >> 16 == 0
+        self.regs.get_or_zero(0xc10) == 8
+            || (self.regs.get_or_zero(0xc10) == 1
+                && self.regs.get_or_zero(0xc0c) > 0
+                && self.regs.get_or_zero(0xc0c) >> 16 == 0)
     }
     fn start_copy(
         &mut self,
@@ -858,6 +878,9 @@ impl CommandProcessor {
             return fail("Graphics copy descriptor is incomplete");
         }
         let control = self.regs.get_or_zero(0xc10);
+        if control == 8 {
+            return self.start_tile_copy(cpu, trigger, host, actions, record_receipts);
+        }
         if control != 1 {
             return fail(format!(
                 "Unknown graphics software-profile copy control {control:#x}"
@@ -977,6 +1000,86 @@ impl CommandProcessor {
                 bytes: count,
                 output: vec![(destination, Arc::new(payload))],
                 job: j,
+                event: CompletionEvent::Copy,
+                ui: false,
+            },
+            delay,
+            actions,
+        );
+        Ok(())
+    }
+    /// Copy byte chunks with independently pitched source and destination rows.
+    fn start_tile_copy(
+        &mut self,
+        cpu: i64,
+        trigger: u32,
+        host: &mut dyn Inputs,
+        actions: &mut Vec<Action>,
+        record_receipts: bool,
+    ) -> Result<()> {
+        if ![0xc20, 0xc24, 0xc28]
+            .iter()
+            .all(|r| self.written.contains(r))
+        {
+            return fail("DMP tile copy descriptor is incomplete");
+        }
+        let count = u64::from(self.regs.get_or_zero(0xc20));
+        if count == 0 || count > self.max_copy_bytes || count & 15 != 0 {
+            return fail("DMP tile copy byte count exceeds bounds");
+        }
+        let descriptors = [self.regs.get_or_zero(0xc24), self.regs.get_or_zero(0xc28)];
+        let mut bases = [0; 2];
+        let mut chunks = [0; 2];
+        let mut strides = [0; 2];
+        let mut lengths = [0; 2];
+        for i in 0..2 {
+            let address = self.regs.get_or_zero(if i == 0 { 0xc00 } else { 0xc04 });
+            if address & 0x8000000f != 0 {
+                return fail("DMP tile copy address alias/alignment is unsupported");
+            }
+            bases[i] = u64::from(address & !0x40000000);
+            chunks[i] = u64::from(descriptors[i] & 65535) * 16;
+            strides[i] = chunks[i] + u64::from(descriptors[i] >> 16) * 16;
+            if chunks[i] == 0 || count % chunks[i] != 0 {
+                return fail("DMP tile copy has a partial chunk");
+            }
+            lengths[i] = (count / chunks[i] - 1) * strides[i] + chunks[i];
+            if lengths[i] > self.max_copy_bytes || bases[i] + lengths[i] > self.ram_bytes {
+                return fail("DMP tile copy DMA exceeds bounds");
+            }
+        }
+        if bases[0] < bases[1] + lengths[1] && bases[1] < bases[0] + lengths[0] {
+            return fail("DMP overlapping tile copy is unsupported");
+        }
+        let irq_cpu = self.irq_cpu(cpu, "copy", host)?;
+        let source = host.read(cpu, bases[0], lengths[0]).map_err(Unsupported)?;
+        let mut destination = host.read(cpu, bases[1], lengths[1]).map_err(Unsupported)?;
+        if source.len() as u64 != lengths[0] || destination.len() as u64 != lengths[1] {
+            return fail("DMP short tile copy DMA");
+        }
+        for n in 0..count {
+            let src = n / chunks[0] * strides[0] + n % chunks[0];
+            let dst = n / chunks[1] * strides[1] + n % chunks[1];
+            destination[dst as usize] = source[src as usize];
+        }
+        let delay = self.delay(count);
+        let job = self.new_job_with_receipts(record_receipts, || {
+            vec![
+                ("operation", Value::constant("tile-copy")),
+                ("bytes", num(count)),
+            ]
+        });
+        self.busy = true;
+        self.jobs_started += 1;
+        self.store(0xc18, trigger);
+        self.schedule(
+            Completion {
+                cpu,
+                irq_cpu,
+                status: COPY_STATUS,
+                bytes: count,
+                output: vec![(bases[1], Arc::new(destination))],
+                job,
                 event: CompletionEvent::Copy,
                 ui: false,
             },

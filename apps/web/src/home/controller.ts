@@ -7,22 +7,25 @@ import {
   expectedAssets,
   loadingStep,
 } from '@fujimod/emulator-ui/engine/download-progress';
-import { CameraStore, type CameraRecord } from '../cameras/store';
+import { CameraStore, type CameraRecord, type LibraryFirmware } from '../cameras/store';
+import type { FirmwareLibrary } from '../cameras/firmware-library';
+import { latestCamera } from '../cameras/selection';
+import type { FirmwareDownloadFormat } from '../firmware-download';
 import '../home/site.css';
-import { flags } from '@fujimod/emulator-ui/flags';
-import { cardZip } from '../patch/download';
+import { modifiedDownload } from '../patch/download';
 import type { PatchResult } from '../patch/patcher';
 import { validateCatalog, type Catalog, type Firmware } from '../catalog';
-import { validateIndex, verifyPatch } from '../patch/catalog';
+import { verifyPatch } from '../patch/catalog';
+import { loadRelease, type LoadedRelease } from '../patch/release';
 import { sha256 } from '../patch/patcher';
 import { EngineError, faultFrom } from '@fujimod/emulator-ui/engine/fault';
 import { cachedFetch } from '../asset-cache';
 import type { CardFile, BootMedia } from '@fujimod/emulator-ui/engine/api';
 import type { ReplayScenario } from '../scenarios';
 import { DEVICE_PANEL_SCHEMA, type DevicePanel } from '@fujimod/emulator-ui/ui/layout';
+import { shownError } from '@fujimod/emulator-ui/ui/shown-error';
 
 import { downloadBlob } from '@fujimod/emulator-ui/ui/download';
-import { firmwareActions, type createFirmwareChoice } from '../ui/firmware-actions';
 import type { HomeState, PreviewCredit } from './state';
 import type { HomeSetter } from './state';
 
@@ -30,6 +33,7 @@ import { supportedCameras } from './state';
 declare const __FUJIMOD_LOCAL_DAT__: boolean;
 declare const __FUJIMOD_SIMULATOR_BUILD__: string;
 declare const __FUJIMOD_CATALOG__: string;
+declare const __FUJIMOD_BUILD_SHA__: string;
 const adapters = import.meta.glob<{
   panel: DevicePanel;
   preview?: string;
@@ -43,13 +47,12 @@ export function startHome(
     viewer: HTMLElement;
     workspace: HTMLElement;
     lcd: HTMLCanvasElement;
-    file: HTMLInputElement;
   },
-  choice: ReturnType<typeof createFirmwareChoice>,
+  library: FirmwareLibrary,
 ) {
   performance.mark('camera-module-ready');
   let catalog: Catalog = state.catalog,
-    release: ReturnType<typeof validateIndex> | undefined = state.release;
+    release: LoadedRelease | undefined = state.release;
   const cameras = new CameraStore();
   let activeCamera: CameraRecord | undefined;
   let generation = 0,
@@ -87,7 +90,7 @@ export function startHome(
     ready: () => updateModButtons(false),
     cameraSaved(event) {
       if (event.error) {
-        storageStatus(`Camera not saved · ${event.error}`, true);
+        storageStatus(`Camera not saved · ${shownError(event.error)}`, true);
         return;
       }
       if (activeCamera && event.revision !== undefined) {
@@ -106,10 +109,10 @@ export function startHome(
         });
       }
       storageStatus('');
-      void refreshCameras().catch((error) => storageStatus(String(error), true));
+      void refreshCameras().catch((error) => storageStatus(shownError(error), true));
     },
   });
-  const { showFault, status, progress, finishLoading } = session;
+  const { showFault, progress } = session;
   function updateModButtons(disabled: boolean) {
     setState((s) => {
       s.modDisabled = disabled;
@@ -142,7 +145,6 @@ export function startHome(
   }
   function reset() {
     session.reset();
-    choice.cancel();
     updateModButtons(true);
     setState((s) => {
       s.modSupported = false;
@@ -158,9 +160,7 @@ export function startHome(
     if (!index || !firmware || !index.patches[selected.sha256])
       return { identities: Promise.resolve([]), load: async () => [] };
     const metadata = (async () => {
-      const response = await fetch(
-        new URL(`artifacts/${index.patches[selected.sha256]}`, document.baseURI),
-      );
+      const response = await fetch(new URL(index.patches[selected.sha256], index.assetBase));
       if (!response.ok) throw Error('The release patch could not be downloaded.');
       return verifyPatch(index, firmware, new Uint8Array(await response.arrayBuffer()));
     })();
@@ -211,7 +211,7 @@ export function startHome(
       worker.postMessage({
         file,
         index: release,
-        artifactBase: new URL('artifacts/', document.baseURI).href,
+        artifactBase: release!.assetBase,
       });
     });
   }
@@ -232,6 +232,7 @@ export function startHome(
     preparedBytes?: ArrayBuffer,
     reload?: () => Promise<File>,
     camera?: CameraRecord,
+    enabled?: boolean,
   ) {
     if (disposed || !file) return;
     performance.mark('camera-file-received');
@@ -240,7 +241,7 @@ export function startHome(
       try {
         await session.saveCamera();
       } catch (error) {
-        storageStatus(String(error), true);
+        storageStatus(shownError(error), true);
         return;
       }
     }
@@ -285,10 +286,9 @@ export function startHome(
       if (replayScenario && entry.id !== replayScenario.firmwareId)
         throw Error('The replay scenario requires firmware ' + replayScenario.firmwareId);
       selectedFirmware = entry;
-      if (modFirmwareHash !== hash) {
-        modFirmwareHash = hash;
-        modEnabled = !replayScenario;
-      }
+      modEnabled =
+        enabled ?? camera?.modEnabled ?? (modFirmwareHash === hash ? modEnabled : !replayScenario);
+      modFirmwareHash = hash;
       const device = entry.device ?? (entry.body ? await loadDevice(entry.body) : undefined);
       if (current !== generation) return;
       if (
@@ -299,55 +299,6 @@ export function startHome(
       const layout = activeCamera?.layout ?? device?.panel;
       if (layout && (layout.schema !== DEVICE_PANEL_SCHEMA || layout.body !== entry.body))
         throw Error('The emulator control layout does not match this firmware body or schema.');
-      if (!restart && !reload && !camera) {
-        const patchEntry = release?.firmwares.find((item) => item.sha256 === hash);
-        let fpUpdate = false;
-        if (flags.allowFpUpdateDownload && patchEntry && release) {
-          const response = await fetch(
-            new URL(`artifacts/${release.patches[hash]}`, document.baseURI),
-          );
-          if (!response.ok) throw Error('The release patch could not be downloaded.');
-          const metadata = await verifyPatch(
-            release,
-            patchEntry,
-            new Uint8Array(await response.arrayBuffer()),
-          );
-          fpUpdate = !!metadata.outputs.fpupdate;
-        }
-        if (current !== generation) return;
-        finishLoading();
-        const action = await choice.choose(
-          firmwareActions(flags, {
-            fpUpdate,
-            sdCard: !!release?.patches[hash],
-          }),
-          `${entry.model} · ${entry.version}`,
-        );
-        if (current !== generation) return;
-        if (action !== 'launch') {
-          if (action) {
-            progress('Building download…', 0);
-            const result = await patchFirmware(file);
-            if (current !== generation) return;
-            if (!result) throw Error('No release patch is available for this firmware.');
-            if (action === 'sd-card') downloadBlob(await cardZip(result), 'sd-card.zip');
-            else {
-              if (!flags.allowFpUpdateDownload || !result.fpupdate)
-                throw Error('FP update download unavailable.');
-              downloadBlob(new Blob([result.fpupdate]), 'FPUPDATE.DAT');
-            }
-          }
-          finishLoading();
-          setState((s) => {
-            s.idle = true;
-            s.panelVisible = false;
-            s.toolbarVisible = false;
-            s.promptVisible = true;
-          });
-          status(action ? 'Download ready' : '');
-          return;
-        }
-      }
       if (!entry.emulate || !device) throw Error('Emulation unsupported for this firmware.');
       runningLayout();
       if (camera && !restart) modEnabled = camera.modEnabled;
@@ -432,7 +383,10 @@ export function startHome(
         }
       }
     } catch (error) {
-      if (current === generation && !(error instanceof EngineError)) showFault(faultFrom(error));
+      if (current === generation && !(error instanceof EngineError)) {
+        shownError(error);
+        showFault(faultFrom(error));
+      }
     }
   }
   function storageStatus(message: string, error = false) {
@@ -448,43 +402,52 @@ export function startHome(
         reconcile(records, 'id')(s.savedCameras);
       });
   }
-  async function openCamera(record: CameraRecord) {
+  /** Resume the latest matching camera, or create an independent camera from the selected DAT. */
+  async function runCamera(source: LibraryFirmware, enabled: boolean, fresh: boolean) {
     manualSelection = true;
     if (state.cameraBusy) return;
     setState((s) => {
       s.cameraBusy = true;
     });
     try {
-      const current = (await cameras.list()).find((camera) => camera.id === record.id);
-      if (!current) throw Error('This camera is no longer in browser storage.');
-      const blob = await cameras.firmware(current.firmwareHash);
-      await processFile(new File([blob], current.fileName), false, undefined, undefined, current);
+      const camera = fresh ? undefined : latestCamera(await cameras.list(), source.sha256, enabled);
+      const read = async () => new File([await cameras.firmware(source.sha256)], source.fileName);
+      await processFile(await read(), false, undefined, camera ? undefined : read, camera, enabled);
     } catch (error) {
-      storageStatus(String(error), true);
+      storageStatus(shownError(error), true);
     } finally {
       setState((s) => {
         s.cameraBusy = false;
       });
     }
   }
-  /** Starts another camera from firmware this browser already stores. */
-  async function newCamera(source: CameraRecord) {
-    manualSelection = true;
-    if (state.cameraBusy) return;
-    setState((s) => {
-      s.cameraBusy = true;
+  async function downloadFirmware(source: LibraryFirmware, format: FirmwareDownloadFormat) {
+    const index = release;
+    const entry = index?.firmwares.find((entry) => entry.sha256 === source.sha256);
+    if (
+      !index ||
+      !entry ||
+      !(format === 'installable' ? entry.downloads.installable : entry.downloads.sd_card)
+    )
+      throw Error('This download is unavailable for the selected firmware.');
+    const file = new File([await cameras.firmware(source.sha256)], source.fileName);
+    const result = await new Promise<PatchResult>((resolve, reject) => {
+      const worker = new Worker(new URL('../patch/worker.ts', import.meta.url), { type: 'module' });
+      worker.onmessage = ({ data }) => {
+        if (data.stage) return;
+        worker.terminate();
+        if (data.error || data.unsupported)
+          reject(Error(data.error ?? 'No release patch is available for this firmware.'));
+        else resolve(data.result);
+      };
+      worker.onerror = (error) => {
+        worker.terminate();
+        reject(Error(error.message));
+      };
+      worker.postMessage({ file, index, artifactBase: index.assetBase });
     });
-    try {
-      const read = async () =>
-        new File([await cameras.firmware(source.firmwareHash)], source.fileName);
-      await processFile(await read(), false, undefined, read);
-    } catch (error) {
-      storageStatus(String(error), true);
-    } finally {
-      setState((s) => {
-        s.cameraBusy = false;
-      });
-    }
+    const download = await modifiedDownload(format, result, entry, __FUJIMOD_BUILD_SHA__);
+    downloadBlob(download.blob, download.name);
   }
   async function closeCamera() {
     if (state.cameraBusy) return;
@@ -504,7 +467,7 @@ export function startHome(
       storageStatus('');
       await refreshCameras();
     } catch (error) {
-      storageStatus(String(error), true);
+      storageStatus(shownError(error), true);
     } finally {
       setState((s) => {
         s.cameraBusy = false;
@@ -517,7 +480,7 @@ export function startHome(
         s.savedCamerasRead = true;
       });
     const read = refreshCameras()
-      .catch((error) => storageStatus(`Browser storage unavailable · ${String(error)}`, true))
+      .catch((error) => storageStatus(`Browser storage unavailable · ${shownError(error)}`, true))
       .finally(markRead);
     // Browser storage can stall (seen on iOS); the launcher and catalog never wait on it past a second.
     await Promise.race([read, new Promise((resolve) => setTimeout(resolve, 1000))]);
@@ -533,9 +496,17 @@ export function startHome(
       if (!response.ok) throw Error('Firmware catalog unavailable.');
       if (disposed) return;
       catalog = validateCatalog(await response.json());
-      const patchResponse = await fetch(new URL('artifacts/patches.json', document.baseURI));
-      if (patchResponse.ok && patchResponse.headers.get('content-type')?.includes('json'))
-        release = validateIndex(await patchResponse.json());
+      try {
+        release = await loadRelease(document.baseURI);
+      } catch (error) {
+        release = undefined;
+        storageStatus(shownError(error), true);
+      }
+      if (disposed) return;
+      setState((s) => {
+        s.catalog = catalog;
+        s.release = release;
+      });
       if (disposed) return;
       if (release && !import.meta.env.DEV) {
         build = release.release;
@@ -581,6 +552,7 @@ export function startHome(
         }
       }
     } catch (error) {
+      shownError(error);
       showFault(faultFrom(error));
     }
   }
@@ -597,7 +569,7 @@ export function startHome(
       });
       storageStatus('');
     } catch (error) {
-      storageStatus(`Camera not saved · ${String(error)}`, true);
+      storageStatus(`Camera not saved · ${shownError(error)}`, true);
     }
   }
 
@@ -607,7 +579,7 @@ export function startHome(
     if (document.visibilityState === 'hidden' && activeCamera && !session.hasFault())
       void session
         .saveCamera()
-        .catch((error) => storageStatus(`Camera not saved · ${String(error)}`, true));
+        .catch((error) => storageStatus(`Camera not saved · ${shownError(error)}`, true));
   };
   document.addEventListener('visibilitychange', saveHidden);
   const unload = session.unload;
@@ -617,17 +589,17 @@ export function startHome(
     ...session,
     selectMod,
     saveLayout,
-    openCamera,
-    newCamera,
+    runCamera,
+    downloadFirmware,
     closeCamera,
     selectFile: (file?: File) => {
       manualSelection = true;
-      void processFile(file);
+      if (state.idle) void library.add(file);
+      else void processFile(file);
     },
     dispose() {
       disposed = true;
       ++generation;
-      choice.cancel();
       session.dispose();
       patchWorker?.terminate();
       window.removeEventListener('beforeunload', unload);

@@ -41,14 +41,14 @@ export function FirmwareDownloads(props: { heading: string; rows: readonly Downl
           {(row) => (
             <li class="downloads-camera">
               <span class="downloads-camera-name">
-                {row.model}
+                <span class="downloads-model">
+                  {row.model}
+                  <Show when={row.tag}>
+                    <span class="downloads-tag">{row.tag}</span>
+                  </Show>
+                </span>
                 <Show when={row.processor}>
                   <span>{row.processor}</span>
-                </Show>
-              </span>
-              <span class="downloads-camera-tag">
-                <Show when={row.tag}>
-                  <span class="downloads-tag">{row.tag}</span>
                 </Show>
               </span>
               <span class="downloads-version">{row.version}</span>

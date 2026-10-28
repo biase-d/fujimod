@@ -64,7 +64,7 @@
         },
         {
           "connection_id": "controls-gpio-1-1",
-          "pressed": true
+          "pressed": false
         }
       ],
       "connections": [

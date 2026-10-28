@@ -27,25 +27,28 @@
   outline: none;
 }
 .downloads-table {
-  margin: 0 0 16px;
+  margin: 0;
   padding: 0;
   list-style: none;
   border-radius: 12px;
   background: rgb(44 44 46 / 80%);
   overflow-x: hidden;
   display: grid;
+  min-height: 252px;
+  height: 100%;
   max-height: 452px;
+  align-content: start;
   overflow-y: auto;
   overscroll-behavior: contain;
-  grid-template-columns: minmax(0, max-content) max-content 1fr max-content max-content;
+  grid-template-columns: minmax(0, 1fr) max-content max-content;
 }
 .downloads-camera {
   grid-column: 1 / -1;
   display: grid;
   grid-template-columns: subgrid;
   align-items: center;
-  column-gap: 12px;
-  min-height: 44px;
+  column-gap: 10px;
+  min-height: 56px;
   padding: 6px 10px 6px 14px;
   font-size: 15px;
 }
@@ -57,7 +60,7 @@
   flex-direction: column;
   min-width: 4.5em;
 }
-.downloads-camera-name span {
+.downloads-camera-name > span:not(.downloads-model) {
   font-size: 12px;
   color: rgb(235 235 245 / 55%);
 }
@@ -70,7 +73,7 @@
   font-weight: 600;
 }
 .downloads-version {
-  grid-column: 4;
+  grid-column: 2;
   color: rgb(235 235 245 / 55%);
   font-variant-numeric: tabular-nums;
 }
@@ -106,4 +109,21 @@
   .downloads-table {
     max-height: calc(100svh - 150px);
   }
+}
+
+.downloads-model {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  white-space: nowrap;
+}
+.downloads-camera-name > span:not(.downloads-model) {
+  white-space: nowrap;
+}
+.downloads {
+  display: flex;
+  flex-direction: column;
+}
+.downloads-table {
+  flex: 1;
 }

@@ -382,9 +382,16 @@ impl Board {
         }
         let saved = self
             .session()?
-            .checkpoint(previous.as_ref().map(|p| &p.saved))
+            .checkpoint(previous.as_ref().and_then(|p| p.saved.as_ref()))
             .map_err(error)?;
-        Ok(Checkpoint { saved })
+        let ticks = saved.now();
+        let instruction_counts = saved.instruction_counts().to_vec();
+        Ok(Checkpoint {
+            saved: Some(saved),
+            bytes: None,
+            ticks,
+            instruction_counts,
+        })
     }
     fn restore_checkpoint(&mut self, saved: &Checkpoint) -> PyResult<()> {
         if self.driver.is_some()
@@ -397,7 +404,15 @@ impl Board {
                 "keyframe requires no active host instrumentation or isolated call",
             ));
         }
-        self.session_mut()?.restore(&saved.saved).map_err(error)
+        if let Some(snapshot) = &saved.saved {
+            return self.session_mut()?.restore(snapshot).map_err(error);
+        }
+        let bytes = saved
+            .bytes
+            .as_deref()
+            .ok_or_else(|| PyValueError::new_err("checkpoint has no saved state"))?;
+        let imported = self.session()?.import_snapshot(bytes).map_err(error)?;
+        self.session_mut()?.restore(&imported).map_err(error)
     }
 
     #[new]
@@ -1178,6 +1193,39 @@ impl Board {
         self.session()?
             .sensor_rgb(name, width, height, rgb, white_luminance)
             .map_err(error)
+    }
+    fn sensor_rgb_noise(
+        &self,
+        name: &str,
+        width: usize,
+        height: usize,
+        rgb: &[u8],
+        white_luminance: f64,
+        seed: u64,
+        realization: u64,
+        full_well_electrons: f64,
+        read_noise_electrons: f64,
+    ) -> PyResult<()> {
+        self.session()?
+            .sensor_rgb_noise(
+                name, width, height, rgb, white_luminance,
+                serde_json::json!({"seed":seed,"realization":realization,
+                    "full_well_electrons":full_well_electrons,"read_noise_electrons":read_noise_electrons}),
+            )
+            .map_err(error)
+    }
+    fn sensor_sample_rgb<'py>(
+        &self,
+        py: Python<'py>,
+        name: &str,
+        width: usize,
+        height: usize,
+    ) -> PyResult<Bound<'py, PyBytes>> {
+        let samples = self
+            .session()?
+            .sensor_sample_rgb(name, width, height)
+            .map_err(error)?;
+        Ok(PyBytes::new(py, &samples))
     }
     fn sensor_raw16(&self, name: &str, width: usize, height: usize, raw16: &[u8]) -> PyResult<()> {
         self.session()?

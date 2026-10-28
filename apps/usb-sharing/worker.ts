@@ -4,6 +4,8 @@ import type { Env, BudgetRecord, IceServer, Attachment } from './env.ts';
 // USB rendezvous, explicit issue-report intake and website error logs. Shared USB payloads stay on WebRTC.
 import { issueReports } from './issue-reports.ts';
 import { errorLogs } from './error-logs.ts';
+import { sharedFiles } from './shared-files.ts';
+import { publishedUpload } from './publications.ts';
 export { IssueReports } from './issue-reports.ts';
 import { DurableObject } from 'cloudflare:workers';
 
@@ -29,7 +31,11 @@ function attachment(socket: WebSocket): Attachment {
 export default {
   async fetch(request: Request, env: Env) {
     const url = new URL(request.url);
-    if (url.pathname === '/contributions' || url.pathname.startsWith('/contributions/')) return contributions(request, env);
+    if (url.pathname.startsWith('/contribution/')) return publishedUpload(request, env);
+    if (/^\/(file|media|download)\//.test(url.pathname) || url.pathname === '/file-viewer.css')
+      return sharedFiles(request, env);
+    if (url.pathname === '/contributions' || url.pathname.startsWith('/contributions/'))
+      return contributions(request, env);
     if (url.pathname === '/issue-reports') return issueReports(request, env);
     if (url.pathname === '/error-logs') return errorLogs(request, env);
     if (url.pathname === '/health' && request.method === 'GET')

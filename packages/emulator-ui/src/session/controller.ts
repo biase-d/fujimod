@@ -11,6 +11,7 @@ import { LCDViewer } from '../viewer/lcd';
 import type { SimulatorIssueContext } from '../ui/simulator-feedback';
 import type { DevicePanel, PowerCombo } from '../ui/layout';
 import { ControlSession } from '../ui/controls';
+import { shownError } from '../ui/shown-error';
 import type { SessionState, SessionSetter } from './state';
 
 export interface SessionOptions {
@@ -37,7 +38,7 @@ export function startSession(
   options: SessionOptions,
 ) {
   const viewer = new LCDViewer(refs.viewer, refs.lcd);
-  const panel = new ControlSession(viewer, (error) => showFault(faultFrom(error)), runCombo);
+  const panel = new ControlSession(viewer, reportFault, runCombo);
   const [cardEngine, setCardEngine] = createSignal<Engine>();
   const stopInputs = panel.listen();
   let engine: Engine | undefined;
@@ -54,11 +55,12 @@ export function startSession(
       }),
     (error) =>
       setState((s) => {
+        const message = shownError(error);
         s.webcamError =
           error instanceof DOMException && error.name === 'NotAllowedError'
             ? 'Camera permission was denied.'
             : error instanceof Error
-              ? error.message
+              ? message
               : 'Webcam input stopped.';
       }),
   );
@@ -89,6 +91,7 @@ export function startSession(
   function context(event: 'feedback' | 'crash'): SimulatorIssueContext {
     return {
       event,
+      faultContext: { ...state.faultContext },
       simulatorBuild: options.simulatorBuild,
       modBuild: options.identity().modBuild,
       camera: options.identity().camera,
@@ -150,6 +153,10 @@ export function startSession(
     viewer.fault(true);
     localReports.crash(new EngineError(fault));
   }
+  function reportFault(cause: unknown) {
+    shownError(cause);
+    showFault(faultFrom(cause));
+  }
   async function undo() {
     if (!engine || state.undoBusy || latestFault?.undoSeconds !== FAULT_UNDO_SECONDS) return;
     setState((s) => {
@@ -169,7 +176,7 @@ export function startSession(
       });
       status('Camera resumed');
     } catch (error) {
-      showFault(faultFrom(error));
+      reportFault(error);
     }
   }
   async function runCombo(combo: PowerCombo) {
@@ -196,7 +203,7 @@ export function startSession(
         s.live = 'LIVE';
       });
     } catch (error) {
-      showFault(faultFrom(error));
+      reportFault(error);
     } finally {
       finishLoading();
     }
@@ -256,7 +263,7 @@ export function startSession(
     const current = generation;
     let active: Engine;
     active = await options.createEngine((error) => {
-      if (engine === active) showFault(faultFrom(error));
+      if (engine === active) reportFault(error);
     });
     if (import.meta.env.DEV) window.cameraEngine = active;
     if (!isCurrent() || current !== generation) {
@@ -303,7 +310,7 @@ export function startSession(
       positions,
     );
     viewer.configureTouch(inputs, active, (error) => {
-      if (current === generation) showFault(faultFrom(error));
+      if (current === generation) reportFault(error);
     });
     active.powerChanges((on) => {
       panel.setPowered(on);
@@ -352,14 +359,14 @@ export function startSession(
       await engine?.saveCamera();
     },
     stopHiddenWebcam: () => {
-      if (webcam.requested) void webcam.stop().catch(() => {});
+      if (webcam.requested) void webcam.stop().catch((error) => console.error(error));
     },
     unload,
     toggleWebcam: () => {
       setState((s) => {
         s.webcamError = '';
       });
-      if (webcam.requested) void webcam.stop().catch(() => {});
+      if (webcam.requested) void webcam.stop().catch((error) => console.error(error));
       else if (engine && options.identity().sceneInput && !state.loading && !state.fault)
         void webcam.start();
     },

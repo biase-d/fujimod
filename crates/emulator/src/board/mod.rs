@@ -1009,6 +1009,15 @@ impl State {
         exit: Exit,
     ) -> Result<(), String> {
         match exit {
+            Exit::BeforeInstruction(word) => {
+                if cpu.model() != fujimod_emulator_cpu::Model::ArmV8A {
+                    return Err("unsupported framework instruction exit".into());
+                }
+                self.aarch64_instruction(cpu, core, scalar(cpu, Register::Pc)?, word)?;
+                self.timeline.advance_instructions(1)?;
+                self.instructions[core] = self.instructions[core]
+                    .checked_add(1).ok_or("instruction counter overflow")?;
+            }
             Exit::Stopped => (),
             Exit::Hint(hint) => self.hint(core, hint),
             Exit::Trap(t) if t.syndrome >> 26 == 1 => {

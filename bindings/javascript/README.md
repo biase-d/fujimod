@@ -87,6 +87,12 @@ manifests remain the caller's responsibility. Guest conformance scripts can run 
 `npm run test:emulator:guest` and `npm run test:emulator:devices`; each accepts
 an optional path to `camera.mjs`.
 
+The final module is optimized with the pinned SDK's Binaryen, using WebAssembly
+GC support to refine indirect-call types. The optimizer validates the module
+and preserves its import/export interface before replacing the linked file.
+`build.json` records the optimizer version, flags, sizes and hashes. Runtime
+browsers must support WebAssembly GC, shared memory and exception handling.
+
 Run the emulator in a dedicated browser worker. The runtime uses shared Wasm
 memory and two persistent device threads; serve the page and runtime assets with
 `Cross-Origin-Opener-Policy: same-origin` and
@@ -159,7 +165,14 @@ bytes are copied across the Wasm boundary rather than exposing a borrowed view.
 
 ## Commands and composed operations
 
-Session methods such as `readMemory`, `writeMemory`, `readConfiguration`,
+Memory of any size goes through `session.memory(firmwareId)`. It qualifies
+the firmware's stock bulk path once; `read` uses it for anything larger than one
+packet, `write` splits larger writes into packet-sized commands, and `close`
+restores any bulk source override. `readSinglePacket` and `writeSinglePacket`
+send exactly one memory command of at most `packetBytes` (256 on the X70) and
+refuse anything longer.
+
+Session methods such as `readSinglePacket`, `readConfiguration`,
 `diagnosticQuery`, `submitConsole` and `pollConsole` each perform one command.
 `configurationGeometry`, `prepareCapabilities` and the two firmware-download
 status methods retain typed metadata and raw replies. `readLog` is consuming
@@ -170,10 +183,8 @@ Pending never cause implicit waits, retries or cleanup.
 
 Higher-level operations live in their own groups:
 
-- `usb.memory.readRange` / `writeRange` compose bounded memory commands.
-- `usb.memory.readChunks(session, address, length)` returns an async iterator
-  with `bytesCompleted` and an explicit `close()`.
-- `usb.data.readChunks(session, window, address, length)` streams E1 ranges;
+- `usb.data.readChunks(session, window, address, length)` streams E1 ranges as
+  an async iterator with `bytesCompleted` and an explicit `close()`;
   `DataWindow` requires an explicit base, aperture, capacity and offset mode.
 - `usb.data.upload(session, bytes, pieceBytes, mode)` owns setup, E0 pieces and
   E8 as one operation, preserving raw setup fields and final acknowledgment.
@@ -183,13 +194,12 @@ Higher-level operations live in their own groups:
   bodies with an explicit reply capacity. Only the common header is validated.
 
 ```ts
-const chunks = usb.memory.readChunks(session, address, length);
+const memory = await session.memory('x70-110');
 try {
-  for await (const bytes of chunks) {
-    await sink.write(bytes);
-  }
+  const bytes = await memory.read(address, length);
+  await sink.write(bytes);
 } finally {
-  chunks.close();
+  await memory.close();
 }
 ```
 

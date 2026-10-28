@@ -1947,18 +1947,10 @@
     "cold_start": {
       "mode_flag": 41068,
       "mode_test": 1484,
-      "firmware_transport": {
+      "preload": {
         "address_limit": 536870912,
-        "backing_address": 469762048,
-        "capacity": 67108864,
-        "dat_offset": 628,
         "enabled_byte": 22122748,
         "byte_limit": 50200576,
-        "primary_call": {
-          "address": 340,
-          "size": 4,
-          "sha256": "9bb4ae3b92f30c20a4ee65cda81eac89820b5c9d95aafaff0dac6adf121c8cd1"
-        },
         "byte_reader": {
           "address": 17989844,
           "size": 68,
@@ -1973,6 +1965,310 @@
           "address": 18087096,
           "size": 40,
           "sha256": "145525b7f6282eba8f44be72d20e5e491f114a37bd182766786be15c2975dd95"
+        },
+        "discards": [
+          {
+            "address": 17991996,
+            "size": 4,
+            "sha256": "1eedc2b6798a43bfd95e473f9fa5abebf021b2f7c4e84104e1a191cc35cd2942"
+          }
+        ],
+        "resources": [
+          {
+            "address": 17995204,
+            "size": 88,
+            "sha256": "2f263987598f543ff1a891e982485ca3059318f6fd954714aeba2a9c6e894ca0"
+          },
+          {
+            "address": 17995484,
+            "size": 88,
+            "sha256": "e2dc9be5abb7dbbc90a6db72ed65d33b84e71bdf667febc818bba0759a7ab3f6"
+          }
+        ],
+        "witnesses": [
+          {
+            "address": 18153304,
+            "size": 32,
+            "sha256": "c3dde0095d69557544f23c814159518bbb42c57370fe6564ef799c74330b599c"
+          },
+          {
+            "address": 17991524,
+            "size": 508,
+            "sha256": "803b56c98471104251c03eab04c8fbfe03ec4535e742594f3db2a7617571c1aa"
+          },
+          {
+            "address": 17992032,
+            "size": 236,
+            "sha256": "18f3922597bde659cca80b46c62c8ec68f79137e012ef1f45de3293a2dc047d4"
+          },
+          {
+            "address": 18064892,
+            "size": 112,
+            "sha256": "3038c12f2204eff2c4294ca56be32a4cbeb77c6279437f36837bdbdd1187db0a"
+          },
+          {
+            "address": 18153480,
+            "size": 148,
+            "sha256": "e057a917ccf579101aebc485755dcc46ebfd1eb460559acf1ccefb02ea5898ab"
+          },
+          {
+            "address": 17995204,
+            "size": 88,
+            "sha256": "2f263987598f543ff1a891e982485ca3059318f6fd954714aeba2a9c6e894ca0"
+          },
+          {
+            "address": 17995484,
+            "size": 88,
+            "sha256": "e2dc9be5abb7dbbc90a6db72ed65d33b84e71bdf667febc818bba0759a7ab3f6"
+          },
+          {
+            "address": 17989912,
+            "size": 60,
+            "sha256": "a66ed2e85a6b34386fa16042a389417ae729cdfa716942d6fe933956cabce0df"
+          },
+          {
+            "address": 17994592,
+            "size": 36,
+            "sha256": "9ee255767540241263a9ba8f06db83ce92a5cd6193e9be3e7ac27952819c4d92"
+          },
+          {
+            "address": 17994628,
+            "size": 44,
+            "sha256": "5ecc2b4fe8673cee07c37b80756ae0329c6ddaba3b2144207d0958e62d0bbf79"
+          },
+          {
+            "address": 17991268,
+            "size": 136,
+            "sha256": "4918c30b0cd171a1d5e52d17c8bcc6ea0d5fee692435734f8377a2637963d56c"
+          },
+          {
+            "address": 17992596,
+            "size": 440,
+            "sha256": "500ee3ecf44afcbbaa394bf5404301d6d5c4e26f90333191554c210ded772e3c"
+          },
+          {
+            "address": 17994672,
+            "size": 304,
+            "sha256": "e40989194aeeb524a15b7364ed8f7b45aeaf15ce87e35acf0de2e04c48ffbb0e"
+          },
+          {
+            "address": 17995028,
+            "size": 128,
+            "sha256": "2775d984db013291d378d9ff98b78a2dfdfdc0d7c6a3d332512ef7c9c9bcb1ee"
+          },
+          {
+            "address": 17995156,
+            "size": 48,
+            "sha256": "29adac027bb59593a0ce3e39228a1a80b04aba4a8d0ab86d73075123f48bb4d4"
+          },
+          {
+            "address": 17995292,
+            "size": 192,
+            "sha256": "75d43cadaae8afe141f24728a1762c863ce25e7359e1c34547f85d77c3fbe36d"
+          },
+          {
+            "address": 21576708,
+            "size": 420,
+            "sha256": "c830ab4adbd562379c73a58277afb02d20e9f8799da2589a56609bb712c3762d"
+          },
+          {
+            "address": 17995572,
+            "size": 72,
+            "sha256": "b857d7a7d9687836462dd7b704e6cc5c2fb1d337f641d1bb2551346e95ef4b3a"
+          },
+          {
+            "address": 21576624,
+            "size": 84,
+            "sha256": "35e58d882470433d562c58b9084e1f5434439ac86a735cbc3ea100d95477dcd0"
+          },
+          {
+            "address": 17995800,
+            "size": 108,
+            "sha256": "83d31c97bfd25b1705271301a6d36e85e3ff7327003f6b7e0c19a2eab5a2c02e"
+          },
+          {
+            "address": 21576612,
+            "size": 12,
+            "sha256": "97f3bb6c1c244c56509389597c7d7c62572633683188f516e9e77821be8b9669"
+          },
+          {
+            "address": 18002000,
+            "size": 48,
+            "sha256": "2a4cc772c969ef15f3a6655d24113595641de050aca4a634e27a86bc32b9fca6"
+          },
+          {
+            "address": 17988500,
+            "size": 160,
+            "sha256": "0671cc3c15747bb5acd339cd8d004111356f1533eeadf12fee1c453db944f4f4"
+          },
+          {
+            "address": 17988920,
+            "size": 140,
+            "sha256": "eee7b4bebaf80c91f9463880e7b1b6fc9b16cf1b0816718ba9eeaa9c7cf22c9e"
+          },
+          {
+            "address": 17989124,
+            "size": 416,
+            "sha256": "b05da980cc15f65460b611a2a366f852bc8842a9280f33c687be37f735ab569c"
+          },
+          {
+            "address": 18087096,
+            "size": 40,
+            "sha256": "145525b7f6282eba8f44be72d20e5e491f114a37bd182766786be15c2975dd95"
+          }
+        ],
+        "edits": [
+          {
+            "address": 17988660,
+            "old": 122695680,
+            "new": 68300800,
+            "what": "startup defaults source"
+          },
+          {
+            "address": 17989340,
+            "old": 3808432128,
+            "new": 3808432128,
+            "what": "startup defaults source"
+          },
+          {
+            "address": 17989344,
+            "old": 3812628304,
+            "new": 3812627474,
+            "what": "startup defaults source"
+          },
+          {
+            "address": 22122732,
+            "old": 1,
+            "new": 0,
+            "what": "select startup configuration defaults"
+          }
+        ],
+        "placements": [
+          {
+            "name": "raw resource block padding",
+            "address": 8928957,
+            "source": {
+              "dat_offset": 31998257,
+              "size": 115011,
+              "decoded_size": 115011,
+              "compression": "raw",
+              "sha256": "6873d08159ef53cbf618f037fc99ad386b7c0d2dabe8adb65c5f018711dd3af9"
+            }
+          }
+        ],
+        "ranges": [
+          {
+            "name": "configuration defaults",
+            "offset": 786432,
+            "address": null,
+            "source": {
+              "dat_offset": 787060,
+              "size": 655360,
+              "decoded_size": 655360,
+              "compression": "raw",
+              "sha256": "4f237f5e01e546bc7763679ec5016cc715a653fb66c3ec35b96e39d125841bd6"
+            }
+          },
+          {
+            "name": "source-table data",
+            "offset": 23592960,
+            "address": 10485760,
+            "source": {
+              "dat_offset": 23593588,
+              "size": 1703936,
+              "decoded_size": 1703936,
+              "compression": "raw",
+              "sha256": "eb2856740ce3bb06c13d1577bdd28196c66d20382631e764f8014843a32e8d38"
+            }
+          },
+          {
+            "name": "fixed resource data",
+            "offset": 46661632,
+            "address": 12189696,
+            "source": {
+              "dat_offset": 46662260,
+              "size": 1048576,
+              "decoded_size": 1048576,
+              "compression": "raw",
+              "sha256": "c23923a1e43dc775b2a976297601969dcdf9053d0bace541c92232e7646493ed"
+            }
+          },
+          {
+            "name": "selectable resource bank",
+            "offset": 32112640,
+            "address": null,
+            "source": {
+              "dat_offset": 32113268,
+              "size": 14155776,
+              "decoded_size": 14155776,
+              "compression": "raw",
+              "sha256": "742854c06ac684982480c8e1f8d8707c39bfc41beed07d3859fd1d8c27c0997b"
+            }
+          }
+        ],
+        "exclusions": [
+          {
+            "name": "configuration working view",
+            "address": 69107712,
+            "size": 5242880
+          }
+        ],
+        "defaults": {
+          "address": 68288512,
+          "size": 655360,
+          "flag": 22122732,
+          "initialize": {
+            "address": 17989124,
+            "size": 416,
+            "sha256": "b05da980cc15f65460b611a2a366f852bc8842a9280f33c687be37f735ab569c"
+          },
+          "calls": [
+            {
+              "address": 18155460,
+              "size": 4,
+              "sha256": "0807d27e23eb4e795cad0dcd5e76adc49bea93ef06a56a97ef06a24b5123a058"
+            }
+          ]
+        },
+        "native_file": {
+          "open": {
+            "address": 18068088,
+            "size": 212,
+            "sha256": "0796331738c151614d086c3223189ae3cf0e6e9f9e7925da05fb941d4e677cce"
+          },
+          "table_cell": 25495984,
+          "table_address": 13763584,
+          "drive_map": 25500596,
+          "read": {
+            "address": 18068300,
+            "size": 72,
+            "sha256": "5a55df5642d4b367aa76094cb03dac0e0bfcdf03e78d8b54ff85aef6b0e747d2"
+          },
+          "close": {
+            "address": 18068444,
+            "size": 72,
+            "sha256": "7544f6231a7763e6e4b1133c69ea251ff4811db060f4a9d8a74049c054c03aa2"
+          },
+          "seek": {
+            "address": 18068604,
+            "size": 108,
+            "sha256": "ff2cfa90535f0429641815077e4e9c10c87d03b367d5eb23bf54b9445839769f"
+          },
+          "create_semaphore": {
+            "address": 18076380,
+            "size": 212,
+            "sha256": "273b7e8e8a88a3011675ba1c59352dd1b2c9ec555caf2677523208203f4c82a1"
+          },
+          "wait_semaphore": {
+            "address": 18076744,
+            "size": 80,
+            "sha256": "c38dc4f5659f0e036b3fda451300b843116deb018c83694fc7a5e9cc2c7df8f1"
+          },
+          "signal_semaphore": {
+            "address": 18076824,
+            "size": 108,
+            "sha256": "fc3ef55a82e02523915ba570ae590f2682092139bc9ad2e5895453eee8c1253a"
+          }
         }
       }
     },
@@ -6132,18 +6428,10 @@
     "cold_start": {
       "mode_flag": 44464,
       "mode_test": 1484,
-      "firmware_transport": {
+      "preload": {
         "address_limit": 536870912,
-        "backing_address": 469762048,
-        "capacity": 67108864,
-        "dat_offset": 628,
         "enabled_byte": 23828668,
         "byte_limit": 50200576,
-        "primary_call": {
-          "address": 340,
-          "size": 4,
-          "sha256": "3f0a38c0f6999cfae9e32951a4c429dfd210501897a9d51eaf2ce20af5e4c04f"
-        },
         "byte_reader": {
           "address": 19345384,
           "size": 68,
@@ -6158,6 +6446,337 @@
           "address": 19445356,
           "size": 40,
           "sha256": "3414103537fa5def6e9980570341e1a4a2319a13e140d32f9e4f4e06b1f67925"
+        },
+        "discards": [
+          {
+            "address": 19347536,
+            "size": 4,
+            "sha256": "1eedc2b6798a43bfd95e473f9fa5abebf021b2f7c4e84104e1a191cc35cd2942"
+          },
+          {
+            "address": 19347716,
+            "size": 4,
+            "sha256": "3df3ba46321dd81f6d831f22ecae7bd57ecc2f0d805daa9a27e2eadda3bbfa02"
+          },
+          {
+            "address": 19347784,
+            "size": 4,
+            "sha256": "db629f11270a952a9e8c50a1b5b0c552588eee314b5e498ccb893816bb3c5afa"
+          }
+        ],
+        "resources": [
+          {
+            "address": 19351040,
+            "size": 272,
+            "sha256": "f9f74c96fe7b9251f1cbad772a66659df8108d4b3b06c72f242fa7cbd4d4d5e6"
+          },
+          {
+            "address": 19351504,
+            "size": 88,
+            "sha256": "ce8b67b9be2b0445fe1f26759f8a04770b07f82d2de3f5be6b594d6b5043af6e"
+          }
+        ],
+        "witnesses": [
+          {
+            "address": 19511984,
+            "size": 32,
+            "sha256": "4cca9687633349fd94c8f599ff8516d44e4e64b88fa78183ab5a98b60b85e08e"
+          },
+          {
+            "address": 19347064,
+            "size": 508,
+            "sha256": "773648e876e9b0f43a835e6049b8a08dd80b5690809ea8391fae6f6c1f1a4c8b"
+          },
+          {
+            "address": 19347572,
+            "size": 444,
+            "sha256": "979117a664b0306dd4a10c58ccfa0f773074f9619f0c8ad9607887cbc5d26a60"
+          },
+          {
+            "address": 19419740,
+            "size": 232,
+            "sha256": "45c78c35adbdc561a8e07da3c6c26ecd7d2762118c1385413fa4f1e9ae662222"
+          },
+          {
+            "address": 19512160,
+            "size": 148,
+            "sha256": "8c8e332113001362b822d23668a4edf3eced132a1158b9ece0f1458f7b599dc8"
+          },
+          {
+            "address": 19351040,
+            "size": 272,
+            "sha256": "f9f74c96fe7b9251f1cbad772a66659df8108d4b3b06c72f242fa7cbd4d4d5e6"
+          },
+          {
+            "address": 19351504,
+            "size": 88,
+            "sha256": "ce8b67b9be2b0445fe1f26759f8a04770b07f82d2de3f5be6b594d6b5043af6e"
+          },
+          {
+            "address": 19345452,
+            "size": 60,
+            "sha256": "ab38c86a7a573588fbcfff03b0ce365a48fdfe7b2c09a71e4f74af544e648c70"
+          },
+          {
+            "address": 19350240,
+            "size": 112,
+            "sha256": "96e9c2e156eaccb3a9f3d6df40c7d8cde853ae574df942b3610fec4eb8bff35c"
+          },
+          {
+            "address": 19350428,
+            "size": 36,
+            "sha256": "d4b0864d781f14457423ae249944a08a62af7a9fbc3ecdd12760f2860441c9cd"
+          },
+          {
+            "address": 19350464,
+            "size": 44,
+            "sha256": "a45ac8dd4d7c1f14bbd5e34c496b793648e461c661452c9f10e070078e7f5769"
+          },
+          {
+            "address": 19346808,
+            "size": 136,
+            "sha256": "9e034edbe61419310dc46cfdd2e76b70f90a14caed856df3d8d135bdf610f9e7"
+          },
+          {
+            "address": 19348344,
+            "size": 440,
+            "sha256": "9afbab5087dc5a1a0e5f1765d5b4b94967576c4dd0a273c41cfb26fea084f30d"
+          },
+          {
+            "address": 19350508,
+            "size": 304,
+            "sha256": "881b6d8d66cdc76245e57d3ae76a546d4d02bade48f655206da55f1d9a677e3c"
+          },
+          {
+            "address": 19350864,
+            "size": 128,
+            "sha256": "9a322b113512bd447a065eaa86761b5660543a5281ab3d5d8cbcd67d1e24c0fb"
+          },
+          {
+            "address": 19350992,
+            "size": 48,
+            "sha256": "ac892d144732343f57e0aad8a35cb25db3435c2404bc6a43e90b974fa773fdb3"
+          },
+          {
+            "address": 19351312,
+            "size": 192,
+            "sha256": "b69a942b9512f4d67e9926fbe45d2c5ae97850678ffec430c713d2e20879ab4c"
+          },
+          {
+            "address": 23058732,
+            "size": 420,
+            "sha256": "e21e20cead13e9b2ae64aa051dadd1f2954756a99ca42e8fd7f96256f13146e9"
+          },
+          {
+            "address": 19351592,
+            "size": 72,
+            "sha256": "afa2fc5923fd0cf69e597e582d1f177086e50efc18837671dea45fcc1125e189"
+          },
+          {
+            "address": 23058648,
+            "size": 84,
+            "sha256": "5cec082584f63cc7996c015b2a98e1f12e8439c396d1db569b414444a476c9fa"
+          },
+          {
+            "address": 19351820,
+            "size": 108,
+            "sha256": "c1aec8e2ddc89a17c26263b1418a843b5421680f5aad1fb8ec1a315336e2a14e"
+          },
+          {
+            "address": 23058636,
+            "size": 12,
+            "sha256": "aa66722d2af1379e800aed30498b7e50bea910aa122da551bf8d4aa36c45cc26"
+          },
+          {
+            "address": 19358108,
+            "size": 48,
+            "sha256": "2b8db4694a2e354c6d75e017d5b6233e4ca328d17945e94fae9673a227ee06b1"
+          },
+          {
+            "address": 19344064,
+            "size": 144,
+            "sha256": "aaedbdc2040725d9973551060152969eac4d79b152c5d33f03c6d0a7b0d1cfcd"
+          },
+          {
+            "address": 19344468,
+            "size": 136,
+            "sha256": "4391f528b2ad943a6b12165af5719d55e1870274420b5220cbdfdf731cd9613c"
+          },
+          {
+            "address": 19344668,
+            "size": 412,
+            "sha256": "532b1d3a03f898aedbac00b9cd718dcaf0967d9891968b6a75f1ea672f89f105"
+          },
+          {
+            "address": 19445356,
+            "size": 40,
+            "sha256": "3414103537fa5def6e9980570341e1a4a2319a13e140d32f9e4f4e06b1f67925"
+          }
+        ],
+        "edits": [
+          {
+            "address": 19344208,
+            "old": 122695680,
+            "new": 14299136,
+            "what": "startup defaults source"
+          },
+          {
+            "address": 19344812,
+            "old": 3808432128,
+            "new": 3808432128,
+            "what": "startup defaults source"
+          },
+          {
+            "address": 19344816,
+            "old": 3812628304,
+            "new": 3812626650,
+            "what": "startup defaults source"
+          },
+          {
+            "address": 23828652,
+            "old": 1,
+            "new": 0,
+            "what": "select startup configuration defaults"
+          }
+        ],
+        "placements": [
+          {
+            "name": "raw resource block padding",
+            "address": 9977533,
+            "source": {
+              "dat_offset": 31736113,
+              "size": 115011,
+              "decoded_size": 115011,
+              "compression": "raw",
+              "sha256": "6873d08159ef53cbf618f037fc99ad386b7c0d2dabe8adb65c5f018711dd3af9"
+            }
+          }
+        ],
+        "ranges": [
+          {
+            "name": "configuration defaults",
+            "offset": 786432,
+            "address": null,
+            "source": {
+              "dat_offset": 787060,
+              "size": 524288,
+              "decoded_size": 524288,
+              "compression": "raw",
+              "sha256": "c2ce941b530e66f5d5435b2d1ad3008c07773ba0ddb161d3d883c6b882befed0"
+            }
+          },
+          {
+            "name": "source-table data",
+            "offset": 25559040,
+            "address": 11534336,
+            "source": {
+              "dat_offset": 25559668,
+              "size": 1703936,
+              "decoded_size": 1703936,
+              "compression": "raw",
+              "sha256": "eb2856740ce3bb06c13d1577bdd28196c66d20382631e764f8014843a32e8d38"
+            }
+          },
+          {
+            "name": "fixed resource data",
+            "offset": 46530560,
+            "address": 13238272,
+            "source": {
+              "dat_offset": 46531188,
+              "size": 1048576,
+              "decoded_size": 1048576,
+              "compression": "raw",
+              "sha256": "c23923a1e43dc775b2a976297601969dcdf9053d0bace541c92232e7646493ed"
+            }
+          },
+          {
+            "name": "selectable resource bank",
+            "offset": 25296896,
+            "address": null,
+            "source": {
+              "dat_offset": 25297524,
+              "size": 131072,
+              "decoded_size": 131072,
+              "compression": "raw",
+              "sha256": "13d01d438b3252a9beb8697c16b74a2ccb787935e5b4d6376f173ed16b711bec"
+            }
+          },
+          {
+            "name": "selectable resource bank",
+            "offset": 31981568,
+            "address": null,
+            "source": {
+              "dat_offset": 31982196,
+              "size": 14155776,
+              "decoded_size": 14155776,
+              "compression": "raw",
+              "sha256": "48f39ae33aaf78c24feeee1645a0e4dbb4176c854d21eb26c3168eb3a7317b65"
+            }
+          }
+        ],
+        "exclusions": [
+          {
+            "name": "configuration working view",
+            "address": 73826304,
+            "size": 4718592
+          }
+        ],
+        "defaults": {
+          "address": 14286848,
+          "size": 524288,
+          "flag": 23828652,
+          "initialize": {
+            "address": 19344668,
+            "size": 412,
+            "sha256": "532b1d3a03f898aedbac00b9cd718dcaf0967d9891968b6a75f1ea672f89f105"
+          },
+          "calls": [
+            {
+              "address": 19514124,
+              "size": 4,
+              "sha256": "2b423b51c25daf378ea68e6b6c2f1c84703fc03477f18ddd886933c954d0978e"
+            }
+          ]
+        },
+        "native_file": {
+          "open": {
+            "address": 19422608,
+            "size": 220,
+            "sha256": "b5510e1464c3bbfa20b539716c3c1a50c21d16d414d05ff054defe8440ec1d77"
+          },
+          "table_cell": 25636336,
+          "table_address": 14812160,
+          "drive_map": 25635868,
+          "read": {
+            "address": 19422828,
+            "size": 72,
+            "sha256": "684563280e0fb4a34c6021b69da96b0937148fb20a4f88669542d5fdfff14403"
+          },
+          "close": {
+            "address": 19422972,
+            "size": 72,
+            "sha256": "86a69de440a35eabb23d5315edd88cefb4e3433f831a24a3531a56398bb1e583"
+          },
+          "seek": {
+            "address": 19423132,
+            "size": 108,
+            "sha256": "4e61eeaa690b164b4f6fe182e1adf175a8838708957a79419f2090ee80a521a6"
+          },
+          "create_semaphore": {
+            "address": 19434600,
+            "size": 212,
+            "sha256": "56ad52ec6cfa0cd0f9fc15d44587bf67b4e685b4f07f7a312047f3df5481ff03"
+          },
+          "wait_semaphore": {
+            "address": 19434964,
+            "size": 80,
+            "sha256": "86053ef5fdae45bd0483cf61de490b1ff46442c1e81b7ae051a6ffb40739ed6a"
+          },
+          "signal_semaphore": {
+            "address": 19435044,
+            "size": 108,
+            "sha256": "1ead47919086931559ce16ac5ee608cf2ae31ab7d4172ad802ae81ac6fcbd754"
+          }
         }
       }
     },
@@ -9072,18 +9691,10 @@
     "cold_start": {
       "mode_flag": 41708,
       "mode_test": 1484,
-      "firmware_transport": {
+      "preload": {
         "address_limit": 536870912,
-        "backing_address": 469762048,
-        "capacity": 67108864,
-        "dat_offset": 628,
         "enabled_byte": 23380220,
         "byte_limit": 50200576,
-        "primary_call": {
-          "address": 340,
-          "size": 4,
-          "sha256": "e82c6d6a500f3e14122a01fa809144b50aade53dc278b2347b62eba9af13aa8f"
-        },
         "byte_reader": {
           "address": 18066056,
           "size": 68,
@@ -9098,6 +9709,327 @@
           "address": 18164716,
           "size": 40,
           "sha256": "9a394a476890b240ed663ce9d83adfaf33733c9f2313a5f68843b736e93f27b4"
+        },
+        "discards": [
+          {
+            "address": 18068208,
+            "size": 4,
+            "sha256": "1eedc2b6798a43bfd95e473f9fa5abebf021b2f7c4e84104e1a191cc35cd2942"
+          }
+        ],
+        "resources": [
+          {
+            "address": 18071504,
+            "size": 88,
+            "sha256": "f17732d6a177f5a67c98ac03d0e3c87c11b25d124f9a3fb9e88fcbd8cfff230b"
+          },
+          {
+            "address": 18071784,
+            "size": 88,
+            "sha256": "7deb6ee0c06259fa309c06019b270fbd43a2314b883cc67d2807192e364aae5b"
+          }
+        ],
+        "witnesses": [
+          {
+            "address": 18230884,
+            "size": 32,
+            "sha256": "c3dde0095d69557544f23c814159518bbb42c57370fe6564ef799c74330b599c"
+          },
+          {
+            "address": 18067736,
+            "size": 508,
+            "sha256": "19e64ddb6c00a85d23722bc9bb0d4b104d58f65da597d1b81c5d3ce7e4a64013"
+          },
+          {
+            "address": 18068244,
+            "size": 236,
+            "sha256": "db33801fa29a1eef055b61c099c22a8448c0b76198349b0a9dba73371e141633"
+          },
+          {
+            "address": 18141480,
+            "size": 144,
+            "sha256": "c9b2871f387f542c307758bc7b5ab4222398aa3a6a2d8beae339cc33ab8e504a"
+          },
+          {
+            "address": 18231060,
+            "size": 148,
+            "sha256": "f84013496e4e69d0756a4e7db8f9d546d77d389a04cf715d67e0edd5f33ff13f"
+          },
+          {
+            "address": 18071504,
+            "size": 88,
+            "sha256": "f17732d6a177f5a67c98ac03d0e3c87c11b25d124f9a3fb9e88fcbd8cfff230b"
+          },
+          {
+            "address": 18071784,
+            "size": 88,
+            "sha256": "7deb6ee0c06259fa309c06019b270fbd43a2314b883cc67d2807192e364aae5b"
+          },
+          {
+            "address": 18066124,
+            "size": 60,
+            "sha256": "82f95b83b8c1e0385d38299ab64e16d93fe0444578ffd0f2f52bf45adf066a6d"
+          },
+          {
+            "address": 18070704,
+            "size": 112,
+            "sha256": "1470a22dd8d1b11ed12c752bd2d254e61243674b209236928c07dca006cb1a12"
+          },
+          {
+            "address": 18070892,
+            "size": 36,
+            "sha256": "3ecbf34351bb10e17976b0ee6976b68c66aef52c123c50ea43a26ed36487c370"
+          },
+          {
+            "address": 18070928,
+            "size": 44,
+            "sha256": "329baf8fe2c6df2307e8de7278b02405fb02aacc2c59c58843c19457774ed954"
+          },
+          {
+            "address": 18067480,
+            "size": 136,
+            "sha256": "c306d166534320481918ac292f323b7d331da9b7927f3396e6d74d4d42222d1a"
+          },
+          {
+            "address": 18068808,
+            "size": 440,
+            "sha256": "6332338d6c70ce7165b3fb7731c3f3c43144e58005637b07b9bc4f0eca7c8c24"
+          },
+          {
+            "address": 18070972,
+            "size": 304,
+            "sha256": "f14182c98077c9466d86f141bfb917b858bf2a0a85a704f58f7e325212cc3c4c"
+          },
+          {
+            "address": 18071328,
+            "size": 128,
+            "sha256": "64bbf699f1a07de1994268292127faa9861f21f43c00793e715699d8fefcef25"
+          },
+          {
+            "address": 18071456,
+            "size": 48,
+            "sha256": "1aa69ec13becfcc1bbc042a980b92f98a49f7c5b2e371ce65ac3c878a75f72c7"
+          },
+          {
+            "address": 18071592,
+            "size": 192,
+            "sha256": "3c0872687a5c40cef5aabfc099b43124a278550d3e31329139e3d0079cb0dac9"
+          },
+          {
+            "address": 22805196,
+            "size": 420,
+            "sha256": "b1d34213e1a104b9ee29e55bcd21ae49028fbfb9258ff26409af0d5ae4e01de7"
+          },
+          {
+            "address": 18071872,
+            "size": 72,
+            "sha256": "ee11fd8a57eb98007276df32bb481d389d17f1186c5213e50f83252f0dfa76cb"
+          },
+          {
+            "address": 22805112,
+            "size": 84,
+            "sha256": "8f30905b28122a5800ebb5de55c91c3e504360bb8af9d6dcaa48f3246776b1be"
+          },
+          {
+            "address": 18072100,
+            "size": 108,
+            "sha256": "80f4df931573f7b5ea52dcea34c85daf880f79ddad3d839660c216128ef16b12"
+          },
+          {
+            "address": 22805100,
+            "size": 12,
+            "sha256": "8ee4b6390f76293abe79393c758aa387a1b1bbd8bca0f04ab3b9fdc7ccec621f"
+          },
+          {
+            "address": 18078300,
+            "size": 48,
+            "sha256": "6b32cf4f33646d9b07d268bc89aa88a1ec5ac4be93b1e68997302bef318f85ed"
+          },
+          {
+            "address": 18064736,
+            "size": 144,
+            "sha256": "866956e3195921c8b932bbe215aac27d16dadcb7e32de1f5039baafb3c1ce1c9"
+          },
+          {
+            "address": 18065140,
+            "size": 136,
+            "sha256": "d9065f91c931f3bb3111a175bc2392bd619818043569d6c85106ba2b97a2fc80"
+          },
+          {
+            "address": 18065340,
+            "size": 412,
+            "sha256": "9e973568eee150472e5561240c0cb9edbd2ee062e757cf5d2eee817ae0c3a984"
+          },
+          {
+            "address": 18164716,
+            "size": 40,
+            "sha256": "9a394a476890b240ed663ce9d83adfaf33733c9f2313a5f68843b736e93f27b4"
+          }
+        ],
+        "edits": [
+          {
+            "address": 18064880,
+            "old": 122695680,
+            "new": 13250560,
+            "what": "startup defaults source"
+          },
+          {
+            "address": 18065484,
+            "old": 3808432128,
+            "new": 3808432128,
+            "what": "startup defaults source"
+          },
+          {
+            "address": 18065488,
+            "old": 3812628304,
+            "new": 3812626634,
+            "what": "startup defaults source"
+          },
+          {
+            "address": 23380204,
+            "old": 1,
+            "new": 0,
+            "what": "select startup configuration defaults"
+          }
+        ],
+        "placements": [
+          {
+            "name": "raw resource block padding",
+            "address": 8928957,
+            "source": {
+              "dat_offset": 31867185,
+              "size": 115011,
+              "decoded_size": 115011,
+              "compression": "raw",
+              "sha256": "6873d08159ef53cbf618f037fc99ad386b7c0d2dabe8adb65c5f018711dd3af9"
+            }
+          }
+        ],
+        "ranges": [
+          {
+            "name": "configuration defaults",
+            "offset": 786432,
+            "address": null,
+            "source": {
+              "dat_offset": 787060,
+              "size": 524288,
+              "decoded_size": 524288,
+              "compression": "raw",
+              "sha256": "3fe650ab40516e89e25afe5eec62a92a81f8212d20aaa7fcfb350cc90e94290b"
+            }
+          },
+          {
+            "name": "source-table data",
+            "offset": 23461888,
+            "address": 10485760,
+            "source": {
+              "dat_offset": 23462516,
+              "size": 1703936,
+              "decoded_size": 1703936,
+              "compression": "raw",
+              "sha256": "eb2856740ce3bb06c13d1577bdd28196c66d20382631e764f8014843a32e8d38"
+            }
+          },
+          {
+            "name": "fixed resource data",
+            "offset": 46530560,
+            "address": 12189696,
+            "source": {
+              "dat_offset": 46531188,
+              "size": 1048576,
+              "decoded_size": 1048576,
+              "compression": "raw",
+              "sha256": "c23923a1e43dc775b2a976297601969dcdf9053d0bace541c92232e7646493ed"
+            }
+          },
+          {
+            "name": "selectable resource bank",
+            "offset": 23199744,
+            "address": null,
+            "source": {
+              "dat_offset": 23200372,
+              "size": 131072,
+              "decoded_size": 131072,
+              "compression": "raw",
+              "sha256": "13d01d438b3252a9beb8697c16b74a2ccb787935e5b4d6376f173ed16b711bec"
+            }
+          },
+          {
+            "name": "selectable resource bank",
+            "offset": 31981568,
+            "address": null,
+            "source": {
+              "dat_offset": 31982196,
+              "size": 14155776,
+              "decoded_size": 14155776,
+              "compression": "raw",
+              "sha256": "ff27c81d904faa0d73593b844350c8b5b696730d11d0d0f3637b725b5d12cf55"
+            }
+          }
+        ],
+        "exclusions": [
+          {
+            "name": "configuration working view",
+            "address": 68583424,
+            "size": 4718592
+          }
+        ],
+        "defaults": {
+          "address": 13238272,
+          "size": 524288,
+          "flag": 23380204,
+          "initialize": {
+            "address": 18065340,
+            "size": 412,
+            "sha256": "9e973568eee150472e5561240c0cb9edbd2ee062e757cf5d2eee817ae0c3a984"
+          },
+          "calls": [
+            {
+              "address": 18233156,
+              "size": 4,
+              "sha256": "7654524bae62741eff6070e2d05317992f9545ea7b808f2aba346051b074a736"
+            }
+          ]
+        },
+        "native_file": {
+          "open": {
+            "address": 18145136,
+            "size": 212,
+            "sha256": "de8586c2965188531f3919e0119df61a87c1df47036d7496923a300c9c141815"
+          },
+          "table_cell": 26817852,
+          "table_address": 13763584,
+          "drive_map": 26822416,
+          "read": {
+            "address": 18145348,
+            "size": 84,
+            "sha256": "776ab6b9a7863c1a34df17c7cf633b4f5c40111e74a1cde2fae69f5fc182a2e0"
+          },
+          "close": {
+            "address": 18145516,
+            "size": 84,
+            "sha256": "308e365e0ca65625cf4117585b7f9ff66b185b2312a9b167d00724f50e7863c6"
+          },
+          "seek": {
+            "address": 18145700,
+            "size": 100,
+            "sha256": "43acd1659739d6aa9a10a57d9db4b3a07f37a61603571310d479e067a8cfebb6"
+          },
+          "create_semaphore": {
+            "address": 18154000,
+            "size": 212,
+            "sha256": "6dd3ba5a8f12fd072d57b754fcacb1acca12222aff30f7018d5d91cdc71e62f3"
+          },
+          "wait_semaphore": {
+            "address": 18154364,
+            "size": 80,
+            "sha256": "e5cc07379f2f72ecc905faaefbfd22fb06f182b7a6ddb86740e3da8521c1bf7e"
+          },
+          "signal_semaphore": {
+            "address": 18154444,
+            "size": 108,
+            "sha256": "4d79b002617c8c8ff87673f758ad591157c96f9048cd3564ebdb68567f5fc9a6"
+          }
         }
       }
     },
@@ -10064,18 +10996,10 @@
     "cold_start": {
       "mode_flag": 44592,
       "mode_test": 1484,
-      "firmware_transport": {
-        "address_limit": 1073741824,
-        "backing_address": 1006632960,
-        "capacity": 67108864,
-        "dat_offset": 628,
+      "preload": {
+        "address_limit": 536870912,
         "enabled_byte": 24878272,
         "byte_limit": 50200576,
-        "primary_call": {
-          "address": 340,
-          "size": 4,
-          "sha256": "e82c6d6a500f3e14122a01fa809144b50aade53dc278b2347b62eba9af13aa8f"
-        },
         "byte_reader": {
           "address": 19458144,
           "size": 68,
@@ -10090,6 +11014,337 @@
           "address": 19563752,
           "size": 40,
           "sha256": "b57e6aab4ecf4f5717a776de25d25e6c9a2d17498bb532b398a7015b07b0a2e1"
+        },
+        "discards": [
+          {
+            "address": 19460312,
+            "size": 4,
+            "sha256": "d40dce4645d5f1fd62462986ddf0c1a5ed0559e2c1c76e04a79bd1eb6038cff9"
+          },
+          {
+            "address": 19460492,
+            "size": 4,
+            "sha256": "d6d4fafd5faeec7f9812e00dfcc7bd65c1a0a455b1e5bb0c6da3cd0ae0fa859c"
+          },
+          {
+            "address": 19460560,
+            "size": 4,
+            "sha256": "95bd965604fb38196c8127ba958b24765b8e29ff5d1d97b1ffac1f4181aff7f5"
+          }
+        ],
+        "resources": [
+          {
+            "address": 19463828,
+            "size": 272,
+            "sha256": "36412a9ffbf60cb620f9d409ed26f1652dde2893898987c834b02574e29425ba"
+          },
+          {
+            "address": 19464292,
+            "size": 88,
+            "sha256": "dcf705bc3a0dbd03a4235ba84402f08f6c82f69340207b155051107b67acb09c"
+          }
+        ],
+        "witnesses": [
+          {
+            "address": 19630384,
+            "size": 32,
+            "sha256": "4cca9687633349fd94c8f599ff8516d44e4e64b88fa78183ab5a98b60b85e08e"
+          },
+          {
+            "address": 19459840,
+            "size": 508,
+            "sha256": "92d7adbcab1d8f27997eaf5d889b9d6781d5336ad0a74c1e567da1f604a0856a"
+          },
+          {
+            "address": 19460348,
+            "size": 444,
+            "sha256": "c6f017b9763336f07304b4207699c7442a24377c707c29c6e584cf5aadde3a50"
+          },
+          {
+            "address": 19533292,
+            "size": 232,
+            "sha256": "6d2e5439d22a8ffa991da1a014f225590046dba810c7ff1b504fb8b4ca7b2691"
+          },
+          {
+            "address": 19630560,
+            "size": 148,
+            "sha256": "eeaace5c4b66293515fafdb08831028b8973b0e12ee9a41c3137fbf56444f74c"
+          },
+          {
+            "address": 19463828,
+            "size": 272,
+            "sha256": "36412a9ffbf60cb620f9d409ed26f1652dde2893898987c834b02574e29425ba"
+          },
+          {
+            "address": 19464292,
+            "size": 88,
+            "sha256": "dcf705bc3a0dbd03a4235ba84402f08f6c82f69340207b155051107b67acb09c"
+          },
+          {
+            "address": 19458212,
+            "size": 60,
+            "sha256": "7cbdca4bce046aeb044b98eac27ff6eecf29f9f6a632a20876318af0591b4c30"
+          },
+          {
+            "address": 19463028,
+            "size": 112,
+            "sha256": "8a4ef69e14c8789186730bec21861fd25586be374dfedaeacbc9bca885c62cdd"
+          },
+          {
+            "address": 19463216,
+            "size": 36,
+            "sha256": "24ab9da467bf7a02dc7e019906335d479a4e63421278cedcdd567be3ed526476"
+          },
+          {
+            "address": 19463252,
+            "size": 44,
+            "sha256": "0d64ed21c4d27e1ee04f1e4413e6255592f7ae6a37fa58469315001b0f0945d2"
+          },
+          {
+            "address": 19459572,
+            "size": 136,
+            "sha256": "368db036328486475b347b1f9cfe291d4551a85928858050ab8195c52b77bfd2"
+          },
+          {
+            "address": 19461132,
+            "size": 440,
+            "sha256": "8cf824587f40e2c3fc560e37d5c42651ca2b3974d5db71ba83c89e0b05b7785c"
+          },
+          {
+            "address": 19463296,
+            "size": 304,
+            "sha256": "d6eb165477eab21973c0b2c3a3c07a2c7fc10b106ccfebee9c697a8329a74a12"
+          },
+          {
+            "address": 19463652,
+            "size": 128,
+            "sha256": "838a47d8f8a9082c230cf2e7a62aa95925cb9e3c1c76c3ad1a0a75636a8b0c15"
+          },
+          {
+            "address": 19463780,
+            "size": 48,
+            "sha256": "c7c6229cbd940a3d4e0f916a24c4b9e34ab3cbe380716c50dc6a8634c68f10d0"
+          },
+          {
+            "address": 19464100,
+            "size": 192,
+            "sha256": "b61ca76d6bb3c8c6121a8412dbcbf261ecbd2f111ddb9ab6654ca197d0d7faa3"
+          },
+          {
+            "address": 24154668,
+            "size": 420,
+            "sha256": "e21e20cead13e9b2ae64aa051dadd1f2954756a99ca42e8fd7f96256f13146e9"
+          },
+          {
+            "address": 19464380,
+            "size": 72,
+            "sha256": "307693734e1d132b7f9ba1494dcddfd176c8a48086826ccd854d9305e7f14361"
+          },
+          {
+            "address": 24154584,
+            "size": 84,
+            "sha256": "5cec082584f63cc7996c015b2a98e1f12e8439c396d1db569b414444a476c9fa"
+          },
+          {
+            "address": 19464608,
+            "size": 108,
+            "sha256": "b7428d16a568361477f428f2debb2cad0b1c29f47558271c6418e4dcb6892c2b"
+          },
+          {
+            "address": 24154572,
+            "size": 12,
+            "sha256": "b0138833a7d39323cc02422e8fb9c08cbff7ecc89e2f8ca13d9a31a231376a0f"
+          },
+          {
+            "address": 19470896,
+            "size": 48,
+            "sha256": "76261c740f9f8c4dd8abe3e526c1ba12c7c61dcfb5a20fe5164331907d09c772"
+          },
+          {
+            "address": 19456824,
+            "size": 144,
+            "sha256": "a351e46611d57ed0bdadef64d5a8f0075d04eeddd64dbd482a5f3f97d2ee309f"
+          },
+          {
+            "address": 19457228,
+            "size": 136,
+            "sha256": "b74929bb0f35aa5c9aca19fb1575bf7344f60a7a2f1ed60e2bfe9b4f90004c53"
+          },
+          {
+            "address": 19457428,
+            "size": 412,
+            "sha256": "1115d38674f14995bbc245978cad5cc2227553c11efdc3fa03d6720a5ecfc237"
+          },
+          {
+            "address": 19563752,
+            "size": 40,
+            "sha256": "b57e6aab4ecf4f5717a776de25d25e6c9a2d17498bb532b398a7015b07b0a2e1"
+          }
+        ],
+        "edits": [
+          {
+            "address": 19456968,
+            "old": 122695680,
+            "new": 14299136,
+            "what": "startup defaults source"
+          },
+          {
+            "address": 19457572,
+            "old": 3808432128,
+            "new": 3808432128,
+            "what": "startup defaults source"
+          },
+          {
+            "address": 19457576,
+            "old": 3812628304,
+            "new": 3812626650,
+            "what": "startup defaults source"
+          },
+          {
+            "address": 24878256,
+            "old": 1,
+            "new": 0,
+            "what": "select startup configuration defaults"
+          }
+        ],
+        "placements": [
+          {
+            "name": "raw resource block padding",
+            "address": 9977533,
+            "source": {
+              "dat_offset": 31867185,
+              "size": 115011,
+              "decoded_size": 115011,
+              "compression": "raw",
+              "sha256": "6873d08159ef53cbf618f037fc99ad386b7c0d2dabe8adb65c5f018711dd3af9"
+            }
+          }
+        ],
+        "ranges": [
+          {
+            "name": "configuration defaults",
+            "offset": 786432,
+            "address": null,
+            "source": {
+              "dat_offset": 787060,
+              "size": 524288,
+              "decoded_size": 524288,
+              "compression": "raw",
+              "sha256": "fb39b27d13f2e7d17ccc8fc65b4df28465ff10b972b77046bffbf7e0acbdf922"
+            }
+          },
+          {
+            "name": "source-table data",
+            "offset": 23461888,
+            "address": 11534336,
+            "source": {
+              "dat_offset": 23462516,
+              "size": 1703936,
+              "decoded_size": 1703936,
+              "compression": "raw",
+              "sha256": "eb2856740ce3bb06c13d1577bdd28196c66d20382631e764f8014843a32e8d38"
+            }
+          },
+          {
+            "name": "fixed resource data",
+            "offset": 47841280,
+            "address": 13238272,
+            "source": {
+              "dat_offset": 47841908,
+              "size": 1048576,
+              "decoded_size": 1048576,
+              "compression": "raw",
+              "sha256": "c23923a1e43dc775b2a976297601969dcdf9053d0bace541c92232e7646493ed"
+            }
+          },
+          {
+            "name": "selectable resource bank",
+            "offset": 23199744,
+            "address": null,
+            "source": {
+              "dat_offset": 23200372,
+              "size": 131072,
+              "decoded_size": 131072,
+              "compression": "raw",
+              "sha256": "13d01d438b3252a9beb8697c16b74a2ccb787935e5b4d6376f173ed16b711bec"
+            }
+          },
+          {
+            "name": "selectable resource bank",
+            "offset": 31981568,
+            "address": null,
+            "source": {
+              "dat_offset": 31982196,
+              "size": 14155776,
+              "decoded_size": 14155776,
+              "compression": "raw",
+              "sha256": "05b542906e60626df8b67efa05fa621d68bb0963c4df0b2d983c9f4899644495"
+            }
+          }
+        ],
+        "exclusions": [
+          {
+            "name": "configuration working view",
+            "address": 73302016,
+            "size": 4718592
+          }
+        ],
+        "defaults": {
+          "address": 14286848,
+          "size": 524288,
+          "flag": 24878256,
+          "initialize": {
+            "address": 19457428,
+            "size": 412,
+            "sha256": "1115d38674f14995bbc245978cad5cc2227553c11efdc3fa03d6720a5ecfc237"
+          },
+          "calls": [
+            {
+              "address": 19632524,
+              "size": 4,
+              "sha256": "5619f280a8921d98b25c1432eb2e7af963b98257206bbabccb77f39e76576533"
+            }
+          ]
+        },
+        "native_file": {
+          "open": {
+            "address": 19536160,
+            "size": 220,
+            "sha256": "98976a8d72f3bfd23100ea92f45e0ad0b0aa03bccfbcaf2c732b8ab91f423b1a"
+          },
+          "table_cell": 26722168,
+          "table_address": 14812160,
+          "drive_map": 26721696,
+          "read": {
+            "address": 19536380,
+            "size": 72,
+            "sha256": "dc55f9b4e7c3b65dddc7ac22664f6df649bfe65daddb7e040a1242aa91915d52"
+          },
+          "close": {
+            "address": 19536524,
+            "size": 72,
+            "sha256": "6ea840b2edc60f986b739fe06e7b521e2116d13d630b99d3db8b5c64521700ef"
+          },
+          "seek": {
+            "address": 19536684,
+            "size": 108,
+            "sha256": "cde29764071763f9a330eebcef67b580fc200f4d5f900c6644ff082e55ce311b"
+          },
+          "create_semaphore": {
+            "address": 19552996,
+            "size": 212,
+            "sha256": "92ef8b865a1cd97baf9ea8e79f28541c1204bc0004db5b603501c4e29874a472"
+          },
+          "wait_semaphore": {
+            "address": 19553360,
+            "size": 80,
+            "sha256": "04c2ab1ae06e9f601f487e9cd8c0da5ae8b317b12e40c457a132daf66abebc6f"
+          },
+          "signal_semaphore": {
+            "address": 19553440,
+            "size": 108,
+            "sha256": "19e02b2f409c28b66932ffdc7957241d4978462635916f15ba148a6d3ed7d0a0"
+          }
         }
       }
     },
@@ -11559,18 +12814,10 @@
     "cold_start": {
       "mode_flag": 41228,
       "mode_test": 1472,
-      "firmware_transport": {
+      "preload": {
         "address_limit": 536870912,
-        "backing_address": 469762048,
-        "capacity": 67108864,
-        "dat_offset": 628,
         "enabled_byte": 22040764,
         "byte_limit": 50200576,
-        "primary_call": {
-          "address": 340,
-          "size": 4,
-          "sha256": "3395e1b53bfe8e583402f2d7c13866ad17e1964085eb5b25c11ae0e2118040f4"
-        },
         "byte_reader": {
           "address": 17953564,
           "size": 68,
@@ -11585,6 +12832,327 @@
           "address": 18051636,
           "size": 40,
           "sha256": "d84501d789d0db7978fcf19fe241714080d4f23f2f857eb91e021a200e5b3365"
+        },
+        "discards": [
+          {
+            "address": 17955732,
+            "size": 4,
+            "sha256": "d40dce4645d5f1fd62462986ddf0c1a5ed0559e2c1c76e04a79bd1eb6038cff9"
+          }
+        ],
+        "resources": [
+          {
+            "address": 17959040,
+            "size": 88,
+            "sha256": "509ee2c8522628f72739aebbb718bd824e73fd1cc5124acd988ffcb6fc0d8bce"
+          },
+          {
+            "address": 17959320,
+            "size": 88,
+            "sha256": "4cac9b523d190b24aac8b915a26aa9809991cc2594a242106fb6a55ad2f54aeb"
+          }
+        ],
+        "witnesses": [
+          {
+            "address": 18117696,
+            "size": 32,
+            "sha256": "c3dde0095d69557544f23c814159518bbb42c57370fe6564ef799c74330b599c"
+          },
+          {
+            "address": 17955260,
+            "size": 508,
+            "sha256": "f55266fa0edf89ee0e0c9a44feb3f268c836da8d4dfaf3836db6c671ca938f72"
+          },
+          {
+            "address": 17955768,
+            "size": 236,
+            "sha256": "da82092ec2b93490ae7959f1052496b45038f7465c8aa454af5751f25520a5a8"
+          },
+          {
+            "address": 18028244,
+            "size": 156,
+            "sha256": "847a98e90ddd61387b724ca1e8afa82d9def3c988d9bb1577c9648736e867ac7"
+          },
+          {
+            "address": 18117872,
+            "size": 148,
+            "sha256": "852c0e4896ed0859a6eb6440c742dbfc148bd87a91722a25d6f5cb91b2007d30"
+          },
+          {
+            "address": 17959040,
+            "size": 88,
+            "sha256": "509ee2c8522628f72739aebbb718bd824e73fd1cc5124acd988ffcb6fc0d8bce"
+          },
+          {
+            "address": 17959320,
+            "size": 88,
+            "sha256": "4cac9b523d190b24aac8b915a26aa9809991cc2594a242106fb6a55ad2f54aeb"
+          },
+          {
+            "address": 17953632,
+            "size": 60,
+            "sha256": "030a8a0f411268bdc78cebc4e3855137b8725349d70fd65e2b2c2ab52ebdda0d"
+          },
+          {
+            "address": 17958240,
+            "size": 112,
+            "sha256": "721e66f66afbc2493f9197e6e7a6450b4ee11e2ee9dbd5f23b38f5fb898bb7ea"
+          },
+          {
+            "address": 17958428,
+            "size": 36,
+            "sha256": "5bb06d3fe1f85589ad749ca816773cf85ee96a852394dd6432af8b240d28dd6b"
+          },
+          {
+            "address": 17958464,
+            "size": 44,
+            "sha256": "e3a53f549f8680150ba45299cf24e1c3b5933465507ae8282f9c912ab5a17051"
+          },
+          {
+            "address": 17954992,
+            "size": 136,
+            "sha256": "272fcd0caa5e856224f5ed2d31322784d309250f03b774e0a9bca8dff7033416"
+          },
+          {
+            "address": 17956344,
+            "size": 440,
+            "sha256": "72f9b99a33d052b5040c1b14028c6e2833510c4302353894cfb8befead1aedbf"
+          },
+          {
+            "address": 17958508,
+            "size": 304,
+            "sha256": "05b8a97ec92713356b12a91abdffeb8b42320579c766d1f10a8adcb6fa16d296"
+          },
+          {
+            "address": 17958864,
+            "size": 128,
+            "sha256": "b290468b49332aa931215cdbb8f121e1b604754ef3a002d73b7cf088c782ee78"
+          },
+          {
+            "address": 17958992,
+            "size": 48,
+            "sha256": "f125f6597c1e0f9d08c7e9f5933d3e2083a20c8e8e096a18f9d4fa31fd43bf5f"
+          },
+          {
+            "address": 17959128,
+            "size": 192,
+            "sha256": "10fd46dd04baa8693e3cc8378476f0d59721e6241906b1d811fc1096606af2f8"
+          },
+          {
+            "address": 21470156,
+            "size": 420,
+            "sha256": "b1d34213e1a104b9ee29e55bcd21ae49028fbfb9258ff26409af0d5ae4e01de7"
+          },
+          {
+            "address": 17959408,
+            "size": 72,
+            "sha256": "aad66fb4b6113e8e793913134744a02d110aabfcbbdf99a7c4abadc3cd0ba754"
+          },
+          {
+            "address": 21470072,
+            "size": 84,
+            "sha256": "8f30905b28122a5800ebb5de55c91c3e504360bb8af9d6dcaa48f3246776b1be"
+          },
+          {
+            "address": 17959636,
+            "size": 108,
+            "sha256": "8dc489a5e02625071b3b74270498532cc594f18505519800b41bbfe55dda8efa"
+          },
+          {
+            "address": 21470060,
+            "size": 12,
+            "sha256": "8ee4b6390f76293abe79393c758aa387a1b1bbd8bca0f04ab3b9fdc7ccec621f"
+          },
+          {
+            "address": 17965836,
+            "size": 48,
+            "sha256": "9f20851662ca6423baa9d9803f0ec23497819e4db60b1d4e1cae7d35ddbac986"
+          },
+          {
+            "address": 17952244,
+            "size": 144,
+            "sha256": "1eb29ad56578f377ad924f54e1880f27497e3122bc6d3487dbc0ca3b8125b5b9"
+          },
+          {
+            "address": 17952648,
+            "size": 136,
+            "sha256": "1f37c6ec1bcff19d838dda90aae48f42e80cf2b2f9d6bf69dee24b7e2e8b9670"
+          },
+          {
+            "address": 17952848,
+            "size": 412,
+            "sha256": "1addfaaa382b8920d96009f929eadd2449a40a8afe81e362927b776dc032f851"
+          },
+          {
+            "address": 18051636,
+            "size": 40,
+            "sha256": "d84501d789d0db7978fcf19fe241714080d4f23f2f857eb91e021a200e5b3365"
+          }
+        ],
+        "edits": [
+          {
+            "address": 17952388,
+            "old": 122695680,
+            "new": 13250560,
+            "what": "startup defaults source"
+          },
+          {
+            "address": 17952992,
+            "old": 3808432128,
+            "new": 3808432128,
+            "what": "startup defaults source"
+          },
+          {
+            "address": 17952996,
+            "old": 3812628304,
+            "new": 3812626634,
+            "what": "startup defaults source"
+          },
+          {
+            "address": 22040748,
+            "old": 1,
+            "new": 0,
+            "what": "select startup configuration defaults"
+          }
+        ],
+        "placements": [
+          {
+            "name": "raw resource block padding",
+            "address": 8928957,
+            "source": {
+              "dat_offset": 31867185,
+              "size": 115011,
+              "decoded_size": 115011,
+              "compression": "raw",
+              "sha256": "6873d08159ef53cbf618f037fc99ad386b7c0d2dabe8adb65c5f018711dd3af9"
+            }
+          }
+        ],
+        "ranges": [
+          {
+            "name": "configuration defaults",
+            "offset": 786432,
+            "address": null,
+            "source": {
+              "dat_offset": 787060,
+              "size": 524288,
+              "decoded_size": 524288,
+              "compression": "raw",
+              "sha256": "08ca572166a23e5728babb643bd12b18bed521089a61432a6bbf7ee96283d1a9"
+            }
+          },
+          {
+            "name": "source-table data",
+            "offset": 23461888,
+            "address": 10485760,
+            "source": {
+              "dat_offset": 23462516,
+              "size": 1703936,
+              "decoded_size": 1703936,
+              "compression": "raw",
+              "sha256": "eb2856740ce3bb06c13d1577bdd28196c66d20382631e764f8014843a32e8d38"
+            }
+          },
+          {
+            "name": "fixed resource data",
+            "offset": 46530560,
+            "address": 12189696,
+            "source": {
+              "dat_offset": 46531188,
+              "size": 1048576,
+              "decoded_size": 1048576,
+              "compression": "raw",
+              "sha256": "c23923a1e43dc775b2a976297601969dcdf9053d0bace541c92232e7646493ed"
+            }
+          },
+          {
+            "name": "selectable resource bank",
+            "offset": 23199744,
+            "address": null,
+            "source": {
+              "dat_offset": 23200372,
+              "size": 131072,
+              "decoded_size": 131072,
+              "compression": "raw",
+              "sha256": "13d01d438b3252a9beb8697c16b74a2ccb787935e5b4d6376f173ed16b711bec"
+            }
+          },
+          {
+            "name": "selectable resource bank",
+            "offset": 31981568,
+            "address": null,
+            "source": {
+              "dat_offset": 31982196,
+              "size": 14155776,
+              "decoded_size": 14155776,
+              "compression": "raw",
+              "sha256": "4150581da380aeb401f70c7dea8bf8ef87b837df80a5ee252a01f2f0abae2b96"
+            }
+          }
+        ],
+        "exclusions": [
+          {
+            "name": "configuration working view",
+            "address": 65437696,
+            "size": 4718592
+          }
+        ],
+        "defaults": {
+          "address": 13238272,
+          "size": 524288,
+          "flag": 22040748,
+          "initialize": {
+            "address": 17952848,
+            "size": 412,
+            "sha256": "1addfaaa382b8920d96009f929eadd2449a40a8afe81e362927b776dc032f851"
+          },
+          "calls": [
+            {
+              "address": 18119820,
+              "size": 4,
+              "sha256": "63925b27ee7e74696e67054b9980f653ab4bc3659b3042a4af6f5df25372b088"
+            }
+          ]
+        },
+        "native_file": {
+          "open": {
+            "address": 18031912,
+            "size": 212,
+            "sha256": "69e3877cb8a8312c30b24488eb266216ad80125c9cceaa39d8df2631da9f264f"
+          },
+          "table_cell": 25224416,
+          "table_address": 13763584,
+          "drive_map": 25229076,
+          "read": {
+            "address": 18032124,
+            "size": 84,
+            "sha256": "65a850e7c3fba4e3390a1bea888603e1e7397b03d2736e8a2698ae69f59b9c3e"
+          },
+          "close": {
+            "address": 18032292,
+            "size": 84,
+            "sha256": "b275915f407f7855b92b93c30d0c2dc1c6984ac2ab4757db77b3b43cc3779ed1"
+          },
+          "seek": {
+            "address": 18032476,
+            "size": 100,
+            "sha256": "be83639a234f30d819934ce73f3b3f4a43a9064acb07e04e03ad0319fa51604a"
+          },
+          "create_semaphore": {
+            "address": 18040880,
+            "size": 212,
+            "sha256": "a49f1c33883a7045ca2cf3730eff525f4eb5d42f02bbc8daf85b19ab8e2da228"
+          },
+          "wait_semaphore": {
+            "address": 18041244,
+            "size": 80,
+            "sha256": "c1d4ed2d57cff9743e7f4e80c75c5f6f876782bc5888f533a85d9402565da70a"
+          },
+          "signal_semaphore": {
+            "address": 18041324,
+            "size": 108,
+            "sha256": "f6c45be2c257b71901b272d7603da360b6d6a8289467f15ac5909a7b46bb27e9"
+          }
         }
       }
     },
@@ -11835,18 +13403,10 @@
     "cold_start": {
       "mode_flag": 41804,
       "mode_test": 1484,
-      "firmware_transport": {
+      "preload": {
         "address_limit": 536870912,
-        "backing_address": 469762048,
-        "capacity": 67108864,
-        "dat_offset": 628,
         "enabled_byte": 21651260,
         "byte_limit": 50200576,
-        "primary_call": {
-          "address": 340,
-          "size": 4,
-          "sha256": "e82c6d6a500f3e14122a01fa809144b50aade53dc278b2347b62eba9af13aa8f"
-        },
         "byte_reader": {
           "address": 17879888,
           "size": 68,
@@ -11861,6 +13421,327 @@
           "address": 17974596,
           "size": 40,
           "sha256": "50275817e1524c91dcb73bb53481070c268cc4c2e2c4f260bbb6e9c6bbd44ca6"
+        },
+        "discards": [
+          {
+            "address": 17882056,
+            "size": 4,
+            "sha256": "d40dce4645d5f1fd62462986ddf0c1a5ed0559e2c1c76e04a79bd1eb6038cff9"
+          }
+        ],
+        "resources": [
+          {
+            "address": 17885364,
+            "size": 88,
+            "sha256": "c1d59e59a22559cb81dc8cda525ce2ebb9ffa0277bc77f2ef80f10f729de98c8"
+          },
+          {
+            "address": 17885644,
+            "size": 88,
+            "sha256": "c62a5aab5bd213bc4bb743634a76761ed337e919539744a25782c177eedf7ad6"
+          }
+        ],
+        "witnesses": [
+          {
+            "address": 18040564,
+            "size": 32,
+            "sha256": "c3dde0095d69557544f23c814159518bbb42c57370fe6564ef799c74330b599c"
+          },
+          {
+            "address": 17881584,
+            "size": 508,
+            "sha256": "bec8b87762fbabd24ab5ea93a0beaacb967a6734dce2ed9850f66185394691ed"
+          },
+          {
+            "address": 17882092,
+            "size": 236,
+            "sha256": "d5c1e45a5971c67a8d56675344efb6d982507e6f92465ee46f2a8adf54f80ea4"
+          },
+          {
+            "address": 17952328,
+            "size": 124,
+            "sha256": "ebe6c93a8450d53b6803a528c1b3a4833f04c932e473b776de754534a0391a6a"
+          },
+          {
+            "address": 18040740,
+            "size": 148,
+            "sha256": "2436ed7c9c973cf3981727280467100497769470fc2898f2c978a2cda45a094b"
+          },
+          {
+            "address": 17885364,
+            "size": 88,
+            "sha256": "c1d59e59a22559cb81dc8cda525ce2ebb9ffa0277bc77f2ef80f10f729de98c8"
+          },
+          {
+            "address": 17885644,
+            "size": 88,
+            "sha256": "c62a5aab5bd213bc4bb743634a76761ed337e919539744a25782c177eedf7ad6"
+          },
+          {
+            "address": 17879956,
+            "size": 60,
+            "sha256": "56adf75ffd63541f351ea18efc12b002e93b0f9637b90a35a330589a1f2a86bb"
+          },
+          {
+            "address": 17884564,
+            "size": 112,
+            "sha256": "537e7d0e5f6aba09f0c0b2e52d6cbc32387d043fd6d699e11d10cae2788961d4"
+          },
+          {
+            "address": 17884752,
+            "size": 36,
+            "sha256": "5bb06d3fe1f85589ad749ca816773cf85ee96a852394dd6432af8b240d28dd6b"
+          },
+          {
+            "address": 17884788,
+            "size": 44,
+            "sha256": "52a92ba09951efa6865b9f8be2ead3e5cb0b544d0df3151dd43f295e7c4c9ab1"
+          },
+          {
+            "address": 17881316,
+            "size": 136,
+            "sha256": "65910ce605fb286ff821dcbe86b234159afd1f2215d815d0ddea028143ca61d3"
+          },
+          {
+            "address": 17882668,
+            "size": 440,
+            "sha256": "d1beac1650fc4a361d1fc72438f996551ca0f4b22999ad2eac5049cf2773dcfd"
+          },
+          {
+            "address": 17884832,
+            "size": 304,
+            "sha256": "cd441e6b239205ab7be3ba7fb775ec378c2a4bd4e40e53cee53c0c4449a0c9be"
+          },
+          {
+            "address": 17885188,
+            "size": 128,
+            "sha256": "8c1ce588a2c85f7e0c69871ae5b5d62634407efe54eb8579544972515f34e593"
+          },
+          {
+            "address": 17885316,
+            "size": 48,
+            "sha256": "f125f6597c1e0f9d08c7e9f5933d3e2083a20c8e8e096a18f9d4fa31fd43bf5f"
+          },
+          {
+            "address": 17885452,
+            "size": 192,
+            "sha256": "4f4c9af7a73ea4ce77c4edc4e27179a0704801ca6510b91ccb63f2dfcd124ac7"
+          },
+          {
+            "address": 21267300,
+            "size": 420,
+            "sha256": "b1d34213e1a104b9ee29e55bcd21ae49028fbfb9258ff26409af0d5ae4e01de7"
+          },
+          {
+            "address": 17885732,
+            "size": 72,
+            "sha256": "5827b500185df60d543671873867ecffb3c15d277709efe03a1120ffa4629cf1"
+          },
+          {
+            "address": 21267216,
+            "size": 84,
+            "sha256": "8f30905b28122a5800ebb5de55c91c3e504360bb8af9d6dcaa48f3246776b1be"
+          },
+          {
+            "address": 17885960,
+            "size": 108,
+            "sha256": "4a6ad764a35796a1466ef50407e495e271f33d96beabb56b38ac915995d9153b"
+          },
+          {
+            "address": 21267204,
+            "size": 12,
+            "sha256": "8ee4b6390f76293abe79393c758aa387a1b1bbd8bca0f04ab3b9fdc7ccec621f"
+          },
+          {
+            "address": 17892160,
+            "size": 48,
+            "sha256": "369ba60c93fef1befa0393df1f9e1eba754af98af7d1883bf211f94996f59aa9"
+          },
+          {
+            "address": 17878568,
+            "size": 144,
+            "sha256": "13e97a22f7ea966eae2a37905eeb21a74fdade621a1d9bb166bf3484e529fdbf"
+          },
+          {
+            "address": 17878972,
+            "size": 136,
+            "sha256": "af9b91fc07d346990c6f10c339efd6c9edb66fad74a7fafb835265f8e449cdbf"
+          },
+          {
+            "address": 17879172,
+            "size": 412,
+            "sha256": "e9b184d93c666ba2e0ccc7c95be1c33cf316d28f9d4c9f93ebc1c76f7f2ba2ff"
+          },
+          {
+            "address": 17974596,
+            "size": 40,
+            "sha256": "50275817e1524c91dcb73bb53481070c268cc4c2e2c4f260bbb6e9c6bbd44ca6"
+          }
+        ],
+        "edits": [
+          {
+            "address": 17878712,
+            "old": 122695680,
+            "new": 13250560,
+            "what": "startup defaults source"
+          },
+          {
+            "address": 17879316,
+            "old": 3808432128,
+            "new": 3808432128,
+            "what": "startup defaults source"
+          },
+          {
+            "address": 17879320,
+            "old": 3812628304,
+            "new": 3812626634,
+            "what": "startup defaults source"
+          },
+          {
+            "address": 21651244,
+            "old": 1,
+            "new": 0,
+            "what": "select startup configuration defaults"
+          }
+        ],
+        "placements": [
+          {
+            "name": "raw resource block padding",
+            "address": 8928957,
+            "source": {
+              "dat_offset": 31867185,
+              "size": 115011,
+              "decoded_size": 115011,
+              "compression": "raw",
+              "sha256": "6873d08159ef53cbf618f037fc99ad386b7c0d2dabe8adb65c5f018711dd3af9"
+            }
+          }
+        ],
+        "ranges": [
+          {
+            "name": "configuration defaults",
+            "offset": 786432,
+            "address": null,
+            "source": {
+              "dat_offset": 787060,
+              "size": 524288,
+              "decoded_size": 524288,
+              "compression": "raw",
+              "sha256": "5a4595323855ff118ce7b2ef75f41d7ff862378fa06ecfc2e0d02ba3b39894c9"
+            }
+          },
+          {
+            "name": "source-table data",
+            "offset": 23461888,
+            "address": 10485760,
+            "source": {
+              "dat_offset": 23462516,
+              "size": 1703936,
+              "decoded_size": 1703936,
+              "compression": "raw",
+              "sha256": "eb2856740ce3bb06c13d1577bdd28196c66d20382631e764f8014843a32e8d38"
+            }
+          },
+          {
+            "name": "fixed resource data",
+            "offset": 47841280,
+            "address": 12189696,
+            "source": {
+              "dat_offset": 47841908,
+              "size": 1048576,
+              "decoded_size": 1048576,
+              "compression": "raw",
+              "sha256": "c23923a1e43dc775b2a976297601969dcdf9053d0bace541c92232e7646493ed"
+            }
+          },
+          {
+            "name": "selectable resource bank",
+            "offset": 23199744,
+            "address": null,
+            "source": {
+              "dat_offset": 23200372,
+              "size": 131072,
+              "decoded_size": 131072,
+              "compression": "raw",
+              "sha256": "13d01d438b3252a9beb8697c16b74a2ccb787935e5b4d6376f173ed16b711bec"
+            }
+          },
+          {
+            "name": "selectable resource bank",
+            "offset": 31981568,
+            "address": null,
+            "source": {
+              "dat_offset": 31982196,
+              "size": 14155776,
+              "decoded_size": 14155776,
+              "compression": "raw",
+              "sha256": "3418b10a6b66fd28ca3107cd0d7078ce03c425120508ef06591087ec879bd72e"
+            }
+          }
+        ],
+        "exclusions": [
+          {
+            "name": "configuration working view",
+            "address": 68583424,
+            "size": 4718592
+          }
+        ],
+        "defaults": {
+          "address": 13238272,
+          "size": 524288,
+          "flag": 21651244,
+          "initialize": {
+            "address": 17879172,
+            "size": 412,
+            "sha256": "e9b184d93c666ba2e0ccc7c95be1c33cf316d28f9d4c9f93ebc1c76f7f2ba2ff"
+          },
+          "calls": [
+            {
+              "address": 18042688,
+              "size": 4,
+              "sha256": "5d5d29aa26ebcf7befead685337416adb07f6a1ff448251ff912b711d09946ed"
+            }
+          ]
+        },
+        "native_file": {
+          "open": {
+            "address": 17955588,
+            "size": 212,
+            "sha256": "8c728e668f1dd59a7884eba7c38be018c64035c81917c5af9a920c074b6add6b"
+          },
+          "table_cell": 24848744,
+          "table_address": 13763584,
+          "drive_map": 24853056,
+          "read": {
+            "address": 17955800,
+            "size": 72,
+            "sha256": "60b8e85b54acb5d1cd44323b1000d59a670719b6af15e146c073a516dccb2ac5"
+          },
+          "close": {
+            "address": 17955944,
+            "size": 72,
+            "sha256": "50c38d80d8268252c5351cd5e97cf7d4926fffc63387bf034fdb105aa7542e86"
+          },
+          "seek": {
+            "address": 17956104,
+            "size": 108,
+            "sha256": "e0ce0ecce4f899e72073ca507861e80730ace7781e36a3391b4a5c41256523b6"
+          },
+          "create_semaphore": {
+            "address": 17963880,
+            "size": 212,
+            "sha256": "d0e35d9927f688f2896f924619e9305fefdea9ca9776beb57f1d9e1895d1cbc8"
+          },
+          "wait_semaphore": {
+            "address": 17964244,
+            "size": 80,
+            "sha256": "b0a94ad9287aefb41230dc7405df5524ecd649745d6f77458cf8d68b6e3ac9fe"
+          },
+          "signal_semaphore": {
+            "address": 17964324,
+            "size": 108,
+            "sha256": "ccaf63e2caa87441b7f5898568684dd3ac095bb3ad861af0d4258a0ff590cc9a"
+          }
         }
       }
     },
@@ -12111,18 +13992,10 @@
     "cold_start": {
       "mode_flag": 44704,
       "mode_test": 1484,
-      "firmware_transport": {
+      "preload": {
         "address_limit": 536870912,
-        "backing_address": 469762048,
-        "capacity": 67108864,
-        "dat_offset": 628,
         "enabled_byte": 24258492,
         "byte_limit": 50200576,
-        "primary_call": {
-          "address": 340,
-          "size": 4,
-          "sha256": "e82c6d6a500f3e14122a01fa809144b50aade53dc278b2347b62eba9af13aa8f"
-        },
         "byte_reader": {
           "address": 19346956,
           "size": 68,
@@ -12137,6 +14010,337 @@
           "address": 19446896,
           "size": 40,
           "sha256": "71de5194743f6e023484e31d7274f894fd9ec521c0898c886f7d62acf7589a61"
+        },
+        "discards": [
+          {
+            "address": 19349124,
+            "size": 4,
+            "sha256": "d40dce4645d5f1fd62462986ddf0c1a5ed0559e2c1c76e04a79bd1eb6038cff9"
+          },
+          {
+            "address": 19349304,
+            "size": 4,
+            "sha256": "d6d4fafd5faeec7f9812e00dfcc7bd65c1a0a455b1e5bb0c6da3cd0ae0fa859c"
+          },
+          {
+            "address": 19349372,
+            "size": 4,
+            "sha256": "95bd965604fb38196c8127ba958b24765b8e29ff5d1d97b1ffac1f4181aff7f5"
+          }
+        ],
+        "resources": [
+          {
+            "address": 19352640,
+            "size": 272,
+            "sha256": "73e050d24476e73fab98081514534da1f7a9d41277e872d1f1827efb0c9a0942"
+          },
+          {
+            "address": 19353104,
+            "size": 88,
+            "sha256": "5324a45ce813d7c73fd2f56cfe6ece781d8109ef3caec8f505d7b378e89cd279"
+          }
+        ],
+        "witnesses": [
+          {
+            "address": 19513528,
+            "size": 32,
+            "sha256": "4cca9687633349fd94c8f599ff8516d44e4e64b88fa78183ab5a98b60b85e08e"
+          },
+          {
+            "address": 19348652,
+            "size": 508,
+            "sha256": "b5d0f94fe9cfe219b38c5bf2b120e3d6816bf64dc0231e9459571f588fd80c1a"
+          },
+          {
+            "address": 19349160,
+            "size": 444,
+            "sha256": "5834d33e7e4bc40ef421e2c3b3be7f93c52bff38da3a6de8876dcf2041779c07"
+          },
+          {
+            "address": 19421260,
+            "size": 232,
+            "sha256": "f689ff4c2818804632fa588b6b8b0b1bd355377fb77d0c832c7050f8d7aaee78"
+          },
+          {
+            "address": 19513704,
+            "size": 148,
+            "sha256": "fab219226ad3599c363e3f6f3c250b0902e344259447f45a2b29253279cce9af"
+          },
+          {
+            "address": 19352640,
+            "size": 272,
+            "sha256": "73e050d24476e73fab98081514534da1f7a9d41277e872d1f1827efb0c9a0942"
+          },
+          {
+            "address": 19353104,
+            "size": 88,
+            "sha256": "5324a45ce813d7c73fd2f56cfe6ece781d8109ef3caec8f505d7b378e89cd279"
+          },
+          {
+            "address": 19347024,
+            "size": 60,
+            "sha256": "0628205fa8f6702e341a4a63f9fdc41f65d00adfe7d545755b48d275def0fb9c"
+          },
+          {
+            "address": 19351840,
+            "size": 112,
+            "sha256": "03e0743400e6e39567f074915b8508186174c2f85664c31f466349e8e1802973"
+          },
+          {
+            "address": 19352028,
+            "size": 36,
+            "sha256": "06041d3b26c224055497e26ed5bb5a9aa1f2246e1626bbba8ea4cc3693ce8015"
+          },
+          {
+            "address": 19352064,
+            "size": 44,
+            "sha256": "2cf6293276184271d9ba0d5a1c85a8a59c19d8d426c0627c3281a842e429b8e9"
+          },
+          {
+            "address": 19348384,
+            "size": 136,
+            "sha256": "2fb58daac4edd35a93de3ff7e794ba7e4c5e9ad1081fcc9be727cdb1c34fc035"
+          },
+          {
+            "address": 19349944,
+            "size": 440,
+            "sha256": "14b886386ef70a6d572d42ba4bab473105a8d095962c0782b076bbd4d83640a2"
+          },
+          {
+            "address": 19352108,
+            "size": 304,
+            "sha256": "a49d3cffeee151be46008e351ee9dfc6d826027baf4593954f6ead83d88121a9"
+          },
+          {
+            "address": 19352464,
+            "size": 128,
+            "sha256": "7d6794f9b58579e1faae1bda74cc2eba8c7f7d324f5cf1669f181c0a56007dc8"
+          },
+          {
+            "address": 19352592,
+            "size": 48,
+            "sha256": "1bf61f10c4b0554aba83473103eea2ab6bb3600ce4a9c3668107dd402db6222c"
+          },
+          {
+            "address": 19352912,
+            "size": 192,
+            "sha256": "eeb26762d63349c39a62635cf9125140edc248e96f7e35035318922470ed629e"
+          },
+          {
+            "address": 23517548,
+            "size": 420,
+            "sha256": "29dfa55d5de2aa59173b307bf35101a59d4935c6fd05f5499fbd015aa68b9e73"
+          },
+          {
+            "address": 19353192,
+            "size": 72,
+            "sha256": "191345be3cc64823ff71e3a817facfc69af95d71363da7157b3adbf395b92b99"
+          },
+          {
+            "address": 23517464,
+            "size": 84,
+            "sha256": "f849e0daa0c95e0c12a990d5291c48900410c9b992b54fe6e066eb5f7e930af8"
+          },
+          {
+            "address": 19353420,
+            "size": 108,
+            "sha256": "e69b3d439f088aa4778e50ceb99837da3f6294df374ab18a0d3a82fa61dc566d"
+          },
+          {
+            "address": 23517452,
+            "size": 12,
+            "sha256": "aa66722d2af1379e800aed30498b7e50bea910aa122da551bf8d4aa36c45cc26"
+          },
+          {
+            "address": 19359708,
+            "size": 48,
+            "sha256": "0a3e9a5892f81af847fae8637033a5238b3e87918ea95b28e75dd6463f05a1d5"
+          },
+          {
+            "address": 19345636,
+            "size": 144,
+            "sha256": "37d17f17c0728c2b59c9ae9224a2eca9edbdcc0492b07cf08c6c4597e4661cfd"
+          },
+          {
+            "address": 19346040,
+            "size": 136,
+            "sha256": "4ed6b4ca109d1bf91327c6d04f8639b77da653e2cfeb659783f03139575e7fd9"
+          },
+          {
+            "address": 19346240,
+            "size": 412,
+            "sha256": "1aa01a3983491fee23a3cbd92cd7a04b6de917f08ba15f9a5a1e04618af73088"
+          },
+          {
+            "address": 19446896,
+            "size": 40,
+            "sha256": "71de5194743f6e023484e31d7274f894fd9ec521c0898c886f7d62acf7589a61"
+          }
+        ],
+        "edits": [
+          {
+            "address": 19345780,
+            "old": 122695680,
+            "new": 14299136,
+            "what": "startup defaults source"
+          },
+          {
+            "address": 19346384,
+            "old": 3808432128,
+            "new": 3808432128,
+            "what": "startup defaults source"
+          },
+          {
+            "address": 19346388,
+            "old": 3812628304,
+            "new": 3812626650,
+            "what": "startup defaults source"
+          },
+          {
+            "address": 24258476,
+            "old": 1,
+            "new": 0,
+            "what": "select startup configuration defaults"
+          }
+        ],
+        "placements": [
+          {
+            "name": "raw resource block padding",
+            "address": 9977533,
+            "source": {
+              "dat_offset": 31736113,
+              "size": 115011,
+              "decoded_size": 115011,
+              "compression": "raw",
+              "sha256": "6873d08159ef53cbf618f037fc99ad386b7c0d2dabe8adb65c5f018711dd3af9"
+            }
+          }
+        ],
+        "ranges": [
+          {
+            "name": "configuration defaults",
+            "offset": 786432,
+            "address": null,
+            "source": {
+              "dat_offset": 787060,
+              "size": 524288,
+              "decoded_size": 524288,
+              "compression": "raw",
+              "sha256": "e72f3b74b0233f05e9d1822286f3e13b5c954372e4e72d75450be52dca6c9584"
+            }
+          },
+          {
+            "name": "source-table data",
+            "offset": 25559040,
+            "address": 11534336,
+            "source": {
+              "dat_offset": 25559668,
+              "size": 1703936,
+              "decoded_size": 1703936,
+              "compression": "raw",
+              "sha256": "eb2856740ce3bb06c13d1577bdd28196c66d20382631e764f8014843a32e8d38"
+            }
+          },
+          {
+            "name": "fixed resource data",
+            "offset": 47710208,
+            "address": 13238272,
+            "source": {
+              "dat_offset": 47710836,
+              "size": 1048576,
+              "decoded_size": 1048576,
+              "compression": "raw",
+              "sha256": "c23923a1e43dc775b2a976297601969dcdf9053d0bace541c92232e7646493ed"
+            }
+          },
+          {
+            "name": "selectable resource bank",
+            "offset": 25296896,
+            "address": null,
+            "source": {
+              "dat_offset": 25297524,
+              "size": 131072,
+              "decoded_size": 131072,
+              "compression": "raw",
+              "sha256": "13d01d438b3252a9beb8697c16b74a2ccb787935e5b4d6376f173ed16b711bec"
+            }
+          },
+          {
+            "name": "selectable resource bank",
+            "offset": 31850496,
+            "address": null,
+            "source": {
+              "dat_offset": 31851124,
+              "size": 14155776,
+              "decoded_size": 14155776,
+              "compression": "raw",
+              "sha256": "87bb8a542f2901a7edbd769cb847ddf08050c5e43a966fafd43f8d00711eed15"
+            }
+          }
+        ],
+        "exclusions": [
+          {
+            "name": "configuration working view",
+            "address": 73826304,
+            "size": 4718592
+          }
+        ],
+        "defaults": {
+          "address": 14286848,
+          "size": 524288,
+          "flag": 24258476,
+          "initialize": {
+            "address": 19346240,
+            "size": 412,
+            "sha256": "1aa01a3983491fee23a3cbd92cd7a04b6de917f08ba15f9a5a1e04618af73088"
+          },
+          "calls": [
+            {
+              "address": 19515384,
+              "size": 4,
+              "sha256": "ef7aa58b7c7d28678ea7248d1181a70457ca5872f6dae70e092d1f5e8979588b"
+            }
+          ]
+        },
+        "native_file": {
+          "open": {
+            "address": 19424128,
+            "size": 220,
+            "sha256": "8dfadfc47450aadbabed9377472480131bd78c1b17fa29160a4bda3b13c1564b"
+          },
+          "table_cell": 26095344,
+          "table_address": 14812160,
+          "drive_map": 26094876,
+          "read": {
+            "address": 19424348,
+            "size": 72,
+            "sha256": "6379540fd98497482b5d98b2be56bfd9e084bfc25744ddc468d80c4e4e733ec4"
+          },
+          "close": {
+            "address": 19424492,
+            "size": 72,
+            "sha256": "329e4914f1f17c2925c07b35279f3de65ed54a043a61ea53b8f6d3d0da330599"
+          },
+          "seek": {
+            "address": 19424652,
+            "size": 108,
+            "sha256": "69ecaa31e69ce9c2fb1fe154e055ba118c341d4d09ea2d77c3fbb1dab5d9b2dc"
+          },
+          "create_semaphore": {
+            "address": 19436140,
+            "size": 212,
+            "sha256": "8ca55a828bd5bc590fe5bd4d53cc6d59d13c7dd46dc29997b006a89212975894"
+          },
+          "wait_semaphore": {
+            "address": 19436504,
+            "size": 80,
+            "sha256": "399d8605f3154eb52c45066fc57043a64848e46c52282b36ba82828ee53cfac7"
+          },
+          "signal_semaphore": {
+            "address": 19436584,
+            "size": 108,
+            "sha256": "a396438e034f673d2130e90c4965b019981c2ca61717ea17f72b9ee1b83862bf"
+          }
         }
       }
     },
@@ -13133,18 +15337,10 @@
     "cold_start": {
       "mode_flag": 45152,
       "mode_test": 1484,
-      "firmware_transport": {
+      "preload": {
         "address_limit": 536870912,
-        "backing_address": 469762048,
-        "capacity": 67108864,
-        "dat_offset": 628,
         "enabled_byte": 24317184,
         "byte_limit": 50200576,
-        "primary_call": {
-          "address": 340,
-          "size": 4,
-          "sha256": "f3ae17b9ec25469c5f84d95a85cddb6c0f5b46dfe1dae794a0719b7a62b60745"
-        },
         "byte_reader": {
           "address": 19284492,
           "size": 68,
@@ -13159,6 +15355,337 @@
           "address": 19401704,
           "size": 40,
           "sha256": "0c8bdb135ad0d5a9a448079b56ac46bcf29e3300b4f551626f7dea6be1c937d5"
+        },
+        "discards": [
+          {
+            "address": 19286660,
+            "size": 4,
+            "sha256": "d40dce4645d5f1fd62462986ddf0c1a5ed0559e2c1c76e04a79bd1eb6038cff9"
+          },
+          {
+            "address": 19286840,
+            "size": 4,
+            "sha256": "d6d4fafd5faeec7f9812e00dfcc7bd65c1a0a455b1e5bb0c6da3cd0ae0fa859c"
+          },
+          {
+            "address": 19286908,
+            "size": 4,
+            "sha256": "95bd965604fb38196c8127ba958b24765b8e29ff5d1d97b1ffac1f4181aff7f5"
+          }
+        ],
+        "resources": [
+          {
+            "address": 19290176,
+            "size": 272,
+            "sha256": "52dcf71c3e159c5d6ed7604c3f7a22c2cf5d4bec03466f5d26424e29c8dd9e3a"
+          },
+          {
+            "address": 19290640,
+            "size": 88,
+            "sha256": "442a7f718e4a03179322bcc53ce48c52b3213d4b5fd5392c5a4f0e248bf64b89"
+          }
+        ],
+        "witnesses": [
+          {
+            "address": 19468308,
+            "size": 32,
+            "sha256": "4cca9687633349fd94c8f599ff8516d44e4e64b88fa78183ab5a98b60b85e08e"
+          },
+          {
+            "address": 19286188,
+            "size": 508,
+            "sha256": "5a193318aba7d5338a6a1b009547b4c38cdf7619cb4ee6e5f82f2204e0a5286b"
+          },
+          {
+            "address": 19286696,
+            "size": 444,
+            "sha256": "4087d805603e0f1a98e239a8fe52282fde993ef980ad2850cc83eba153ada995"
+          },
+          {
+            "address": 19370344,
+            "size": 376,
+            "sha256": "4a32d22b55e351fd076528e1da8756e0cc0c4a562172b3065e288dd5906f5254"
+          },
+          {
+            "address": 19468484,
+            "size": 148,
+            "sha256": "3050c4a26acb9b51d9e6a961a9664f3e0bb2dfb1bc04de23e349bf05bd433d5d"
+          },
+          {
+            "address": 19290176,
+            "size": 272,
+            "sha256": "52dcf71c3e159c5d6ed7604c3f7a22c2cf5d4bec03466f5d26424e29c8dd9e3a"
+          },
+          {
+            "address": 19290640,
+            "size": 88,
+            "sha256": "442a7f718e4a03179322bcc53ce48c52b3213d4b5fd5392c5a4f0e248bf64b89"
+          },
+          {
+            "address": 19284560,
+            "size": 60,
+            "sha256": "30735dcf1a2790f96af7c087abd8f7b57e1916a2a545ff3b3396a45d10cd59ab"
+          },
+          {
+            "address": 19289376,
+            "size": 112,
+            "sha256": "be2a187c32ea41455c0190edad2151931b7a5a2cdea88164896f258cb7bf1f77"
+          },
+          {
+            "address": 19289564,
+            "size": 36,
+            "sha256": "06041d3b26c224055497e26ed5bb5a9aa1f2246e1626bbba8ea4cc3693ce8015"
+          },
+          {
+            "address": 19289600,
+            "size": 44,
+            "sha256": "70c83f12577529904ba38f7dab7c0965ead27f3415c7a83cdb7273ff25aa6b16"
+          },
+          {
+            "address": 19285920,
+            "size": 136,
+            "sha256": "bd05bb6b469398db3eadd990efad95cc6b252af826ea5a0daa50cdfdce312df6"
+          },
+          {
+            "address": 19287480,
+            "size": 440,
+            "sha256": "9f828db6cb91e11b9d993103c938a726f134aaef346a20f198fc39ea570d8920"
+          },
+          {
+            "address": 19289644,
+            "size": 304,
+            "sha256": "cfcfa267617ff428c2ebcda12a60600bea4eb4b21bdfd6be148ae7b775f5f57e"
+          },
+          {
+            "address": 19290000,
+            "size": 128,
+            "sha256": "20e4dbfce8e3379cc4f9dcb6db84ade8db480a34fe7e7c321635c9fc88f9a090"
+          },
+          {
+            "address": 19290128,
+            "size": 48,
+            "sha256": "1bf61f10c4b0554aba83473103eea2ab6bb3600ce4a9c3668107dd402db6222c"
+          },
+          {
+            "address": 19290448,
+            "size": 192,
+            "sha256": "83ef09b39808146b0297b58da6e10b324b51eebcb467489495f9a04559d32439"
+          },
+          {
+            "address": 23559212,
+            "size": 420,
+            "sha256": "29dfa55d5de2aa59173b307bf35101a59d4935c6fd05f5499fbd015aa68b9e73"
+          },
+          {
+            "address": 19290728,
+            "size": 72,
+            "sha256": "caf7e8b9986bd8108c94797ee6411ff93e71b911639178723471528b7d3b5bab"
+          },
+          {
+            "address": 23559128,
+            "size": 84,
+            "sha256": "f849e0daa0c95e0c12a990d5291c48900410c9b992b54fe6e066eb5f7e930af8"
+          },
+          {
+            "address": 19290956,
+            "size": 108,
+            "sha256": "222e042688623828573b884bf3741c93a47529d7efbd4bbefa822016612c6534"
+          },
+          {
+            "address": 23559116,
+            "size": 12,
+            "sha256": "aa66722d2af1379e800aed30498b7e50bea910aa122da551bf8d4aa36c45cc26"
+          },
+          {
+            "address": 19297244,
+            "size": 48,
+            "sha256": "eeb426f0c4fb77ee8b27cc0a5bec009936a17b5e270960d4eb5da9b974542f0f"
+          },
+          {
+            "address": 19283172,
+            "size": 144,
+            "sha256": "c8488c24786f9374e40c78517d30a49e5f39c4b1dc3fb48a3e62c45d7a0d2fec"
+          },
+          {
+            "address": 19283576,
+            "size": 136,
+            "sha256": "0d96ec7b9a9edc38d95b5a89a79c32cf4aa9f00c61c11a2da19e375f47290739"
+          },
+          {
+            "address": 19283776,
+            "size": 412,
+            "sha256": "419547312e921f7b10e0e3d92cf0e8c24621a3ae4345a9fc63acd4b078aaf782"
+          },
+          {
+            "address": 19401704,
+            "size": 40,
+            "sha256": "0c8bdb135ad0d5a9a448079b56ac46bcf29e3300b4f551626f7dea6be1c937d5"
+          }
+        ],
+        "edits": [
+          {
+            "address": 19283316,
+            "old": 122695680,
+            "new": 14299136,
+            "what": "startup defaults source"
+          },
+          {
+            "address": 19283920,
+            "old": 3808432128,
+            "new": 3808432128,
+            "what": "startup defaults source"
+          },
+          {
+            "address": 19283924,
+            "old": 3812628304,
+            "new": 3812626650,
+            "what": "startup defaults source"
+          },
+          {
+            "address": 24317168,
+            "old": 1,
+            "new": 0,
+            "what": "select startup configuration defaults"
+          }
+        ],
+        "placements": [
+          {
+            "name": "raw resource block padding",
+            "address": 9977533,
+            "source": {
+              "dat_offset": 31736113,
+              "size": 115011,
+              "decoded_size": 115011,
+              "compression": "raw",
+              "sha256": "6873d08159ef53cbf618f037fc99ad386b7c0d2dabe8adb65c5f018711dd3af9"
+            }
+          }
+        ],
+        "ranges": [
+          {
+            "name": "configuration defaults",
+            "offset": 786432,
+            "address": null,
+            "source": {
+              "dat_offset": 787060,
+              "size": 524288,
+              "decoded_size": 524288,
+              "compression": "raw",
+              "sha256": "24d8482369a6bad6ff9a76f6eb9acd9bf63f13f76bb81451bb07b7a29b6c2359"
+            }
+          },
+          {
+            "name": "source-table data",
+            "offset": 25559040,
+            "address": 11534336,
+            "source": {
+              "dat_offset": 25559668,
+              "size": 1703936,
+              "decoded_size": 1703936,
+              "compression": "raw",
+              "sha256": "eb2856740ce3bb06c13d1577bdd28196c66d20382631e764f8014843a32e8d38"
+            }
+          },
+          {
+            "name": "fixed resource data",
+            "offset": 46399488,
+            "address": 13238272,
+            "source": {
+              "dat_offset": 46400116,
+              "size": 1048576,
+              "decoded_size": 1048576,
+              "compression": "raw",
+              "sha256": "c23923a1e43dc775b2a976297601969dcdf9053d0bace541c92232e7646493ed"
+            }
+          },
+          {
+            "name": "selectable resource bank",
+            "offset": 25296896,
+            "address": null,
+            "source": {
+              "dat_offset": 25297524,
+              "size": 131072,
+              "decoded_size": 131072,
+              "compression": "raw",
+              "sha256": "13d01d438b3252a9beb8697c16b74a2ccb787935e5b4d6376f173ed16b711bec"
+            }
+          },
+          {
+            "name": "selectable resource bank",
+            "offset": 31850496,
+            "address": null,
+            "source": {
+              "dat_offset": 31851124,
+              "size": 14155776,
+              "decoded_size": 14155776,
+              "compression": "raw",
+              "sha256": "6a248c658cbaf0492b0c51a0812b4e047d02fb06c4576ec5254752f587510a3e"
+            }
+          }
+        ],
+        "exclusions": [
+          {
+            "name": "configuration working view",
+            "address": 73302016,
+            "size": 4980736
+          }
+        ],
+        "defaults": {
+          "address": 14286848,
+          "size": 524288,
+          "flag": 24317168,
+          "initialize": {
+            "address": 19283776,
+            "size": 412,
+            "sha256": "419547312e921f7b10e0e3d92cf0e8c24621a3ae4345a9fc63acd4b078aaf782"
+          },
+          "calls": [
+            {
+              "address": 19470160,
+              "size": 4,
+              "sha256": "d520d602884ecb062dc91c96aae934080339a19c2257e4342d04b24c61cd4041"
+            }
+          ]
+        },
+        "native_file": {
+          "open": {
+            "address": 19373632,
+            "size": 220,
+            "sha256": "23fb54cfba5e4f75a16f8158161f4c5b7257870b3729678e5097cf2b5cb9f080"
+          },
+          "table_cell": 26127576,
+          "table_address": 14812160,
+          "drive_map": 26126892,
+          "read": {
+            "address": 19373852,
+            "size": 84,
+            "sha256": "9a6dd384d2516b8583e6b2033cf59b2311e38b638727fa96bad48ebbc3db5bde"
+          },
+          "close": {
+            "address": 19374020,
+            "size": 84,
+            "sha256": "ed20d9a1be7693c8ca0b5799b2ba8bfb2ee4be7cc271944d1fca01e9cec2388a"
+          },
+          "seek": {
+            "address": 19374204,
+            "size": 100,
+            "sha256": "2786601eb9f0a520fe73f8cb7d541fbf8c11cccbfc98f7928914193ace1198be"
+          },
+          "create_semaphore": {
+            "address": 19390948,
+            "size": 212,
+            "sha256": "e067f3cdcbb13296d5a7fa4e275fadb6d7b36c689ba0c9d3cedc32162f042239"
+          },
+          "wait_semaphore": {
+            "address": 19391312,
+            "size": 80,
+            "sha256": "c35a8c2edbb2b85d48997b2514d02cb37b71a639d5b5e20e79de4145680f8cbb"
+          },
+          "signal_semaphore": {
+            "address": 19391392,
+            "size": 108,
+            "sha256": "725c6a6e0ec15e3e3408661499e3fac1e5960ed44c7fa29782fc3577e1af1195"
+          }
         }
       }
     },

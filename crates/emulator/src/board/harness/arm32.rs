@@ -147,7 +147,7 @@ impl Guard {
             return Ok(());
         }
         if condition == 15 {
-            if matches!(word, 0xf57ff04f | 0xf57ff05f | 0xf57ff06f) {
+            if matches!(word, 0xf57ff01f | 0xf57ff04f | 0xf57ff05f | 0xf57ff06f) {
                 self.accepted += 1;
                 return Ok(());
             }
@@ -257,7 +257,23 @@ impl Guard {
             0 if word & 0x90 == 0x90 => {
                 let kind = (word >> 5) & 3;
                 if kind == 0 {
-                    if word & 0x0fc000f0 != 0x00000090
+                    let exclusive_load = word & 0x0ff00fff == 0x01900f9f;
+                    let exclusive_store = word & 0x0ff00ff0 == 0x01800f90;
+                    if exclusive_load || exclusive_store {
+                        let rd = ((word >> 12) & 15) as usize;
+                        let rt = (word & 15) as usize;
+                        let address = r(rn)?;
+                        if rn == 15
+                            || rd == 15
+                            || address & 3 != 0
+                            || (exclusive_store && (rt == 15 || rd == rn || rd == rt))
+                        {
+                            return Err("Driver guard invalid word-exclusive access".into());
+                        }
+                        // The CPU owns the exclusive monitor. This guard only
+                        // admits the complete RAM access before execution.
+                        accesses.push((address as u64, 4, exclusive_store));
+                    } else if word & 0x0fc000f0 != 0x00000090
                         && word & 0x0f8000f0 != 0x00800090
                         && word & 0x0ff000f0 != 0x00600090
                     {
@@ -364,4 +380,56 @@ pub struct Snapshot {
     pub failure: Option<String>,
     pub accepted_instructions: u64,
     pub scope: &'static str,
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    fn guard() -> Guard {
+        Guard::new(
+            0,
+            vec![(0x1000, 0x1010)],
+            vec![(0x2000, 0x2004)],
+            vec![(0x3000, 0x3004)],
+            0x4000,
+            16,
+            0x5000,
+        )
+        .unwrap()
+    }
+
+    #[test]
+    fn word_exclusives_check_complete_ram_access_and_register_constraints() {
+        let reg = |address| move |_index| Ok(address);
+        assert!(
+            guard()
+                .preflight(0x1000, 0xe1932f9f, 0xd3, reg(0x2000))
+                .is_ok()
+        );
+        assert!(
+            guard()
+                .preflight(0x1000, 0xe1832f91, 0xd3, reg(0x3000))
+                .is_ok()
+        );
+        assert!(
+            guard()
+                .preflight(0x1000, 0xe1932f9f, 0xd3, reg(0x2004))
+                .is_err()
+        );
+        assert!(
+            guard()
+                .preflight(0x1000, 0xe1832f91, 0xd3, reg(0x2000))
+                .is_err()
+        );
+        assert!(
+            guard()
+                .preflight(0x1000, 0xe1832f91, 0xd3, reg(0x3001))
+                .is_err()
+        );
+        for word in [0xe19f2f9f, 0xe193ff9f, 0xe1833f91, 0xe1831f91, 0xe1832f9f] {
+            assert!(guard().preflight(0x1000, word, 0xd3, reg(0x3000)).is_err());
+        }
+        assert!(guard().preflight(0x1000, 0xf57ff01f, 0xd3, reg(0)).is_ok());
+    }
 }

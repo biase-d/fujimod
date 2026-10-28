@@ -5,11 +5,18 @@ in the browser; it is never sent as part of an HTTP request. `link.schema.json`
 is also the source for the camera's committed, generated C codec. Inline
 `archive` bytes are base64url TAR data. Otherwise the page retrieves the named
 TAR over the existing diagnostic USB memory protocol, or accepts a local file.
-All paths validate the complete byte length, CRC32 and TAR headers before
+All paths validate the complete byte length and TAR headers before
 reporting. The two acquisition paths remain visible side by side, including
 platform-specific SD-card directions. After capture, the TAR's files replace the
 initial data categories, listed with the shared file list (each file downloads
 on its own). Nothing is sent automatically.
+
+A loaded report shows the camera's `screen.bmp` and the manifest's camera-local
+`captured_at` when present. Over USB, the page lists every `R*.TAR` in the
+report's folder through the shared file service's folder listing; any listed
+report opens in place. Its file sizes are checked against the manifest. After
+an upload, the Contribute dialog offers
+**Next report** for the next listed report not yet contributed from this page.
 
 **Download all** saves the TAR (local gzip/ZIP). **Contribute** opens the shared
 Contribute dialog, which says the message is posted publicly on GitHub. Its
@@ -50,7 +57,7 @@ mode change is needed. The QR screen's temporary USB flag and Dev Tools handoff
 are unchanged. After restart of the same build, reopen the report screen or
 enable USB DEBUGGING to retrieve an earlier saved report.
 
-Deletion consent and read/CRC verification live in the report client. The general
+Deletion consent and read verification live in the report client. The general
 file service handles ordinary paths and is also used by the other session tools.
 Tests cover the actual stock-written TAR with UI task 1 suspended, plus existing
 RAW rewrite/read callers; physical USB timing is not qualified by emulator tests.
@@ -74,7 +81,7 @@ Screenshots and results are written to ignored `apps/web/build/bug-report/`.
 The URL fragment contains base64url-encoded, minified JSON generated from
 `link.schema.json`. Its keys are `v` (format/firmware version, currently X70 1.10),
 `b` (eight hexadecimal build digits), `r` (seven-digit report ID), `n` (TAR bytes),
-`c` (CRC32), `f` (shared file discovery address), and optional `a` (inline TAR).
+`f` (shared file discovery address), and optional `a` (inline TAR).
 The page reconstructs the fixed FUJIMOD/REPORTS directory and R<id>.TAR filename;
 the shared file service selects the mounted drive. Expanded upload metadata uses
 descriptive names. The full commit and firmware identity remain in the TAR's

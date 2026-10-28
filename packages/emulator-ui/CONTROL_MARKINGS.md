@@ -88,7 +88,9 @@ with the panel's `glow` highlight, the one that marks a combo's controls when
 the combo is hovered. A key glows as a whole; a command control glows only at
 its held side, a D-pad only at the held direction.
 
-On the panel, a rocker's left and right halves tip it and its tab presses it.
+On the panel, a rocker uses the command control's knurl: its left and right
+sides and its center tab are the tap targets. A face's size is its `data-size` attribute, never a
+class, so it cannot pick up layout rules meant for other elements.
 Mini command dials and rockers are instead line drawings after the owner's
 manual illustrations, in `src/ui/control-drawings.tsx`: a command dial is a
 knurled drum seen edge-on in its housing, its faces spaced as on a cylinder; a
@@ -128,7 +130,7 @@ on while holding these. Minis wrap to further lines rather than overlapping.
 Users:
 
 - The panel's POWER-ON COMBOS: `Combo` wraps `PowerComboKeys` with its hover,
-  highlight and run behavior. `PowerCombo` keeps `label`, `modes` and the
+  highlight and run behavior, followed by `+ POWER` and the combo's label. `PowerCombo` keeps `label`, `modes` and the
   derived `inputs`; its `keys` field is removed.
 - Recovery's boot step draws `PowerComboKeys` with modes `sd` and
   `firmware_update`, replacing the list of sentences and the fixed DISP/BACK

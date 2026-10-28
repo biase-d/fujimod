@@ -214,10 +214,14 @@ impl Decompressor {
             return Err("MOVRSZ requires ready hardware and a real owner".into());
         }
         let step = if let Some(r) = &self.state.resize {
-            if r.owner != cpu || r.phase != Phase::Configuring {
+            if r.owner != cpu {
                 return Err("MOVRSZ configuration is closed or owner changed".into());
             }
-            r.step
+            match r.phase {
+                Phase::Configuring => r.step,
+                Phase::Configured if o == ORDER[0] => 0,
+                _ => return Err("MOVRSZ configuration is closed or owner changed".into()),
+            }
         } else {
             0
         };
@@ -670,6 +674,11 @@ impl Decompressor {
                     self.set(o, v);
                     return Ok(());
                 }
+                // The loader masks the shared IRQ before resetting the engine.
+                (0x8c, 0, Phase::Released) => {
+                    self.set(o, v);
+                    return Ok(());
+                }
                 (0, 0, Phase::Released) => self.state.resize = None,
                 _ => {
                     return Err(
@@ -805,7 +814,7 @@ impl Decompressor {
                     resize.phase,
                     Phase::Active | Phase::Completed | Phase::Acknowledged | Phase::Released
                 ) && self.options.resize != ResizeMode::DeclaredPackedPyramid
-                || resize.phase == Phase::Released && r(0x8c) != u32::MAX
+                || resize.phase == Phase::Released && !matches!(r(0x8c), 0 | u32::MAX)
                 || resize.enabled && resize.phase != Phase::Released && r(0x8c) != 1
                 || !matches!(resize.phase, Phase::Configuring | Phase::Configured) && r(4) != 1
                 || resize.phase == Phase::Completed && r(0x88) != 1

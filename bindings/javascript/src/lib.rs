@@ -10,6 +10,7 @@ mod connection;
 pub mod error;
 mod exporter;
 mod install;
+mod memory;
 mod range;
 mod recovery;
 mod reference;

@@ -10,6 +10,7 @@ import {
   type PendingReport,
 } from './ui/report-delivery';
 import { downloadBlob } from './ui/download';
+import { shownError } from './ui/shown-error';
 
 export interface EmulatorFeedbackActions {
   readonly ready: boolean;
@@ -120,7 +121,7 @@ export function EmulatorFeedback(props: {
       deliverReport(pending, downloadBlob);
       setLabel('Download again');
     } catch (error) {
-      if (!closed) setStatus(`Could not prepare report: ${String(error)}`);
+      if (!closed) setStatus(`Could not prepare report: ${shownError(error)}`);
     } finally {
       setBusy(false);
     }

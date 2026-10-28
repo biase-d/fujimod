@@ -82,6 +82,50 @@ pub async fn read(
     finish(outcome.map(|data| BulkRead { data, overwritten }), restored)
 }
 
+/// A qualified bulk mapping kept across calls without borrowing the session.
+/// Pass the same session to every call, and `restore` it when finished.
+pub struct BulkMapping {
+    source: Source,
+    window: BulkRange,
+    limits: Limits,
+}
+impl BulkMapping {
+    pub async fn prepare(
+        session: &mut Session,
+        bulk: &FirmwareBulk,
+        limits: Limits,
+    ) -> Result<Self> {
+        let Qualified { source, .. } = Qualified::prepare(session, bulk, limits).await?;
+        Ok(Self {
+            source,
+            window: bulk.window,
+            limits,
+        })
+    }
+    /// Diagnostic scratch the stock setup overwrote (`address`, `size`).
+    pub fn overwritten(&self) -> Option<(u64, u32)> {
+        self.source.overwritten
+    }
+    pub async fn read(&self, session: &mut Session, target: BulkRange) -> Result<Vec<u8>> {
+        require(
+            self.window.contains(target),
+            "Range is outside the bulk window",
+        )?;
+        let limits = self.limits;
+        self.source
+            .bulk(&mut Access { session, limits }, target)
+            .await
+    }
+    pub async fn restore(self, session: &mut Session) -> Result<()> {
+        let limits = self.limits;
+        let result = self.source.restore(&mut Access { session, limits }).await;
+        if result.is_err() {
+            session.invalidate_completion();
+        }
+        result
+    }
+}
+
 pub(crate) fn finish<T>(outcome: Result<T>, restored: Result<()>) -> Result<T> {
     match (outcome, restored) {
         (Ok(data), Ok(())) => Ok(data),

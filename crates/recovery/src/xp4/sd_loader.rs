@@ -12,7 +12,7 @@ pub(super) static LAYOUT: LazyLock<Layout> = LazyLock::new(|| {
 #[serde(deny_unknown_fields)]
 pub(super) struct Layout {
     pub ffinit: Ffinit,
-    pub card: Card,
+    pub preloaded: Preloaded,
 }
 #[derive(Deserialize)]
 #[serde(deny_unknown_fields)]
@@ -24,7 +24,7 @@ pub(super) struct Ffinit {
 }
 #[derive(Deserialize)]
 #[serde(deny_unknown_fields)]
-pub(super) struct Card {
+pub(super) struct Preloaded {
     pub address: usize,
     pub offset: usize,
     pub size: usize,

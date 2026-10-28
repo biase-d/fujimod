@@ -29,18 +29,28 @@ for (const browserType of [chromium, webkit]) {
         await page.request.get(new URL('runtime/catalog.json', base).href)
       ).json()) as Catalog,
     );
-    const firmware = catalog.firmwares.find((entry: { id: string }) => entry.id === 'x70-110');
-    assert.ok(firmware?.camera_table);
-    const response: APIResponse = await page.request.get(new URL(firmware.camera_table, base).href);
-    assert.equal(response.ok(), true);
-    const table = (await response.json()) as {
-      firmware_id: string;
-      firmware_sha256: string;
-    };
-    assert.equal(table.firmware_id, firmware.id);
-    assert.equal(table.firmware_sha256, firmware.sha256);
+    for (const id of ['x70-110', 'xt1-552']) {
+      const firmware = catalog.firmwares.find((entry) => entry.id === id);
+      assert.ok(firmware?.service_workflow, `${id}: generated service workflow`);
+      const response: APIResponse = await page.request.get(
+        new URL(firmware.service_workflow, base).href,
+      );
+      assert.equal(response.ok(), true);
+      const workflow = (await response.json()) as {
+        firmware_id: string;
+        firmware_sha256: string;
+        guard?: unknown;
+        debug_mode?: unknown;
+      };
+      assert.equal(workflow.firmware_id, firmware.id);
+      assert.equal(workflow.firmware_sha256, firmware.sha256);
+      assert.ok(workflow.guard);
+      assert.ok(workflow.debug_mode);
+    }
     assert.deepEqual(errors, []);
-    console.log(`${browserType.name()}: service guide deep link, inputs and camera asset passed`);
+    console.log(
+      `${browserType.name()}: service guide deep link, inputs and service workflow asset passed`,
+    );
   } finally {
     await browser.close();
   }

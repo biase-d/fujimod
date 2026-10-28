@@ -4,7 +4,11 @@ import { link, tar } from './fixtures.test-helper';
 test('explicit upload omits inline descriptor bytes and validates the acknowledgment before deletion is possible', async () => {
   const id = 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa';
   const fetcher = vi.fn<typeof fetch>(async () =>
-    Response.json({ id, issueURL: 'https://github.com/justjake/fujimod/issues/123' }),
+    Response.json({
+      id,
+      shareUrl: 'https://share.fujimod.com/contribution/bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb',
+      issueURL: 'https://github.com/justjake/fujimod/issues/123',
+    }),
   );
   vi.stubGlobal('fetch', fetcher);
   try {

@@ -1,4 +1,3 @@
-import { createHash } from 'node:crypto';
 import { test } from 'vite-plus/test';
 import assert from 'node:assert/strict';
 import { mkdir, mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
@@ -53,7 +52,7 @@ test('local preparation gates qualification and stages complete runtime bundles'
     await mkdir(join(destination, 'runtime'), { recursive: true });
     await writeFile(join(destination, 'runtime/catalog.json'), 'installed');
     await mkdir(join(runtime, 'test-100'), { recursive: true });
-    const inputs = { runtime, media: join(root, 'media'), patches: join(root, 'patches') };
+    const inputs = { runtime, media: join(root, 'media') };
     await writeFile(join(runtime, 'catalog.json'), JSON.stringify({ schema: 1, firmwares: [] }));
     await assert.rejects(stageSite(inputs, destination), /requires runnable emulators/);
     await writeFile(join(runtime, 'catalog.json'), JSON.stringify(catalog));
@@ -94,11 +93,28 @@ test('local preparation gates qualification and stages complete runtime bundles'
     await assert.rejects(stageSite(inputs, destination), /licenses/);
     await mkdir(join(runtime, 'test-100/licenses'));
     await writeFile(join(runtime, 'test-100/licenses/COPYING.txt'), 'license');
-    catalog.firmwares[0].camera_table = 'runtime/test-100/camera.json';
+    catalog.firmwares[0].service_workflow = 'runtime/test-100/service-workflow.generated.json';
     await writeFile(join(runtime, 'catalog.json'), JSON.stringify(catalog));
-    await assert.rejects(stageSite(inputs, destination), /camera.json/);
-    await writeFile(join(runtime, 'test-100/camera.json'), '{"schema":1}');
-    await assert.rejects(stageSite(inputs, destination), /patches.json/);
+    await assert.rejects(stageSite(inputs, destination), /service-workflow.generated.json/);
+    await writeFile(join(runtime, 'test-100/service-workflow.generated.json'), '{"schema":1}');
+    await assert.rejects(stageSite(inputs, destination), /media.json/);
+    catalog.firmwares.push({
+      id: 'physical-100',
+      body: 'physical',
+      model: 'Physical',
+      version: '1.00',
+      sha256: '3'.repeat(64),
+      bytes: 42,
+      release_date: '',
+      download_url: 'https://example.org/physical',
+      service_workflow: 'runtime/physical-100/service-workflow.generated.json',
+    });
+    await mkdir(join(runtime, 'physical-100'));
+    await writeFile(
+      join(runtime, 'physical-100/service-workflow.generated.json'),
+      '{"schema":1,"physical":true}',
+    );
+    await writeFile(join(runtime, 'catalog.json'), JSON.stringify(catalog));
     const prepared = {
       document: 'document.json',
       bootRom: 'boot-rom.bin',
@@ -112,48 +128,8 @@ test('local preparation gates qualification and stages complete runtime bundles'
     await assert.rejects(stageSite(inputs, destination), /document.json/);
     for (const name of Object.values(prepared))
       await writeFile(join(runtime, 'test-100', name), 'input');
-    await assert.rejects(stageSite(inputs, destination), /patches.json/);
+    await assert.rejects(stageSite(inputs, destination), /media.json/);
     assert.equal(await readFile(join(destination, 'runtime/catalog.json'), 'utf8'), 'installed');
-    const hash = (data: Uint8Array) => createHash('sha256').update(data).digest('hex');
-    const program = new Uint8Array(20);
-    const metadata = Buffer.from(
-      JSON.stringify({
-        schema: 1,
-        source: { bytes: 42, sha256: '1'.repeat(64) },
-        outputs: {
-          ffboot: { bytes: 1, sha256: '2'.repeat(64) },
-          ffsys: { bytes: 1, sha256: '3'.repeat(64) },
-        },
-        commands: 1,
-        program_sha256: hash(program),
-        firmware: 'test-100',
-        release: 'test',
-        mods: [],
-      }),
-    );
-    const header = Buffer.alloc(12);
-    header.write('FJMODP01');
-    header.writeUInt32LE(metadata.length, 8);
-    const patch = Buffer.concat([header, metadata, program]);
-    await mkdir(inputs.patches);
-    await writeFile(join(inputs.patches, 'test.fmpatch'), patch);
-    await writeFile(
-      join(inputs.patches, 'patches.json'),
-      JSON.stringify({
-        schema: 1,
-        release: 'test',
-        patches: { ['1'.repeat(64)]: 'test.fmpatch' },
-        firmwares: [
-          {
-            ...catalog.firmwares[0],
-            release_date: '2026-01-01',
-            patch_bytes: patch.length,
-            patch_sha256: hash(patch),
-            boot_instructions: ['Copy files.'],
-          },
-        ],
-      }),
-    );
     const video = 'a'.repeat(24) + '.mp4',
       still = 'a'.repeat(24) + '.webp';
     await mkdir(inputs.media);
@@ -175,15 +151,21 @@ test('local preparation gates qualification and stages complete runtime bundles'
     await writeFile(join(runtime, 'test-100-usb/wasm.json'), '{"construction":"session"}');
     await stageSite(inputs, destination);
     for (const [name, expected] of [
-      ['runtime/test-100/camera.json', '{"schema":1}'],
+      ['runtime/test-100/service-workflow.generated.json', '{"schema":1}'],
+      ['runtime/physical-100/service-workflow.generated.json', '{"schema":1,"physical":true}'],
       ['runtime/test-100/licenses/COPYING.txt', 'license'],
       ['runtime/test-100-usb/licenses/COPYING.txt', 'usb licenses/COPYING.txt'],
     ])
       assert.equal(await readFile(join(destination, name), 'utf8'), expected);
+    await assert.rejects(readFile(join(destination, 'artifacts/patches.json')), /ENOENT/);
     const manifest = JSON.parse(await readFile(join(destination, 'site-assets.json'), 'utf8')) as {
       files: { path: string }[];
     };
-    assert.ok(manifest.files.some((file) => file.path === 'runtime/test-100/camera.json'));
+    assert.ok(
+      manifest.files.some(
+        (file) => file.path === 'runtime/test-100/service-workflow.generated.json',
+      ),
+    );
     assert.ok(
       manifest.files.some((file) => file.path === 'runtime/test-100-usb/licenses/COPYING.txt'),
     );

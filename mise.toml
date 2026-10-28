@@ -26,6 +26,10 @@ run = "python scripts/git/install_hooks.py"
 dir = "{{config_root}}/apps/web"
 run = "npm run build"
 
+[tasks.share]
+description = "Publish a local file and print its public share URL"
+run = "node scripts/cloudflare/share.ts"
+
 [tasks.web-check]
 dir = "{{config_root}}/apps/web"
 run = "npm run check"

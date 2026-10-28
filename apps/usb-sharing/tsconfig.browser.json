@@ -4,5 +4,5 @@
     "types": ["node", "emscripten"],
     "typeRoots": ["./node_modules/@types", "../../bindings/javascript/node_modules/@types"]
   },
-  "include": ["peer.browser.ts"]
+  "include": ["peer.browser.ts", "shared-files.browser.ts"]
 }

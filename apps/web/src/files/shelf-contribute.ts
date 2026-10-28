@@ -6,7 +6,7 @@ import { shelfManifest, type ShelfFile } from './shelf';
 export function shelfContribute(files: readonly ShelfFile[]): Contribute {
   const id = crypto.randomUUID();
   return async (message, progress) => {
-    await contribute(
+    return contribute(
       {
         id,
         files: files.map((file) => ({
@@ -20,6 +20,5 @@ export function shelfContribute(files: readonly ShelfFile[]): Contribute {
       },
       ({ done, total }) => progress(total ? done / total : 1),
     );
-    return { id };
   };
 }

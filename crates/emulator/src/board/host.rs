@@ -3,6 +3,12 @@ use super::Board;
 use fujimod_emulator_devices::Device;
 
 impl Board {
+    /// Complete physical RAM digests without serializing device state.
+    pub fn memory_fingerprint(&self) -> Result<serde_json::Value, String> {
+        let state = self.state.try_borrow().map_err(|_| "board is executing")?;
+        Ok(state.memory.fingerprint())
+    }
+
     pub fn device_states(&self, kind: &str) -> Result<serde_json::Value, String> {
         let state = self.state.try_borrow().map_err(|_| "board is executing")?;
         self.track_device_kind(kind, &state.bus);

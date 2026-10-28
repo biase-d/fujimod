@@ -457,6 +457,7 @@ fn byte(value: f64) -> u8 {
 /// One pixel of the reference blend, in place (straight RGBA8).
 #[inline]
 fn blend_pixel(pixel: &mut [u8; 4], c: f64, [sr, sg, sb, sa]: [f64; 4], blend: bool) {
+    let c = (c * 255.).floor() / 255.;
     let alpha = sa * c;
     if c == 0.0 || (blend && alpha == 0.0) {
         return;

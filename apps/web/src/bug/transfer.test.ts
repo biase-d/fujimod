@@ -19,10 +19,11 @@ test('rejects wrong builds and file-service addresses before writing', async () 
   for (const files of ['40040000', '405fffe0', '403a0001'])
     await expect(retrieveReport(device.memory, { ...link, files }, () => {})).rejects.toThrow();
 });
-test('report checksum validation rejects unrelated file bytes', async () => {
+test('report retrieval accepts changed file bytes when the archive shape is intact', async () => {
   const altered = tar.slice();
   altered[512] ^= 1;
   const device = fileDevice(altered);
-  await expect(retrieveReport(device.memory, link, () => {})).rejects.toThrow('incomplete');
+  const blob = await retrieveReport(device.memory, { ...link, bytes: altered.length }, () => {});
+  expect(new Uint8Array(await blob.arrayBuffer())).toEqual(altered);
   expect(device.commands).toEqual([1, 2, 2, 3]);
 });

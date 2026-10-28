@@ -12,7 +12,7 @@ addressing, comparisons, calls, conditionals and bounded loops. Attributes come
 from packed immediate vectors or DMA groups with explicit formats, strides,
 padding slots and index buffers.
 
-The raster pipeline supports triangles, strips, fans and points; homogeneous
+The raster pipeline supports triangles, strips, fans, lines and points; homogeneous
 clipping; perspective interpolation; tiled color and depth/stencil targets;
 two 2D texture units and combiners; nearest, bilinear and mip filtering; fog;
 alpha/depth/stencil tests; color masks; and blending. Native pixmap transfers
@@ -30,8 +30,12 @@ emulated state and checkpoints. Diagnostic state reports the selected adapter.
 
 Instruction fields follow the vector arithmetic/flow layout described by
 [nihstro's shader bytecode definitions](https://github.com/neobrain/nihstro/blob/a969b1a6849b02679a1858847ba18bedd3a19d44/include/nihstro/shader_bytecode.h).
-Arithmetic intermediates use IEEE float32, normalized color packing truncates,
-and raster coverage uses four fractional coordinate bits. The interpreter
+Arithmetic intermediates use IEEE float32, primary color conversion truncates; combiners use integer eight-bit components,
+ADD_SIGNED subtracts 128, and each scaled stage saturates separately. Blended
+RGBA8 output rounds to the nearest byte,
+and triangle coverage uses four fractional coordinate bits. Smooth lines use
+an eight-step distance filter with asymmetric endpoint clipping; points remain
+squares. The line filter is an empirical model of the sampled widths and angles. The interpreter
 bounds instruction execution, call/loop nesting, uploads and addressed buffers.
 
 Run the library regressions with:

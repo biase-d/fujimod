@@ -1,0 +1,230 @@
+{
+  "gfx100rf-113": {
+    "name": "gfx100rf",
+    "description": "Fujifilm GFX100RF"
+  },
+  "gfx50r-311": {
+    "name": "gfx-50r",
+    "description": "Fujifilm GFX 50R (X-Processor Pro)"
+  },
+  "gfx50s-452": {
+    "name": "gfx-50s",
+    "description": "Fujifilm GFX 50S"
+  },
+  "x10-201": {
+    "name": "x10",
+    "description": "Fujifilm X10"
+  },
+  "x100-211": {
+    "name": "x100",
+    "description": "Fujifilm X100"
+  },
+  "x100f-212": {
+    "name": "x100f",
+    "description": "Fujifilm X100F"
+  },
+  "x100s-121": {
+    "name": "x100s",
+    "description": "Fujifilm X100S (EXR Processor 2)"
+  },
+  "x100t-111": {
+    "name": "x100t",
+    "description": "Fujifilm X100T (EXR Processor 2)"
+  },
+  "x100v-301": {
+    "name": "x100v",
+    "description": "Fujifilm X100V (X-Processor 4)"
+  },
+  "x100vi-131": {
+    "name": "x100vi",
+    "description": "Fujifilm X100VI (X-Processor 5)"
+  },
+  "x20-103": {
+    "name": "x20",
+    "description": "Fujifilm X20 (EXR Processor 2)"
+  },
+  "x30-103": {
+    "name": "x30",
+    "description": "Fujifilm X30 (EXR Processor 2)"
+  },
+  "x70-110": {
+    "name": "x70",
+    "description": "Fujifilm X70 (EXR Processor 2)"
+  },
+  "xa1-150": {
+    "name": "x-a1",
+    "description": "Fujifilm X-A1 (EXR Processor 2)"
+  },
+  "xa10-221": {
+    "name": "x-a10",
+    "description": "Fujifilm X-A10"
+  },
+  "xa2-130": {
+    "name": "x-a2",
+    "description": "Fujifilm X-A2 (EXR Processor 2)"
+  },
+  "xa20-112": {
+    "name": "x-a20",
+    "description": "Fujifilm X-A20"
+  },
+  "xa3-222": {
+    "name": "x-a3",
+    "description": "Fujifilm X-A3"
+  },
+  "xa5-203": {
+    "name": "x-a5",
+    "description": "Fujifilm X-A5"
+  },
+  "xa7-133": {
+    "name": "x-a7",
+    "description": "Fujifilm X-A7"
+  },
+  "xe1-271": {
+    "name": "x-e1",
+    "description": "Fujifilm X-E1"
+  },
+  "xe2-411": {
+    "name": "x-e2",
+    "description": "Fujifilm X-E2 (EXR Processor 2)"
+  },
+  "xe2s-111": {
+    "name": "x-e2s",
+    "description": "Fujifilm X-E2S (EXR Processor 2)"
+  },
+  "xe3-132": {
+    "name": "x-e3",
+    "description": "Fujifilm X-E3"
+  },
+  "xe4-201": {
+    "name": "x-e4",
+    "description": "Fujifilm X-E4"
+  },
+  "xe5-112": {
+    "name": "x-e5",
+    "description": "Fujifilm X-E5"
+  },
+  "xf1-101": {
+    "name": "xf1",
+    "description": "Fujifilm XF1"
+  },
+  "xf10-112": {
+    "name": "xf10",
+    "description": "Fujifilm XF10"
+  },
+  "xh1-215": {
+    "name": "x-h1",
+    "description": "Fujifilm X-H1"
+  },
+  "xh2-530": {
+    "name": "x-h2",
+    "description": "Fujifilm X-H2"
+  },
+  "xh2s-730": {
+    "name": "x-h2s",
+    "description": "Fujifilm X-H2S"
+  },
+  "xhalf-200": {
+    "name": "x-half",
+    "description": "Fujifilm X half"
+  },
+  "xm1-101": {
+    "name": "x-m1",
+    "description": "Fujifilm X-M1"
+  },
+  "xm1-120": {
+    "name": "x-m1",
+    "description": "Fujifilm X-M1"
+  },
+  "xm1-150": {
+    "name": "x-m1",
+    "description": "Fujifilm X-M1 (EXR Processor 2)"
+  },
+  "xm5-130": {
+    "name": "x-m5",
+    "description": "Fujifilm X-M5 (X-Processor 5)"
+  },
+  "xpro1-382": {
+    "name": "x-pro1",
+    "description": "Fujifilm X-Pro1"
+  },
+  "xpro2-511": {
+    "name": "x-pro2",
+    "description": "Fujifilm X-Pro2"
+  },
+  "xpro3-200": {
+    "name": "x-pro3",
+    "description": "Fujifilm X-Pro3"
+  },
+  "xq1-121": {
+    "name": "xq1",
+    "description": "Fujifilm XQ1 (EXR Processor 2)"
+  },
+  "xq2-101": {
+    "name": "xq2",
+    "description": "Fujifilm XQ2 (EXR Processor 2)"
+  },
+  "xs1-102": {
+    "name": "x-s1",
+    "description": "Fujifilm X-S1"
+  },
+  "xs10-311": {
+    "name": "x-s10",
+    "description": "Fujifilm X-S10 (X-Processor 4)"
+  },
+  "xs20-330": {
+    "name": "x-s20",
+    "description": "Fujifilm X-S20"
+  },
+  "xt1-552": {
+    "name": "x-t1",
+    "description": "Fujifilm X-T1 (EXR Processor 2)"
+  },
+  "xt10-131": {
+    "name": "x-t10",
+    "description": "Fujifilm X-T10 (EXR Processor 2)"
+  },
+  "xt100-203": {
+    "name": "x-t100",
+    "description": "Fujifilm X-T100"
+  },
+  "xt2-441": {
+    "name": "x-t2",
+    "description": "Fujifilm X-T2"
+  },
+  "xt20-211": {
+    "name": "x-t20",
+    "description": "Fujifilm X-T20"
+  },
+  "xt200-116": {
+    "name": "x-t200",
+    "description": "Fujifilm X-T200"
+  },
+  "xt3-511": {
+    "name": "x-t3",
+    "description": "Fujifilm X-T3 (X-Processor 4)"
+  },
+  "xt30-201": {
+    "name": "x-t30",
+    "description": "Fujifilm X-T30"
+  },
+  "xt30ii-204": {
+    "name": "x-t30-ii",
+    "description": "Fujifilm X-T30 II"
+  },
+  "xt30iii-110": {
+    "name": "x-t30-iii",
+    "description": "Fujifilm X-T30 III"
+  },
+  "xt4-212": {
+    "name": "x-t4",
+    "description": "Fujifilm X-T4 (X-Processor 4)"
+  },
+  "xt5-431": {
+    "name": "x-t5",
+    "description": "Fujifilm X-T5"
+  },
+  "xt50-132": {
+    "name": "x-t50",
+    "description": "Fujifilm X-T50"
+  }
+}

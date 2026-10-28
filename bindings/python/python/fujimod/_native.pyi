@@ -379,10 +379,13 @@ class emulator:
 
     @final
     class Checkpoint:
+        @staticmethod
+        def from_bytes(data: bytes) -> emulator.Checkpoint: ...
         @property
         def instruction_counts(self, /) -> list[int]: ...
         @property
         def ticks(self, /) -> int: ...
+        def to_bytes(self, /) -> bytes: ...
 
     @final
     class DeviceContext:

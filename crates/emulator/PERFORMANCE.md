@@ -109,11 +109,15 @@ first 60K runs. Its translated code in use is about 63 MiB, so 64 MiB still
 cycled. Each processor gets a fixed 128 MiB translation cache. This holds the
 63 MiB working set about twice over. On native hosts the cache is a reservation;
 pages are committed only as code is generated, so concurrent emulators pay for
-their translated code working sets. In browsers the cache uses the 128 MiB cap
-when remaining Emscripten heap can fit every processor's cache plus 64 MiB of
-headroom. Otherwise, it uses the largest whole-MiB size that fits, down to a
-32 MiB minimum; board construction fails with an error below that size.
-ev_dial then translates 85K blocks with no capacity flush. The translation counters ("translations",
+their translated code working sets. ev_dial then translates 85K blocks with no
+capacity flush.
+
+Browsers use a fixed 32 MiB per processor. Emscripten serves the cache from
+Wasm heap, which is committed when allocated and never returned, and iPhone
+Safari kills a tab whose memory passes its limit: with two X70 processors at
+128 MiB the tab grew by 224 MiB over the earlier 16 MiB and was killed after
+boot. Board construction fails with an error when the remaining heap cannot
+hold every processor's cache plus 64 MiB of headroom. The translation counters ("translations",
 "limited_translations", "translation_flushes", "translation_invalidations")
 are in the CPU exit counters.
 

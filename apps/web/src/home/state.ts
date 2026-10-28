@@ -2,7 +2,7 @@ import { sessionState } from '@fujimod/emulator-ui/session/state';
 import type { CameraRecord } from '../cameras/store';
 import { createStore } from 'solid-js';
 import { validateCatalog, type Catalog, type Firmware } from '../catalog';
-import { validateIndex } from '../patch/catalog';
+import type { LoadedRelease } from '../patch/release';
 export interface PreviewCredit {
   title: string;
   author: string;
@@ -10,14 +10,13 @@ export interface PreviewCredit {
   authorUrl: string;
   license: string;
 }
-export type Release = ReturnType<typeof validateIndex>;
+export type Release = LoadedRelease;
 export interface CameraSupport {
   firmware: Firmware;
   mod: boolean;
   emu: boolean;
 }
 declare const __FUJIMOD_INITIAL_CATALOG__: Catalog;
-declare const __FUJIMOD_INITIAL_RELEASE__: unknown;
 export function supportedCameras(catalog: Catalog, release?: Release): CameraSupport[] {
   const entries = [...catalog.firmwares];
   for (const entry of release?.firmwares ?? [])
@@ -32,13 +31,10 @@ export function supportedCameras(catalog: Catalog, release?: Release): CameraSup
 }
 export function createHomeState() {
   const catalog = validateCatalog(__FUJIMOD_INITIAL_CATALOG__);
-  const release = __FUJIMOD_INITIAL_RELEASE__
-    ? validateIndex(__FUJIMOD_INITIAL_RELEASE__)
-    : undefined;
   return createStore({
     catalog,
-    release,
-    cameras: supportedCameras(catalog, release),
+    release: undefined as Release | undefined,
+    cameras: supportedCameras(catalog),
     savedCameras: [] as CameraRecord[],
     savedCamerasRead: false,
     activeCamera: undefined as CameraRecord | undefined,

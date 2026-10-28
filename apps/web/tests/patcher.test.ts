@@ -4,7 +4,8 @@ import { test } from 'vite-plus/test';
 import assert from 'node:assert/strict';
 import { patch, sha256, inspectPatch } from '../src/patch/patcher.ts';
 import { validateIndex } from '../src/patch/catalog.ts';
-import { cardZip } from '../src/patch/download.ts';
+import { modifiedDownload } from '../src/patch/download.ts';
+import { unzipSync } from 'fflate';
 import { crc32 } from '@fujimod/emulator-ui/archive';
 const text = (value: string) => new TextEncoder().encode(value);
 const concat = (...parts: Uint8Array[]) => {
@@ -168,7 +169,7 @@ test('rejects unsupported magic and invalid metadata framing', async () => {
 function index() {
   const digest = 'a'.repeat(64);
   return {
-    schema: 1,
+    schema: 2,
     release: 'test',
     patches: { [digest]: 'x70-110.fmpatch' },
     firmwares: [
@@ -217,7 +218,14 @@ test('validates hash-to-filename catalog and rejects path traversal, missing map
 test('ZIP has known CRC32, correct file names and CRCs, data and directory offsets', async () => {
   assert.equal(crc32(text('123456789')), 0xcbf43926);
   const expected = { ffboot: text('boot bytes'), ffsys: text('sys bytes') };
-  const archive = new Uint8Array(await (await cardZip(expected)).arrayBuffer()),
+  const download = await modifiedDownload(
+    'sd-boot',
+    expected,
+    { model: 'X70', version: '1.10' },
+    'abcdef12',
+  );
+  assert.equal(download.name, 'fujimod-modified-sd-boot-x70-1.10-build-abcdef12.zip');
+  const archive = new Uint8Array(await download.blob.arrayBuffer()),
     view = new DataView(archive.buffer);
   let cursor = 0;
   for (const name of ['ffboot', 'ffsys'] as const) {
@@ -240,6 +248,35 @@ test('ZIP has known CRC32, correct file names and CRCs, data and directory offse
   }
   assert.equal(view.getUint32(archive.length - 22, true), 0x06054b50);
   assert.equal(view.getUint32(archive.length - 6, true), cursor);
+});
+
+test('installable download names the archive and preserves the camera update filename and bytes', async () => {
+  const files = {
+    ffboot: text('boot'),
+    ffsys: text('header'),
+    fpupdate: text('installable update'),
+  };
+  const download = await modifiedDownload(
+    'installable',
+    files,
+    { model: 'GFX 100 II', version: '2.01' },
+    '1234abcd',
+  );
+  assert.equal(download.name, 'fujimod-modified-installable-gfx-100-ii-2.01-build-1234abcd.zip');
+  const entries = unzipSync(new Uint8Array(await download.blob.arrayBuffer()));
+  assert.deepEqual(Object.keys(entries), ['ffboot.bin', 'ffsys.bin', 'FPUPDATE.DAT']);
+  assert.deepEqual(entries['ffboot.bin'], files.ffboot);
+  assert.deepEqual(entries['ffsys.bin'], files.ffsys);
+  assert.deepEqual(entries['FPUPDATE.DAT'], files.fpupdate);
+  await assert.rejects(
+    modifiedDownload(
+      'installable',
+      { ffboot: files.ffboot, ffsys: files.ffsys },
+      { model: 'X70', version: '1.10' },
+      '1234abcd',
+    ),
+    /unavailable/,
+  );
 });
 
 test('new firmware entries extend the catalog without changing the page', () => {

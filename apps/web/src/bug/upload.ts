@@ -1,6 +1,8 @@
 import type { ReportLink } from './report-link';
+import { isShareUrl } from '../files/share-url';
 export interface UploadReceipt {
   id: string;
+  shareUrl: string;
   issueURL?: string;
 }
 export type UploadReport = (
@@ -30,6 +32,7 @@ export const uploadReport: UploadReport = async (archive, link, description, id)
   const receipt = (await response.json()) as UploadReceipt;
   if (
     receipt.id !== id ||
+    !isShareUrl(receipt.shareUrl) ||
     (receipt.issueURL &&
       !/^https:\/\/github\.com\/justjake\/fujimod\/issues\/[1-9][0-9]*$/.test(receipt.issueURL))
   )

@@ -205,12 +205,20 @@ export function RockerDrawing(props: { held?: DrawingHeld }) {
   return (
     <span class="control-drawing rocker-drawing" data-held={props.held}>
       <svg viewBox="0 0 120 66" aria-hidden="true">
-        <path class="housing" d={rockerRecess} />
-        <path class="face line" d={rockerBand} />
-        <For each={rockerLines}>{(ridge) => <path class="ridge" d={ridge} />}</For>
-        <path class="smooth line" d={rockerTab} />
+        <RockerShape />
         <Arrow paths={props.held && rockerArrows[props.held]} />
       </svg>
     </span>
+  );
+}
+
+function RockerShape() {
+  return (
+    <>
+      <path class="housing" d={rockerRecess} />
+      <path class="face line" d={rockerBand} />
+      <For each={rockerLines}>{(ridge) => <path class="ridge" d={ridge} />}</For>
+      <path class="smooth line" d={rockerTab} />
+    </>
   );
 }

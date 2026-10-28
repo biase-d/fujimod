@@ -64,6 +64,53 @@ fn transform(py: Python<'_>, inverted: &[u8], plan: &Bound<'_, PyDict>) -> PyRes
     })
 }
 #[pyfunction]
+fn startup_indicator(
+    py: Python<'_>,
+    firmware_id: &str,
+    source: &[u8],
+    result: PyRef<'_, RamImage>,
+) -> PyResult<RamImage> {
+    let recipe = core::Recipe::bundled(firmware_id)
+        .map_err(error)?
+        .ok_or_else(|| error("Missing recovery recipe"))?;
+    let original = result.data.bind(py).as_bytes();
+    let mut bytes = original.to_vec();
+    let (address, size) = core::early_led::image(&recipe, source, &mut bytes).map_err(error)?;
+    let text: String = py
+        .import("json")?
+        .call_method1("dumps", (result.manifest.bind(py),))?
+        .extract()?;
+    let mut manifest: serde_json::Value = serde_json::from_str(&text).map_err(error)?;
+    let mut edits = Vec::new();
+    for at in (0..bytes.len().saturating_sub(3)).step_by(4) {
+        if (address..address + size).contains(&at) || original[at..at + 4] == bytes[at..at + 4] {
+            continue;
+        }
+        edits.push(serde_json::json!({"address":at,"old":u32::from_le_bytes(original[at..at+4].try_into().map_err(error)?),
+            "new":u32::from_le_bytes(bytes[at..at+4].try_into().map_err(error)?),"what":"SD startup indicator"}));
+    }
+    let rows = manifest["edits"]
+        .as_array_mut()
+        .ok_or_else(|| error("Missing image edits"))?;
+    rows.extend(edits);
+    manifest
+        .as_object_mut()
+        .ok_or_else(|| error("Invalid image manifest"))?
+        .entry("reserved_ram")
+        .or_insert_with(|| serde_json::json!([]))
+        .as_array_mut()
+        .ok_or_else(|| error("Invalid RAM reservations"))?
+        .push(
+            serde_json::json!({"name":"SD startup indicator","address":address,"end":address+size}),
+        );
+    manifest["bytes"] = bytes.len().into();
+    manifest["sha256"] = fujimod_firmware::sha256(&bytes).into();
+    Ok(RamImage {
+        data: PyBytes::new(py, &bytes).unbind(),
+        manifest: value(py, &manifest)?.cast_into::<PyDict>()?.unbind(),
+    })
+}
+#[pyfunction]
 fn boot_header<'py>(
     py: Python<'py>,
     packaging: &Bound<'_, PyDict>,
@@ -209,6 +256,7 @@ pub(crate) fn register(py: Python<'_>, parent: &Bound<'_, PyModule>) -> PyResult
     module.add_function(wrap_pyfunction!(compile_ffinit, &module)?)?;
     module.add_function(wrap_pyfunction!(transform, &module)?)?;
     module.add_function(wrap_pyfunction!(boot_header, &module)?)?;
+    module.add_function(wrap_pyfunction!(startup_indicator, &module)?)?;
     module.add_function(wrap_pyfunction!(availability, &module)?)?;
     module.add_function(wrap_pyfunction!(package, &module)?)?;
     module.add_function(wrap_pyfunction!(build, &module)?)?;

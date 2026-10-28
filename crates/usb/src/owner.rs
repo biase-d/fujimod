@@ -65,6 +65,8 @@ struct State {
 }
 pub struct DeviceOwner {
     pub info: Option<nusb::DeviceInfo>,
+    /// The host's current handle for this device; reconnection replaces it.
+    attached: Mutex<Option<nusb::DeviceInfo>>,
     pub descriptor: Device,
     device: Mutex<nusb::Device>,
     state: Mutex<State>,
@@ -164,6 +166,7 @@ impl DeviceOwner {
             .collect();
         descriptor.interfaces = interfaces;
         Arc::new(Self {
+            attached: Mutex::new(info.clone()),
             info,
             descriptor,
             device: Mutex::new(device),
@@ -239,6 +242,12 @@ impl DeviceOwner {
         state.watchers.push(sender);
         receiver
     }
+    fn identifies(&self, info: &nusb::DeviceInfo) -> bool {
+        self.info.is_some()
+            && self.descriptor.vendor_id == info.vendor_id()
+            && self.descriptor.product_id == info.product_id()
+            && self.descriptor.serial.as_deref() == info.serial_number()
+    }
     pub fn set_present(&self, present: bool) {
         let mut state = self.state.lock().unwrap();
         if state.present == present {
@@ -287,7 +296,7 @@ impl DeviceOwner {
                 // settlement before reopening; never overlap interface changes.
                 let _ = interface.release().await;
             }
-            let info = self.info.as_ref().ok_or_else(|| {
+            let info = self.attached.lock().unwrap().clone().ok_or_else(|| {
                 error("Externally attached USB device must be attached again after disconnection")
             })?;
             let device = info.open().await.map_err(error)?;
@@ -847,9 +856,32 @@ pub struct DeviceOwners {
     devices: async_lock::Mutex<(u64, HashMap<nusb::DeviceId, Arc<DeviceOwner>>)>,
 }
 impl DeviceOwners {
-    pub async fn presence(&self, id: nusb::DeviceId, present: bool) {
+    /// A replugged or restarted device returns with a new host id; the absent
+    /// owner with the same identity takes it, so its sessions and share resume.
+    pub async fn connected(&self, info: nusb::DeviceInfo) {
+        let mut devices = self.devices.lock().await;
+        let owner = match devices.1.get(&info.id()) {
+            Some(owner) => owner.clone(),
+            None => {
+                let Some((previous, owner)) = devices
+                    .1
+                    .iter()
+                    .find(|(_, owner)| !owner.status().present && owner.identifies(&info))
+                    .map(|(id, owner)| (*id, owner.clone()))
+                else {
+                    return;
+                };
+                devices.1.remove(&previous);
+                devices.1.insert(info.id(), owner.clone());
+                *owner.attached.lock().unwrap() = Some(info);
+                owner
+            }
+        };
+        owner.set_present(true);
+    }
+    pub async fn disconnected(&self, id: nusb::DeviceId) {
         if let Some(owner) = self.devices.lock().await.1.get(&id) {
-            owner.set_present(present);
+            owner.set_present(false);
         }
     }
     pub async fn get(&self, info: nusb::DeviceInfo) -> Result<Arc<DeviceOwner>> {

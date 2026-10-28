@@ -9,6 +9,7 @@ pub type Error = c_int;
 pub const FEATURE_PAUSE_ACCOUNTING_LAYOUT: u32 = 1 << 3;
 pub const FEATURE_PARALLEL_TCG: u32 = 1 << 4;
 pub const FEATURE_REPLACED_INSTRUCTIONS: u32 = 1 << 5;
+pub const FEATURE_AARCH64_ACCOUNTING: u32 = 1 << 6;
 pub const fn ctl(kind: u32, count: u32, direction: u32) -> u32 {
     kind | (count << 26) | (direction << 30)
 }

@@ -1,4 +1,5 @@
 import { For, Show, createSignal } from 'solid-js';
+import { shownError } from '@fujimod/emulator-ui/ui/shown-error';
 import './wizard.css';
 
 /** Persist debug access disabled through the connected USB session. */
@@ -23,7 +24,7 @@ export function LeaveDebugMode(props: {
       await props.operation.leave((line) => setLines((previous) => [...previous, line]));
       setDone(true);
     } catch (error) {
-      setFailure(error instanceof Error ? error.message : String(error));
+      setFailure(shownError(error));
     } finally {
       setRunning(false);
     }

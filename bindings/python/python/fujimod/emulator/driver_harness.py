@@ -345,6 +345,8 @@ class DriverHarness:
                 raise ValueError("cpu_identity names a nonexistent core: " + str(core))
             if type(value) is not int or not 0 <= value < WORD:
                 raise ValueError("cpu_identity values are unsigned 32-bit words")
+            if self.board.identity[core] is None:
+                raise ValueError("CPU identity overrides require an R-profile core")
         return dict(identity)
 
     def _select_core(self, core: int) -> None:
@@ -1577,7 +1579,8 @@ class DriverHarness:
         fetch_failure: dict[str, object] | None = None
         try:
             for index, value in identity.items():
-                machine.rprofile_identity(index, value)
+                if value is not None:
+                    machine.rprofile_identity(index, value)
             machine.driver_begin(json.dumps(options), board.transaction_limit)
             while not board.failure and self._stopped_at is None:
                 remaining = max_instructions - (board.instructions - start)
@@ -1683,7 +1686,8 @@ class DriverHarness:
         finally:
             machine.driver_end()
             for index, value in enumerate(self._base_identity):
-                machine.rprofile_identity(index, value)
+                if value is not None:
+                    machine.rprofile_identity(index, value)
         bus = _json_object(observation["bus"])
         board.transactions = _json_objects(bus["transactions"])
         omitted = _integer(bus["omitted"])

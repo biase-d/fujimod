@@ -4,6 +4,7 @@ import * as native from '../pkg/fujimod.js';
 export { default as initialize } from '../pkg/fujimod.js';
 export type {
   Session,
+  Memory,
   ResetGuardResult,
   DebugModeResult,
   Device,
@@ -176,13 +177,6 @@ export const usb = Object.freeze({
   InstallQueries: native.InstallQueries,
   OwnedUpload: native.OwnedUpload,
   OffsetMode: native.OffsetMode,
-  memory: Object.freeze({
-    readRange: native.readMemoryRange,
-    writeRange: native.writeMemoryRange,
-    readChunks(session: native.Session, address: number, length: number): ChunkIterator {
-      return new ChunkIterator(native.memoryChunks(session, address, length));
-    },
-  }),
   data: Object.freeze({
     upload: native.uploadData,
     readChunks(

@@ -136,6 +136,21 @@ camera keeps its offline registration while unplugged. Page unload withdraws all
 registrations synchronously. These attachments never change device connectivity
 or take the local session lock.
 
+## Camera bug reports
+
+When a camera connects, Dev Tools finds its FujiMod file service and lists the
+issue reports saved on its card (`FUJIMOD/REPORTS/R*.TAR`). The file service is
+found by its discovery record in the mod's memory, read over the bulk path; no
+QR link is needed. With reports present, the **Report bugs** tool shows their
+count and draws attention once (a short wiggle); with none, it says so.
+
+The tool lists each report with its size, reads them, and adds each TAR to the
+Files pane. **Report all** opens the Contribute dialog: one optional message for
+every report, and **Delete from camera after uploading**, checked by default.
+Each report becomes its own GitHub issue through the issue-report endpoint, the
+same path as the bug page, and is deleted only after its own durable upload
+acknowledgment.
+
 ## Workbench layout
 
 Until a camera is known, Dev Tools shows the start screen: how to enter service

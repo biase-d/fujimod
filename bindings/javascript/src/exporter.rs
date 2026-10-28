@@ -94,11 +94,9 @@ pub(crate) async fn device_owner(info: nusb::DeviceInfo) -> Result<Arc<DeviceOwn
         wasm_bindgen_futures::spawn_local(async move {
             while let Some(event) = watch.next().await {
                 match event {
-                    nusb::hotplug::HotplugEvent::Connected(info) => {
-                        registry.presence(info.id(), true).await
-                    }
+                    nusb::hotplug::HotplugEvent::Connected(info) => registry.connected(info).await,
                     nusb::hotplug::HotplugEvent::Disconnected(id) => {
-                        registry.presence(id, false).await
+                        registry.disconnected(id).await
                     }
                 }
             }

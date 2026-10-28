@@ -21,9 +21,9 @@
   font-size: 11.5px;
   font-variant-numeric: tabular-nums;
 }
-/* A fixed height: adding files scrolls the list and never moves the tools above. */
+/* Grows with its files up to a cap, then scrolls. */
 .files-list {
-  height: 196px;
+  max-height: 196px;
   overflow: auto;
   font-size: 12.5px;
 }
@@ -31,10 +31,8 @@
   font-size: 12.5px;
 }
 .files-empty {
-  display: grid;
-  place-items: center;
-  height: 100%;
   margin: 0;
+  padding: 4px 0;
   color: var(--wb-faint, #5f5f65);
   font-size: 12px;
 }

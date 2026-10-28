@@ -7,11 +7,14 @@ mod gpu;
 mod raster;
 mod shader;
 use shader::Vector;
-pub type Writes = Vec<(u64, Vec<u8>)>;
+pub type Snapshots = Vec<(u64, Vec<u8>)>;
 pub type Reader<'a> = dyn FnMut(u64, usize) -> Result<Vec<u8>, String> + 'a;
 const MAX_BYTES: usize = 64 * 1024 * 1024;
+type Uniform = [u32; 4];
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct Engine {
+    #[serde(skip)]
+    written_ranges: Vec<(u64, usize)>,
     vertices_executed: u64,
     primitive_index: u64,
     #[serde(skip)]
@@ -20,7 +23,7 @@ pub struct Engine {
     regs: BTreeMap<u16, u32>,
     code: Vec<u32>,
     operands: Vec<u32>,
-    uniforms: Vec<Vector>,
+    uniforms: Vec<Uniform>,
     code_cursor: usize,
     operand_cursor: usize,
     uniform_cursor: u32,
@@ -36,6 +39,7 @@ pub struct Engine {
 impl Default for Engine {
     fn default() -> Self {
         Self {
+            written_ranges: Vec::new(),
             vertices_executed: 0,
             primitive_index: 0,
             cpu_only: std::env::var_os("FUJIMOD_DMP_CPU").is_some(),
@@ -43,7 +47,7 @@ impl Default for Engine {
             regs: BTreeMap::new(),
             code: vec![],
             operands: vec![],
-            uniforms: vec![[0.; 4]; 96],
+            uniforms: vec![[0; 4]; 96],
             code_cursor: 0,
             operand_cursor: 0,
             uniform_cursor: 0,
@@ -118,12 +122,19 @@ impl Engine {
     }
     /// Transactional validation and rendering: a refused list changes neither
     /// register/program state nor memory. Outputs commit at the device deadline.
-    pub fn execute(&mut self, words: &[u32], read: &mut Reader<'_>) -> Result<Writes, String> {
+    pub fn execute(&mut self, words: &[u32], read: &mut Reader<'_>) -> Result<Snapshots, String> {
         let mut next = self.clone();
         let mut output = raster::Targets::default();
         next.packets(words, read, &mut output, 0)?;
+        next.written_ranges = output.written_ranges();
         *self = next;
-        Ok(output.into_writes())
+        Ok(output.into_snapshots())
+    }
+    /// Byte ranges written by the most recent successful command list.
+    /// Surface snapshots also contain pixels read for blending or tests;
+    /// those bytes must not be committed by the device as DMA writes.
+    pub fn written_ranges(&self) -> &[(u64, usize)] {
+        &self.written_ranges
     }
     fn packets(
         &mut self,
@@ -223,18 +234,15 @@ impl Engine {
                 let count = if self.uniform_cursor >> 31 != 0 { 4 } else { 3 };
                 if self.uniform_words.len() == count {
                     let slot = (self.uniform_cursor & 0x7fffffff) as usize;
-                    let v = if count == 3 {
-                        unpack(&self.uniform_words)
+                    let words = if count == 3 {
+                        unpack(&self.uniform_words).map(f32::to_bits)
                     } else {
-                        std::array::from_fn(|i| f32::from_bits(self.uniform_words[3 - i]))
+                        std::array::from_fn(|i| self.uniform_words[3 - i])
                     };
-                    if v.iter().any(|x| !x.is_finite()) {
-                        return Err("DMP nonfinite uniform upload is unsupported".into());
-                    }
                     *self
                         .uniforms
                         .get_mut(slot)
-                        .ok_or("DMP uniform upload outside bank")? = v;
+                        .ok_or("DMP uniform upload outside bank")? = words;
                     self.uniform_cursor += 1;
                     self.uniform_words.clear();
                 }
@@ -453,7 +461,15 @@ impl Engine {
                 )?;
                 self.vertices.remove(1);
             }
-            0..=3 => {}
+            4 | 5 if n == 2 => {
+                raster::line(self, [self.vertices[0], self.vertices[1]], read, out)?;
+                if mode == 4 {
+                    self.vertices.clear();
+                } else {
+                    self.vertices.remove(0);
+                }
+            }
+            0..=5 => {}
             _ => return Err(format!("DMP unsupported primitive mode {mode}")),
         }
         Ok(())

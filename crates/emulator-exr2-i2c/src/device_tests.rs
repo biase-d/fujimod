@@ -97,6 +97,100 @@ fn finish(bus: &mut I2cController, host: &mut Services) {
     advance(bus, host).unwrap();
     assert_eq!(bus.next_deadline(host.now), None);
 }
+
+#[test]
+fn pwic_capture_power_fields_retain_writes_and_require_completed_split_reads() {
+    // Regress a capture after live-view restart: the prefix is an ordinary
+    // byte transfer. The five low bits are independent retained power fields.
+    // Use nonzero upper bits to prove masked writes preserve other fields.
+    let mut host = Services::default();
+    let (_units, controllers) = controllers(&mut host, 102);
+    let options = serde_json::from_value(json!({
+        "base":0xfff85040u32,"irq":102,"modes":[1,9],"transfer_ticks":4,
+        "profile":"usbcharge-disconnected-pwic-startup-tagged",
+        "parts":{"kind":"secondary","register_address":10,"pwic_address":48,
+        "register_modes":[9],"pwic_modes":[1],"register_values":[[2,0]],
+        "register_masks":[],"pwic_values":[[1,0xa0]],"pwic_masks":[[1,0x1f]],
+        "pwic_read_prefixes":[],"topology":[10,48],"connected":false}
+    }))
+    .unwrap();
+    let mut bus = I2cController::new(
+        options,
+        Wiring {
+            controllers,
+            cable: Some(fujimod_emulator_devices::signals::Level::new(false)),
+            bridge: None,
+        },
+    )
+    .unwrap();
+    write(&mut bus, &mut host, 0xfff85050, 1).unwrap();
+    write(&mut bus, &mut host, 0xfff85040, 1).unwrap();
+
+    fn start(bus: &mut I2cController, host: &mut Services, address: u64) {
+        write(bus, host, 0xfff85048, 0x19).unwrap();
+        finish(bus, host);
+        write(bus, host, 0xfff85048, 0xa).unwrap();
+        write(bus, host, 0xfff85044, address).unwrap();
+        finish(bus, host);
+    }
+    fn byte(bus: &mut I2cController, host: &mut Services, value: u64) {
+        write(bus, host, 0xfff85044, value).unwrap();
+        finish(bus, host);
+    }
+    fn stop(bus: &mut I2cController, host: &mut Services) {
+        write(bus, host, 0xfff85048, 0xb).unwrap();
+        finish(bus, host);
+    }
+    fn read(bus: &mut I2cController, host: &mut Services) -> u64 {
+        start(bus, host, 0x60);
+        byte(bus, host, 1);
+        stop(bus, host);
+        start(bus, host, 0x61);
+        write(bus, host, 0xfff85048, 0xe).unwrap();
+        write(bus, host, 0xfff85048, 0xa).unwrap();
+        write(bus, host, 0xfff85048, 0x2a).unwrap();
+        finish(bus, host);
+        let mut cx = Cx::new(host, 1, 0x5678, 0);
+        let value = bus.read(&mut cx, 0xfff85044, 4);
+        assert_eq!(cx.take_refusal(), None);
+        stop(bus, host);
+        value
+    }
+    for value in [0xa1, 0xa3, 0xa7, 0xaf, 0xbf, 0xa0] {
+        let old = read(&mut bus, &mut host);
+        start(&mut bus, &mut host, 0x60);
+        byte(&mut bus, &mut host, 1);
+        byte(&mut bus, &mut host, value);
+        assert_eq!(
+            bus.save()["engine"]["parts"]["pwic_registers"],
+            json!([[1, old]])
+        );
+        write(&mut bus, &mut host, 0xfff85048, 0xb).unwrap();
+        assert_eq!(
+            bus.save()["engine"]["parts"]["pwic_registers"],
+            json!([[1, old]])
+        );
+        finish(&mut bus, &mut host);
+        assert_eq!(read(&mut bus, &mut host), value);
+    }
+    start(&mut bus, &mut host, 0x60);
+    let before = bus.save();
+    assert!(
+        write(&mut bus, &mut host, 0xfff85044, 2)
+            .unwrap_err()
+            .contains("unsupported register prefix")
+    );
+    assert_eq!(bus.save(), before);
+    byte(&mut bus, &mut host, 1);
+    let before = bus.save();
+    assert!(
+        write(&mut bus, &mut host, 0xfff85044, 0x80)
+            .unwrap_err()
+            .contains("field mask")
+    );
+    assert_eq!(bus.save(), before);
+}
+
 #[test]
 fn full_word_configuration_bytes_commit_only_at_stop_and_route_to_the_other_core() {
     let mut host = Services::default();

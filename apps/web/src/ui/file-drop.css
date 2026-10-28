@@ -1,0 +1,48 @@
+.file-drop {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 18px 12px;
+  border: 1px dashed rgb(235 235 245 / 30%);
+  border-radius: 12px;
+  text-align: center;
+  background: rgb(28 28 30 / 30%);
+}
+.file-drop-highlighted,
+.file-drop.dragging {
+  border-color: rgb(10 132 255 / 65%);
+  background: rgb(10 132 255 / 6%);
+}
+.file-drop-icon {
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  margin-bottom: 4px;
+  border-radius: 50%;
+  background: rgb(10 132 255 / 18%);
+  color: #0a84ff;
+}
+.file-drop strong {
+  font-size: 16px;
+  font-weight: 600;
+}
+.file-drop > span:last-of-type {
+  font-size: 13px;
+  line-height: 1.4;
+  color: var(--dim);
+}
+.file-drop-choose {
+  white-space: nowrap;
+  color: #0a84ff;
+  font-weight: 500;
+  cursor: pointer;
+}
+.file-drop:has(input:focus-visible) {
+  outline: 2px solid #0a84ff;
+  outline-offset: 3px;
+}
+.file-drop:has(input:disabled) {
+  opacity: 0.55;
+}

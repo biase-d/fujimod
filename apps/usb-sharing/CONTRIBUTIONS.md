@@ -1,11 +1,11 @@
-# Private contributions
+# Contributions
 
 The browser explicitly uploads contributions to `https://share.fujimod.com`.
 No GitHub request is made. The existing private `ISSUE_REPORTS` R2 bucket holds
 individual gzip files and contribution metadata. Writes use the shared bucket
 helpers to index each completed object in `REPORTS_INDEX` (D1) as a
 `contribution`; completion retries repair an interrupted index write. The API exposes receipts,
-never object downloads. Requests use `credentials: 'omit'`.
+and read-only share links for completed uploads. Requests use `credentials: 'omit'`.
 
 The `CONTRIBUTIONS` Durable Object coordinates intake and a separate global
 budget of 50 new contributions per UTC day. Creation shares issue reports'
@@ -40,7 +40,8 @@ application/json`; responses are JSON with `Cache-Control: no-store`.
 6. `POST /finish` with `{ manifest, message }` requires all files completed.
    JSON bodies are bounded to 1 MiB and messages to 12000 characters. The first
    finish payload is retained before writing both metadata objects, so retries
-   finish that same payload. Success returns `{ id }`; finished retries do too.
+   finish that same payload. Success returns `{ id, shareUrl }`; finished retries return the same link.
+   A completed creation retry also includes `shareUrl`.
 
 Model, serial and name are at most 200 characters each; characters outside
 `[A-Za-z0-9._-]` become underscores. Empty components and `.`/`..` are rejected.
@@ -57,7 +58,8 @@ Progress counts uncompressed bytes read or already completed. Abort stops reads
 and requests. Four attempts per part precede the displayed retry error.
 
 The UUID is the unguessable resume capability: retain it locally and do not
-publish it. Abandoned contributions and multipart uploads remain private;
+publish it. Use the separate read-only `shareUrl` when sharing with others; see
+[Shared files](SHARED_FILES.md). Abandoned contributions and multipart uploads remain private;
 configure R2 lifecycle cleanup for abandoned multipart uploads. An interruption
 between multipart creation and saving its ID can leave an orphan upload.
 

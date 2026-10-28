@@ -15,6 +15,7 @@ import { fileURLToPath, pathToFileURL } from 'node:url';
 import { gzipSync } from 'node:zlib';
 import { parseArgs } from 'node:util';
 import { sharedStringEncoding } from './shared-memory-encoding.ts';
+import { optimizeWasm } from './wasm-optimization.mts';
 
 export const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 export const defaultOutput = resolve(root, '../../target/emulator');
@@ -476,6 +477,11 @@ export function build(selected: BuildOptions) {
   ]);
   writeFileSync(join(out, 'exports.json'), JSON.stringify(rustExports(symbols)));
   run(plan.link, plan.env);
+  const optimization = optimizeWasm(join(out, 'camera.wasm'), {
+    emsdk: plan.env.EMSDK,
+    profiling: selected.profiling,
+    simd128: selected.rustSimd128 || selected.cSimd128,
+  });
   const loaderPath = join(out, 'camera.mjs');
   writeFileSync(loaderPath, sharedStringEncoding(readFileSync(loaderPath, 'utf8')));
   const declarations = join(out, 'camera.d.ts');
@@ -503,6 +509,7 @@ export function build(selected: BuildOptions) {
     wasm_bytes: wasm.length,
     wasm_sha256: hash(wasm),
     wasm_gzip_bytes: gzipSync(wasm, { level: 9 }).length,
+    optimization,
     loader_bytes: loader.length,
     loader_sha256: hash(loader),
     rust: pinned.nightly,

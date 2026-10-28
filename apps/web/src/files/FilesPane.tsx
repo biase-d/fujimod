@@ -3,6 +3,7 @@ import { zipBlob } from '@fujimod/emulator-ui/archive';
 import { downloadBlob } from '@fujimod/emulator-ui/ui/download';
 import { FileList, formatBytes, type FileListItem } from '@fujimod/emulator-ui/ui/file-list';
 import { Icon } from '@fujimod/emulator-ui/ui/icons';
+import { shownError } from '@fujimod/emulator-ui/ui/shown-error';
 import { ContributeDialog, type Contribute } from './ContributeDialog';
 import { folderName, shelfItems, shelfManifest, type ShelfFile } from './shelf';
 import './files.css';
@@ -54,7 +55,7 @@ export function FilesPane(props: {
     try {
       downloadBlob(await filesArchive(files), name);
     } catch (error) {
-      setFailure(error instanceof Error ? error.message : String(error));
+      setFailure(shownError(error));
     }
   }
   return (

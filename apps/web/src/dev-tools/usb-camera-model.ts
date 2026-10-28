@@ -1,4 +1,5 @@
 import { createSignal, runWithOwner } from 'solid-js';
+import { shownError } from '@fujimod/emulator-ui/ui/shown-error';
 import type { DevShareOptions } from './dev-share';
 import {
   initialize,
@@ -15,9 +16,10 @@ import type {
   CameraLogEntry,
   CameraModel,
   SessionHolder,
+  ToolMemory,
   ToolSession,
 } from './camera-model';
-import { cameraDefinition, flashReader } from './camera-definition';
+import { serviceWorkflow, flashReader } from './service-artifacts';
 import { Direction, Layer, Level, hex as dumpBytes } from './log';
 import { ShareHost, newTicket, shareUrl, signalUrl } from './sharing';
 
@@ -38,7 +40,6 @@ export interface ModelSession extends Pick<
   | 'free'
   | 'abandon'
   | 'state'
-  | 'readBulk'
   | 'backupFlash'
   | 'dumpState'
   | 'readConfiguration'
@@ -49,6 +50,7 @@ export interface ModelSession extends Pick<
   | 'leaveDebugMode'
 > {
   deviceInfo(selector: Parameters<Session['deviceInfo']>[0]): Promise<Reply>;
+  memory(firmwareId: string): Promise<ToolMemory & { free(): void }>;
   configurationGeometry(
     view: Parameters<Session['configurationGeometry']>[0],
   ): Promise<{ capacity: number; pageBytes: number; free(): void }>;
@@ -156,7 +158,6 @@ interface Entry {
   problemKind?: 'presence' | 'session' | 'sharing' | 'attention';
   shareStatus?: ReturnType<NonNullable<DevShareOptions['status']>>;
 }
-const errorText = (error: unknown) => (error instanceof Error ? error.message : String(error));
 const hex = (value: number) => `0x${value.toString(16)}`;
 /** Format only complete, successful identity replies; execution validates them in Rust. */
 function identityText(data: Uint8Array | undefined): string | undefined {
@@ -205,7 +206,23 @@ function toolSession(
     },
     readConfiguration: (offset, length) =>
       session.readConfiguration(usb.ConfigurationView.Ram, 0, offset, length),
-    readBulk: (firmwareId, address, length) => session.readBulk(firmwareId, address, length),
+    async memory(firmwareId) {
+      const memory = await session.memory(firmwareId);
+      return {
+        read: (address, length) => memory.read(address, length),
+        write: (address, data) => memory.write(address, data),
+        get overwritten() {
+          return memory.overwritten;
+        },
+        async close() {
+          try {
+            await memory.close();
+          } finally {
+            memory.free();
+          }
+        },
+      };
+    },
     async submitConsole(data) {
       await session.submitConsole(data);
     },
@@ -229,7 +246,7 @@ function toolSession(
       leaveDebugMode: (...args) => session.leaveDebugMode(...args),
     },
     prepareServiceSession: async (firmwareId) => {
-      const result = await session.prepareServiceSession(...(await cameraDefinition(firmwareId)));
+      const result = await session.prepareServiceSession(...(await serviceWorkflow(firmwareId)));
       servicePrepared();
       return result;
     },
@@ -359,7 +376,7 @@ export function createUsbCameraModel(overrides: Partial<UsbCameraServices> = {})
       };
     } catch (error) {
       outcome = { error };
-      if (!entry.removed) problem(entry, errorText(error), 'session');
+      if (!entry.removed) problem(entry, shownError(error), 'session');
     } finally {
       if (session) {
         try {
@@ -367,7 +384,7 @@ export function createUsbCameraModel(overrides: Partial<UsbCameraServices> = {})
         } catch (error) {
           if (!outcome || 'value' in outcome) {
             outcome = { error };
-            if (!entry.removed) problem(entry, errorText(error), 'session');
+            if (!entry.removed) problem(entry, shownError(error), 'session');
           }
         } finally {
           session.free();
@@ -415,7 +432,7 @@ export function createUsbCameraModel(overrides: Partial<UsbCameraServices> = {})
     } catch (error) {
       if (!current()) return;
       entry.camera.debugMode = 'unknown';
-      connection(entry, `Debug mode read failed: ${errorText(error)}`, Level.Error);
+      connection(entry, `Debug mode read failed: ${shownError(error)}`, Level.Error);
     }
     publish();
   };
@@ -512,7 +529,7 @@ export function createUsbCameraModel(overrides: Partial<UsbCameraServices> = {})
               if (entry.host) entry.host.cameraReturned(entry.device.share());
               entry.shareStatus = { ...entry.shareStatus, online: true };
             } catch (error) {
-              problem(entry, errorText(error), 'session');
+              problem(entry, shownError(error), 'session');
             }
           } else {
             entry.camera.goneAt = services.now();
@@ -542,7 +559,7 @@ export function createUsbCameraModel(overrides: Partial<UsbCameraServices> = {})
         void refreshDebugMode(entry);
       }
     } catch (error) {
-      if (!entry.removed && !disposed) problem(entry, errorText(error), 'session');
+      if (!entry.removed && !disposed) problem(entry, shownError(error), 'session');
     }
   }
   async function watchLog(entry: Entry) {
@@ -639,8 +656,9 @@ export function createUsbCameraModel(overrides: Partial<UsbCameraServices> = {})
           });
       }
     } catch (error) {
-      flush(errorText(error));
-      if (!entry.removed && !disposed) problem(entry, errorText(error), 'session');
+      const message = shownError(error);
+      flush(message);
+      if (!entry.removed && !disposed) problem(entry, message, 'session');
     }
   }
   async function add(device: ModelDevice, transport: Camera['transport']) {
@@ -693,7 +711,7 @@ export function createUsbCameraModel(overrides: Partial<UsbCameraServices> = {})
     publish();
     connection(entry, state.present ? 'Camera connected' : 'Camera disconnected');
     void entry.selection.catch((error: unknown) => {
-      if (!entry.removed) problem(entry, errorText(error), 'session');
+      if (!entry.removed) problem(entry, shownError(error), 'session');
     });
     void watchState(entry);
     void watchLog(entry);
@@ -806,7 +824,7 @@ export function createUsbCameraModel(overrides: Partial<UsbCameraServices> = {})
           if (active()) problem(entry, message, 'attention');
         },
         error: (error) => {
-          if (active()) problem(entry, errorText(error), 'sharing');
+          if (active()) problem(entry, shownError(error), 'sharing');
         },
         state(status) {
           if (!active()) return;
@@ -847,7 +865,7 @@ export function createUsbCameraModel(overrides: Partial<UsbCameraServices> = {})
     } catch (error) {
       if (active()) {
         entry.device.stopSharing();
-        problem(entry, errorText(error), 'sharing');
+        problem(entry, shownError(error), 'sharing');
       }
       throw error;
     } finally {
@@ -884,7 +902,8 @@ export function createUsbCameraModel(overrides: Partial<UsbCameraServices> = {})
     })
     .catch((error: unknown) => {
       // A picker can still add a camera if permitted-device discovery failed.
-      for (const entry of entries.values()) problem(entry, errorText(error), 'session');
+      const message = shownError(error);
+      for (const entry of entries.values()) problem(entry, message, 'session');
     });
   const simulations = new Map<string, Promise<void>>();
   const model: CameraModel = {
@@ -959,7 +978,7 @@ export function createUsbCameraModel(overrides: Partial<UsbCameraServices> = {})
     dispose() {
       if (disposed) return;
       runtimes.get(model)?.stop?.();
-      for (const id of entries.keys()) void remove(id).catch(() => {});
+      for (const id of entries.keys()) void remove(id).catch((error) => console.error(error));
       disposed = true;
       countdown = undefined;
     },

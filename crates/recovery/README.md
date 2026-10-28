@@ -36,6 +36,19 @@ FFINIT with the update's DDR setup and relocated tables, the Topaz filesystem
 ABI, and a cold preloaded RAM image. Reset mode remains cold; three checked
 comparisons select the preloaded table, images, and worker bypass.
 
+XP4 removes redundant application/overlay scratch transfers and resource
+reloads. Fixed outputs start at their runtime destinations. Early defaults use
+transient staging that is wiped once after configuration initialization; the
+stock storage-default selector is then restored. Selectable language/font
+banks, fallback slices and subsequent defaults requests read bounded ranges
+from the separate `ffdata.bin` through the native asynchronous filesystem SDK.
+Each request uses one serialized open/seek/read/close transaction and checks
+its actual byte count. SDK initialization and SD0 routing must match; short
+reads, errors and unavailable offsets fail. Fixed outputs cannot be used as
+copy sources for other destinations. No persistent data-bank RAM backing or
+late boot-ROM controller access is installed. Settings, calibration and the
+updater's independent DAT reads retain their own drivers.
+
 EXR and EXR Pro use EXR's 512-byte `ffsys.bin` header and a small
 `ffboot.bin`. That SD loader copies itself to SRAM and uses the ROM's u16 read
 ABI to load `ffuser.bin` in chunks, checking file length, actual counts and
@@ -64,15 +77,25 @@ update header before installing the source-compiled reader. NAND initialization,
 bad-block mapping and per-camera storage retain their stock behavior.
 
 X-Processor Pro uses Agate's 2 KiB DDR configuration as `ffsys.bin` and the
-complete RAM image as `ffboot.bin`. The locator follows the update's single
+resident RAM image as `ffboot.bin`. The locator follows the update's single
 or initial/trained DDR-copy helper to choose the header. Three checked
 comparisons select the stock preloaded table, header and image paths while
-retaining cold reset mode. Its plain and progress read paths share a checked
-read-only descriptor reader. Calls to that reader fetch update-installed
-addresses from the firmware namespace appended to `ffboot.bin`, using Agate
-ROM file I/O. Other addresses delegate to the unchanged stock reader. Program
-and erase paths retain their stock code. Both families use rooted section tables and checked
-source mappings; unrecognized table or update-device layouts refuse.
+retaining cold reset mode. Three complete checked MAIN/raw caller contracts
+use an 80-byte compiled preload helper that keeps the stock gates and cache
+publication. It replaces the original raw-section-1 loader body in its existing
+executable storage; the MAIN/raw-section-2 calls point there. No additional RAM
+reservation is needed.
+Stock callers retain BSS handling. Raw images include the complete allocation
+padding that the original rounded block transfers would write. Demand resources
+and per-camera data use
+the stock NOR reader and its locks/controller initialization. Program and erase
+paths retain their stock code. This design recovers executable modifications;
+it depends on the installed demand resources matching the selected firmware.
+
+No runtime ROM file I/O, custom SD/FAT implementation, appended update namespace,
+or second source mirror is installed. The stock boot ROM loads the resident
+image before entry. Both families use rooted section tables and checked source
+mappings; unrecognized table or update-device layouts refuse.
 
 XP5 emits raw `marble_init.bin` with the update's setup at byte zero. Its
 entry loader preserves registers and stack, applies the checked header carried
@@ -177,7 +200,42 @@ small `ffboot.bin`; X-Processor 4 uses only `ffinit.bin`, and X-Processor 5 uses
 only `marble_init.bin`.
 
 `green_led::filenames` reports availability independently of updater support.
-`green_led::build` verifies the supplied update and output-descriptor source
-proofs before binding the GPIO writes. The compiled ARM and AArch64 programs
-need no stack, heap, timers, firmware calls or DDR initialization. The catalog
-holds each body's polarity, register writes and source proofs.
+`green_led::build` verifies the supplied update and referenced source spans
+before constructing the GPIO writes. The compiled ARM and AArch64 programs
+need no stack, heap, timers, firmware calls or DDR initialization.
+
+For EXR through X-Processor 4, the builder reads the two output descriptors
+and the selected ports' stock initialization records. Every selected pin
+gets its extended function, split function, control, output latch and direction
+configured. Missing records, incomplete field masks and pins configured for
+another function reject the build. X-Processor 5 requires its clock, reset,
+port gates and complete pad setup.
+
+The catalog cannot provide register-write lists. The builder creates the full
+sequence from these checked inputs, so an omitted setup step cannot be
+represented by a partial catalog program. Both the CLI and browser use this
+same builder.
+
+After completing the device writes, the program enters Wait For Event (WFE)
+standby with exceptions masked. The GPIO hardware holds the lamp state while
+the CPU sleeps. A wake returns directly to WFE; there is no NOP busy wait.
+
+The offline CLI builds the same LED card with
+`cargo run -p fujimod-recovery -- green-led FIRMWARE DAT NEW_DIRECTORY`.
+
+## Startup indication
+
+Full-system SD cards light the rear LED green at their first executable stage,
+using the same checked GPIO descriptors and complete pin setup as the LED card.
+EXR and EXR Pro light it before reading `ffuser.bin`; X-Processor 4 lights it
+before DDR setup and the `ffboot.bin` read. EXR II and X-Processor Pro light it
+at RAM entry, after the ROM finishes reading `ffboot.bin`. X-Processor 5 keeps
+its entry indication green while setup and loading continue; its failure
+signals remain available.
+
+The ARM entry preserves registers, flags and the incoming stack. The stock
+loader's green GPIO latch default stays asserted. Application GPIO setup and
+ordinary LED writes then take control without an interrupt, timer or persistent
+LED override. Recipes with completion-controlled startup indication retain that
+handoff instead. Terminal LED cards continue to hold green without booting the
+system.

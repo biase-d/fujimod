@@ -13,10 +13,32 @@ pub enum TransferStage {
 #[derive(Debug, thiserror::Error)]
 #[non_exhaustive]
 pub enum Error {
+    #[error("the camera already has an open service session")]
+    SessionAlreadyOpen,
+    #[error("callback slot restoration failed: {0}")]
+    CallbackRestoration(Box<Error>),
+    #[error("callback invocation failed: {source}; slot restoration failure: {restoration:?}")]
+    CallbackInvocation {
+        source: Box<Error>,
+        restoration: Option<Box<Error>>,
+    },
     #[error(transparent)]
     Proxy(#[from] fujimod_usb_proxy::Error),
     #[error("USB device access failed: {0}")]
     Usb(#[from] nusb::Error),
+    #[error("emulator resource {operation:?} failed: {source}")]
+    EmulatorResource {
+        operation: crate::emulator::ResourceOperation,
+        source: crate::emulator::TransferError,
+    },
+    #[error("emulator resource {0:?} timed out")]
+    EmulatorResourceTimeout(crate::emulator::ResourceOperation),
+    #[error("emulator completion during {stage:?} reported {actual} bytes for capacity {capacity}")]
+    EmulatorCompletion {
+        stage: TransferStage,
+        capacity: usize,
+        actual: usize,
+    },
     #[error("USB transfer failed during {stage:?}: {source} ({transferred:?} bytes transferred)")]
     Transfer {
         stage: TransferStage,

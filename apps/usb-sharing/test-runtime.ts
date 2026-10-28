@@ -43,10 +43,19 @@ export async function runtime(
             TurnBudget: { type: 'durable-object', storage: 'sqlite' },
           },
           env: {
-            CONTRIBUTIONS: { type: 'durable-object', worker: 'sharing', exportName: 'Contributions' },
-            CONTRIBUTION_LIMIT: { type: 'rate-limit', namespace: '1004', simple: { limit: 60, period: 60 } },
+            CONTRIBUTIONS: {
+              type: 'durable-object',
+              worker: 'sharing',
+              exportName: 'Contributions',
+            },
+            CONTRIBUTION_LIMIT: {
+              type: 'rate-limit',
+              namespace: '1004',
+              simple: { limit: 60, period: 60 },
+            },
             ISSUES: { type: 'durable-object', worker: 'sharing', exportName: 'IssueReports' },
             ISSUE_REPORTS: { type: 'r2', name: 'reports' },
+            SHARED_FILES: { type: 'r2', name: 'shared-files' },
             ISSUE_LIMIT: {
               type: 'rate-limit',
               namespace: '1002',
@@ -80,7 +89,10 @@ export async function runtime(
   });
   const index = await mf.getD1Database('REPORTS_INDEX');
   for (const migration of readdirSync(new URL('./migrations', import.meta.url)).sort())
-    for (const statement of readFileSync(new URL(`./migrations/${migration}`, import.meta.url), 'utf8')
+    for (const statement of readFileSync(
+      new URL(`./migrations/${migration}`, import.meta.url),
+      'utf8',
+    )
       .replace(/^--.*$/gm, '')
       .split(';')
       .map((text) => text.trim())

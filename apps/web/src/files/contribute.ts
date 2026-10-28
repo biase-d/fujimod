@@ -1,3 +1,5 @@
+import { isShareUrl } from './share-url';
+
 export interface ContributionFile {
   model: string;
   serial: string;
@@ -16,6 +18,7 @@ interface Status {
   id: string;
   files: FileStatus[];
   finished: boolean;
+  shareUrl?: string;
 }
 const failure = 'Upload failed. Your files are still on this device. Try again.';
 const partBytes = 8 * 1024 * 1024;
@@ -25,7 +28,7 @@ export async function contribute(
   input: { id: string; files: ContributionFile[]; manifest: unknown; message: string },
   progress: (p: ContributionProgress) => void,
   signal?: AbortSignal,
-): Promise<{ id: string }> {
+): Promise<{ id: string; shareUrl: string }> {
   const base = `https://share.fujimod.com/contributions/${encodeURIComponent(input.id)}`;
   let done = 0;
   const total = input.files.reduce((sum, file) => sum + file.blob.size, 0);
@@ -142,16 +145,21 @@ export async function contribute(
           reader.releaseLock();
         }
       }
+    }
+    let shareUrl = status.shareUrl;
+    if (!status.finished) {
       const receipt = (await request(
         '/finish',
         'POST',
         JSON.stringify({ manifest: input.manifest, message: input.message }),
-      )) as { id: string };
+      )) as { id: string; shareUrl: string };
       if (receipt.id !== status.id) throw Error(failure);
+      shareUrl = receipt.shareUrl;
     }
+    if (!isShareUrl(shareUrl)) throw Error(failure);
     done = total;
     update();
-    return { id: status.id };
+    return { id: status.id, shareUrl };
   } catch (error) {
     signal?.throwIfAborted();
     throw Error(failure, { cause: error });

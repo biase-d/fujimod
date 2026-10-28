@@ -4,6 +4,10 @@
 use fujimod_unicorn_sys as _;
 #[cfg(target_os = "emscripten")]
 mod available_memory;
+pub mod accounting;
+pub mod aprofile;
+pub mod memory;
+mod observers;
 pub mod rprofile;
 #[cfg(test)]
 mod test_support;
@@ -93,8 +97,8 @@ impl Library {
         check(&core.api, unsafe {
             (core.api.uc_ctl)(raw, ffi::ctl(13, 1, 1), translation_cache_size_bytes)
         })?;
-        // Page-hook code invalidation assumes every translated page is
-        // watched. A64 has no translation filter to maintain that set yet.
+        // Page-hook code invalidation requires translation-installed watches.
+        // The AArch64 board still uses ordinary instruction observers.
         if let Some(enable) = core.api.extensions.page_hooks {
             check(&core.api, unsafe { enable(raw, model != Model::ArmV8A) })?;
         }
@@ -470,6 +474,8 @@ impl Cpu for Core {
     }
     fn features(&self) -> Features {
         let e = &self.api.extensions;
+        let frontend = self.model != Model::ArmV8A
+            || e.features & ffi::FEATURE_AARCH64_ACCOUNTING != 0;
         Features {
             asynchronous_runs: false,
             guest_clock: false,
@@ -478,12 +484,12 @@ impl Cpu for Core {
             instruction_limit: true,
             shared_physical_maps: false,
             instruction_progress: false,
-            translation_filter: self.model != Model::ArmV8A && e.insn_filter.is_some()
+            translation_filter: frontend && e.insn_filter.is_some()
                 && e.retry_block.is_some()
                 && e.request_restart.is_some(),
             // The R-profile backend writes the appended pause pointer. Require
             // its ABI bit before exposing the accounting record to that backend.
-            block_accounting: self.model != Model::ArmV8A && e.features & 2 != 0
+            block_accounting: frontend && e.features & 2 != 0
                 && e.features & ffi::FEATURE_PAUSE_ACCOUNTING_LAYOUT != 0
                 && e.features & ffi::FEATURE_PARALLEL_TCG != 0
                 && e.set_parallel_cpus.is_some()

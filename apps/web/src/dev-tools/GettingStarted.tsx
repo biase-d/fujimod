@@ -1,4 +1,6 @@
 import { Show, createSignal, untrack } from 'solid-js';
+import { Icon } from '@fujimod/emulator-ui/ui/icons';
+import { shownError } from '@fujimod/emulator-ui/ui/shown-error';
 import type { JSX } from '@solidjs/web';
 import type {
   Camera,
@@ -26,9 +28,6 @@ export interface PathResults {
 
 type Step = 'todo' | 'running' | 'done' | 'skipped' | 'locked';
 
-function message(error: unknown) {
-  return error instanceof Error ? error.message : String(error);
-}
 function hex(value: number) {
   return `0x${value.toString(16).padStart(8, '0')}`;
 }
@@ -84,7 +83,7 @@ export function GettingStarted(props: {
         return operation(session, firmware);
       });
     } catch (error) {
-      setFailure(message(error));
+      setFailure(shownError(error));
     } finally {
       setRunning(undefined);
       setProgress('');
@@ -167,7 +166,7 @@ export function GettingStarted(props: {
       await props.debug.enter(firmware, setProgress);
       props.onResults((results) => ({ ...results, debugSaved: true }));
     } catch (error) {
-      setFailure(message(error));
+      setFailure(shownError(error));
     } finally {
       setRunning(undefined);
       setProgress('');
@@ -276,7 +275,7 @@ function Item(props: { number: number; state: Step; children: JSX.Element }) {
   return (
     <li class="gs-step" data-state={props.state}>
       <span class="gs-number" aria-hidden="true">
-        {props.state === 'done' ? '✓' : props.number}
+        {props.state === 'done' ? <Icon name="check" size={12} /> : props.number}
       </span>
       <div class="gs-row">{props.children}</div>
     </li>

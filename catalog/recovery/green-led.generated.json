@@ -13,30 +13,77 @@
         "offset": 4498580,
         "size": 40,
         "sha256": "42460bf193cfa9c70170e1805293763a8f9a2bdc11c33fe92633f2157f81d5f4"
+      },
+      {
+        "source": {
+          "dat_offset": 131676,
+          "size": 262144,
+          "compression": "raw",
+          "decoded_size": 262144,
+          "sha256": "7b26f5bf03887b80673283232b734a2c2e30ac6cd470fc0bf84b5552c1a05f7e"
+        },
+        "offset": 4100,
+        "size": 180,
+        "sha256": "6609f085e2b1546d8ed356a7fadc20e02ed9305d7e68d85b78cc07e17ad54fc5"
+      },
+      {
+        "source": {
+          "dat_offset": 131676,
+          "size": 262144,
+          "compression": "raw",
+          "decoded_size": 262144,
+          "sha256": "7b26f5bf03887b80673283232b734a2c2e30ac6cd470fc0bf84b5552c1a05f7e"
+        },
+        "offset": 30304,
+        "size": 304,
+        "sha256": "cce5fec3b0848bb12c79cf5740bde1acbda0c374a578da380fea8ba7fffce8a1"
+      },
+      {
+        "source": {
+          "dat_offset": 131676,
+          "size": 262144,
+          "compression": "raw",
+          "decoded_size": 262144,
+          "sha256": "7b26f5bf03887b80673283232b734a2c2e30ac6cd470fc0bf84b5552c1a05f7e"
+        },
+        "offset": 35408,
+        "size": 24,
+        "sha256": "749a2416329e7dbd66bf99d91b9d9c069ea00efbc533c4c5dc8980bff2cdb4b9"
+      },
+      {
+        "source": {
+          "dat_offset": 131676,
+          "size": 262144,
+          "compression": "raw",
+          "decoded_size": 262144,
+          "sha256": "7b26f5bf03887b80673283232b734a2c2e30ac6cd470fc0bf84b5552c1a05f7e"
+        },
+        "offset": 32508,
+        "size": 244,
+        "sha256": "15307afd7f9baf6ba537d2e765ad2ab5cac18765d9ff288d971f899ab8c721bf"
+      },
+      {
+        "source": {
+          "dat_offset": 131676,
+          "size": 262144,
+          "compression": "raw",
+          "decoded_size": 262144,
+          "sha256": "7b26f5bf03887b80673283232b734a2c2e30ac6cd470fc0bf84b5552c1a05f7e"
+        },
+        "offset": 56272,
+        "size": 28,
+        "sha256": "66bb82837b3859ef470251a543ca80b4c546d76ef91fb3dbe218e585e1fcbb5e"
       }
     ],
-    "writes": [
-      {
-        "address": 4293967936,
-        "clear": 0,
-        "value": 8388608
-      },
-      {
-        "address": 4293967940,
-        "clear": 0,
-        "value": 8388736
-      },
-      {
-        "address": 4293967936,
-        "clear": 0,
-        "value": 134219776
-      },
-      {
-        "address": 4293967940,
-        "clear": 0,
-        "value": 134219776
-      }
-    ]
+    "initialization": {
+      "kind": "stock_gpio",
+      "ports": [
+        {
+          "port": 1,
+          "proof": 5
+        }
+      ]
+    }
   },
   {
     "firmware_id": "gfx50s-452",
@@ -52,30 +99,77 @@
         "offset": 4087172,
         "size": 40,
         "sha256": "70fea51c91a875debeaf151b64363b31ff72d3198cbff7bf7218c12d9e66611f"
+      },
+      {
+        "source": {
+          "dat_offset": 131676,
+          "size": 262144,
+          "compression": "raw",
+          "decoded_size": 262144,
+          "sha256": "c967bb39f05d5b23d7b5fa5c739ffde2f796fc993774db5c1ed1d8a9e2cdde1e"
+        },
+        "offset": 4100,
+        "size": 180,
+        "sha256": "20f3ecfd0c10cfcc573bb3e473c1a6ab9a24657d518361e6baa21f7708aa3c6a"
+      },
+      {
+        "source": {
+          "dat_offset": 131676,
+          "size": 262144,
+          "compression": "raw",
+          "decoded_size": 262144,
+          "sha256": "c967bb39f05d5b23d7b5fa5c739ffde2f796fc993774db5c1ed1d8a9e2cdde1e"
+        },
+        "offset": 30524,
+        "size": 304,
+        "sha256": "833dd94726ccd2aeaa2d378080366d005449835d7fd98abc4b677367ad713659"
+      },
+      {
+        "source": {
+          "dat_offset": 131676,
+          "size": 262144,
+          "compression": "raw",
+          "decoded_size": 262144,
+          "sha256": "c967bb39f05d5b23d7b5fa5c739ffde2f796fc993774db5c1ed1d8a9e2cdde1e"
+        },
+        "offset": 35628,
+        "size": 24,
+        "sha256": "749a2416329e7dbd66bf99d91b9d9c069ea00efbc533c4c5dc8980bff2cdb4b9"
+      },
+      {
+        "source": {
+          "dat_offset": 131676,
+          "size": 262144,
+          "compression": "raw",
+          "decoded_size": 262144,
+          "sha256": "c967bb39f05d5b23d7b5fa5c739ffde2f796fc993774db5c1ed1d8a9e2cdde1e"
+        },
+        "offset": 32728,
+        "size": 244,
+        "sha256": "82d784e85e9b00c0f2c3e89650207eff9d7aa676f737cc432187e7e2ebe81696"
+      },
+      {
+        "source": {
+          "dat_offset": 131676,
+          "size": 262144,
+          "compression": "raw",
+          "decoded_size": 262144,
+          "sha256": "c967bb39f05d5b23d7b5fa5c739ffde2f796fc993774db5c1ed1d8a9e2cdde1e"
+        },
+        "offset": 56744,
+        "size": 28,
+        "sha256": "f45c7f411c8529e198fd5f1c5d3171a7dc10629fcba7a1ca2c4eb56d21487072"
       }
     ],
-    "writes": [
-      {
-        "address": 4293968512,
-        "clear": 0,
-        "value": 134217728
-      },
-      {
-        "address": 4293968516,
-        "clear": 0,
-        "value": 134219776
-      },
-      {
-        "address": 4293968512,
-        "clear": 0,
-        "value": 268439552
-      },
-      {
-        "address": 4293968516,
-        "clear": 0,
-        "value": 268439552
-      }
-    ]
+    "initialization": {
+      "kind": "stock_gpio",
+      "ports": [
+        {
+          "port": 10,
+          "proof": 5
+        }
+      ]
+    }
   },
   {
     "firmware_id": "x10-201",
@@ -91,30 +185,53 @@
         "offset": 1478260,
         "size": 56,
         "sha256": "b306f02a9171e1843017fe6c62a754b8aeb7444446360c3bb845c1c07bdc471d"
+      },
+      {
+        "source": {
+          "dat_offset": 33372,
+          "size": 262144,
+          "compression": "raw",
+          "decoded_size": 262144,
+          "sha256": "bfc189330c48126905cb104642cbd64465e090679e402b91f9b4e76e3f896d22"
+        },
+        "offset": 21084,
+        "size": 112,
+        "sha256": "0081178a365c0cdb5fd21b0770feaf30bb8bd4f80f12f23711a349dd576abb22"
+      },
+      {
+        "source": {
+          "dat_offset": 33372,
+          "size": 262144,
+          "compression": "raw",
+          "decoded_size": 262144,
+          "sha256": "bfc189330c48126905cb104642cbd64465e090679e402b91f9b4e76e3f896d22"
+        },
+        "offset": 21208,
+        "size": 4,
+        "sha256": "eb803f7d155dac5ef81af73733ec79b34e22b9e8913163d1239dddaa31d48901"
+      },
+      {
+        "source": {
+          "dat_offset": 33372,
+          "size": 262144,
+          "compression": "raw",
+          "decoded_size": 262144,
+          "sha256": "bfc189330c48126905cb104642cbd64465e090679e402b91f9b4e76e3f896d22"
+        },
+        "offset": 17976,
+        "size": 24,
+        "sha256": "4323079c5e3396d2f265fdd3cb176e62b0d14762d358eb3ec1c17b0200314a22"
       }
     ],
-    "writes": [
-      {
-        "address": 4294480832,
-        "clear": 0,
-        "value": 65537
-      },
-      {
-        "address": 4294480836,
-        "clear": 0,
-        "value": 65537
-      },
-      {
-        "address": 4294480832,
-        "clear": 0,
-        "value": 262144
-      },
-      {
-        "address": 4294480836,
-        "clear": 0,
-        "value": 262148
-      }
-    ]
+    "initialization": {
+      "kind": "stock_gpio",
+      "ports": [
+        {
+          "port": 15,
+          "proof": 3
+        }
+      ]
+    }
   },
   {
     "firmware_id": "x100-211",
@@ -130,30 +247,53 @@
         "offset": 1299148,
         "size": 56,
         "sha256": "b306f02a9171e1843017fe6c62a754b8aeb7444446360c3bb845c1c07bdc471d"
+      },
+      {
+        "source": {
+          "dat_offset": 33372,
+          "size": 262144,
+          "compression": "raw",
+          "decoded_size": 262144,
+          "sha256": "b2492be81d0ac5485c8130bdab7b80963b2065255c74eefb104ccb8d865e290d"
+        },
+        "offset": 136232,
+        "size": 112,
+        "sha256": "59f71cdd00dc88f23187d652c5828b22b2f7520a97ac0b0b7b6e1a470edd2d5b"
+      },
+      {
+        "source": {
+          "dat_offset": 33372,
+          "size": 262144,
+          "compression": "raw",
+          "decoded_size": 262144,
+          "sha256": "b2492be81d0ac5485c8130bdab7b80963b2065255c74eefb104ccb8d865e290d"
+        },
+        "offset": 136356,
+        "size": 4,
+        "sha256": "f520d8a80564582665a766db80f365c8ec590f546d49c7453582e68ea00ed398"
+      },
+      {
+        "source": {
+          "dat_offset": 33372,
+          "size": 262144,
+          "compression": "raw",
+          "decoded_size": 262144,
+          "sha256": "b2492be81d0ac5485c8130bdab7b80963b2065255c74eefb104ccb8d865e290d"
+        },
+        "offset": 132708,
+        "size": 24,
+        "sha256": "4051b1277b62cb52eb18c7fc1b8b6b0b85b400d1ce29bbb3c2863ab036ccd7e1"
       }
     ],
-    "writes": [
-      {
-        "address": 4294480832,
-        "clear": 0,
-        "value": 65537
-      },
-      {
-        "address": 4294480836,
-        "clear": 0,
-        "value": 65537
-      },
-      {
-        "address": 4294480832,
-        "clear": 0,
-        "value": 262144
-      },
-      {
-        "address": 4294480836,
-        "clear": 0,
-        "value": 262148
-      }
-    ]
+    "initialization": {
+      "kind": "stock_gpio",
+      "ports": [
+        {
+          "port": 15,
+          "proof": 3
+        }
+      ]
+    }
   },
   {
     "firmware_id": "x100f-212",
@@ -169,30 +309,77 @@
         "offset": 3543772,
         "size": 40,
         "sha256": "70fea51c91a875debeaf151b64363b31ff72d3198cbff7bf7218c12d9e66611f"
+      },
+      {
+        "source": {
+          "dat_offset": 131676,
+          "size": 262144,
+          "compression": "raw",
+          "decoded_size": 262144,
+          "sha256": "def96ff1b2984c1a5a38cbdffc0984ef2c674d47d50632a913d1c953bfccaf3e"
+        },
+        "offset": 3436,
+        "size": 180,
+        "sha256": "08f4f198a6973dbb2f97e05798bc8d77faf388ce1db1a45fdb2a7e5ed0c71ef2"
+      },
+      {
+        "source": {
+          "dat_offset": 131676,
+          "size": 262144,
+          "compression": "raw",
+          "decoded_size": 262144,
+          "sha256": "def96ff1b2984c1a5a38cbdffc0984ef2c674d47d50632a913d1c953bfccaf3e"
+        },
+        "offset": 28112,
+        "size": 304,
+        "sha256": "6da48b5ac0a2603189f5bc6ce060e468f0c272f098fa61734cfa51aa83ff569b"
+      },
+      {
+        "source": {
+          "dat_offset": 131676,
+          "size": 262144,
+          "compression": "raw",
+          "decoded_size": 262144,
+          "sha256": "def96ff1b2984c1a5a38cbdffc0984ef2c674d47d50632a913d1c953bfccaf3e"
+        },
+        "offset": 33216,
+        "size": 24,
+        "sha256": "749a2416329e7dbd66bf99d91b9d9c069ea00efbc533c4c5dc8980bff2cdb4b9"
+      },
+      {
+        "source": {
+          "dat_offset": 131676,
+          "size": 262144,
+          "compression": "raw",
+          "decoded_size": 262144,
+          "sha256": "def96ff1b2984c1a5a38cbdffc0984ef2c674d47d50632a913d1c953bfccaf3e"
+        },
+        "offset": 30316,
+        "size": 244,
+        "sha256": "47a77efb9127e67d4a0d4e59624033872cf0c4a6fc2b8ea9bddb382007dc2650"
+      },
+      {
+        "source": {
+          "dat_offset": 131676,
+          "size": 262144,
+          "compression": "raw",
+          "decoded_size": 262144,
+          "sha256": "def96ff1b2984c1a5a38cbdffc0984ef2c674d47d50632a913d1c953bfccaf3e"
+        },
+        "offset": 55032,
+        "size": 28,
+        "sha256": "0c35ae5be973ccfc52d92703ee178662dd919fdea60e39485ef546e52a201480"
       }
     ],
-    "writes": [
-      {
-        "address": 4293968512,
-        "clear": 0,
-        "value": 134217728
-      },
-      {
-        "address": 4293968516,
-        "clear": 0,
-        "value": 134219776
-      },
-      {
-        "address": 4293968512,
-        "clear": 0,
-        "value": 268439552
-      },
-      {
-        "address": 4293968516,
-        "clear": 0,
-        "value": 268439552
-      }
-    ]
+    "initialization": {
+      "kind": "stock_gpio",
+      "ports": [
+        {
+          "port": 10,
+          "proof": 5
+        }
+      ]
+    }
   },
   {
     "firmware_id": "x100s-121",
@@ -208,30 +395,65 @@
         "offset": 1575576,
         "size": 56,
         "sha256": "b306f02a9171e1843017fe6c62a754b8aeb7444446360c3bb845c1c07bdc471d"
+      },
+      {
+        "source": {
+          "dat_offset": 967260,
+          "size": 1294336,
+          "compression": "method4",
+          "decoded_size": 2529600,
+          "sha256": "777bbe8ff18218d48986d14da0ea5ca341ee475224c8d0c0fea5f861b4fd74d6"
+        },
+        "offset": 515152,
+        "size": 400,
+        "sha256": "e50814f6525bd7fac43862c2a488c2036f7dde65d666daf511b49bac754ec999"
+      },
+      {
+        "source": {
+          "dat_offset": 967260,
+          "size": 1294336,
+          "compression": "method4",
+          "decoded_size": 2529600,
+          "sha256": "777bbe8ff18218d48986d14da0ea5ca341ee475224c8d0c0fea5f861b4fd74d6"
+        },
+        "offset": 515924,
+        "size": 404,
+        "sha256": "e3ce140d8c8ba38375b09256ca35fd21edcf8ca2c6dfc1e5280cb858b679d626"
+      },
+      {
+        "source": {
+          "dat_offset": 33372,
+          "size": 262144,
+          "compression": "raw",
+          "decoded_size": 262144,
+          "sha256": "78ba3cd9f5d656f6ae30cf74dd12ac0e87ead735dff2ec1f20cba0c66bd327d7"
+        },
+        "offset": 20000,
+        "size": 132,
+        "sha256": "86dffe1b067385e5f33fd18abca7c6bb076269132d0f9813433490388f3c6dc1"
+      },
+      {
+        "source": {
+          "dat_offset": 33372,
+          "size": 262144,
+          "compression": "raw",
+          "decoded_size": 262144,
+          "sha256": "78ba3cd9f5d656f6ae30cf74dd12ac0e87ead735dff2ec1f20cba0c66bd327d7"
+        },
+        "offset": 17588,
+        "size": 28,
+        "sha256": "cfead770fb27dd764ff61653877b90fab514c31d41ee052f57a208948dcc9797"
       }
     ],
-    "writes": [
-      {
-        "address": 4294480832,
-        "clear": 0,
-        "value": 65537
-      },
-      {
-        "address": 4294480836,
-        "clear": 0,
-        "value": 65537
-      },
-      {
-        "address": 4294480832,
-        "clear": 0,
-        "value": 262144
-      },
-      {
-        "address": 4294480836,
-        "clear": 0,
-        "value": 262148
-      }
-    ]
+    "initialization": {
+      "kind": "stock_gpio",
+      "ports": [
+        {
+          "port": 15,
+          "proof": 4
+        }
+      ]
+    }
   },
   {
     "firmware_id": "x100t-111",
@@ -247,30 +469,65 @@
         "offset": 2413912,
         "size": 56,
         "sha256": "691483756b2562bba86d0f38446a79db5025391c4bf7d3e6536a715f0dd220eb"
+      },
+      {
+        "source": {
+          "dat_offset": 1442396,
+          "size": 1835008,
+          "compression": "method4",
+          "decoded_size": 3399968,
+          "sha256": "b9593278a28d90c9f8b079e7f98d3dc08b627158493071fcdee632aa9da65c52"
+        },
+        "offset": 688000,
+        "size": 400,
+        "sha256": "c363298beedf4c81fa71e934da74b9aa55d029161e52e8106ff30d7b16dab926"
+      },
+      {
+        "source": {
+          "dat_offset": 1442396,
+          "size": 1835008,
+          "compression": "method4",
+          "decoded_size": 3399968,
+          "sha256": "b9593278a28d90c9f8b079e7f98d3dc08b627158493071fcdee632aa9da65c52"
+        },
+        "offset": 688772,
+        "size": 404,
+        "sha256": "5105614877b508729c0e7b1a848ee83d43226490e75da9d0a5072b1c2bdf06da"
+      },
+      {
+        "source": {
+          "dat_offset": 262748,
+          "size": 262144,
+          "compression": "raw",
+          "decoded_size": 262144,
+          "sha256": "90ecb72c92579336a469d3a677f8312dc8ef8062f64ce94256f343696d2e2274"
+        },
+        "offset": 9772,
+        "size": 152,
+        "sha256": "5e3dbfe3680e2fbcbf2305a4e1dd8bd8be4ef9130cd645b6fa9ce41f659fcdb4"
+      },
+      {
+        "source": {
+          "dat_offset": 262748,
+          "size": 262144,
+          "compression": "raw",
+          "decoded_size": 262144,
+          "sha256": "90ecb72c92579336a469d3a677f8312dc8ef8062f64ce94256f343696d2e2274"
+        },
+        "offset": 6952,
+        "size": 28,
+        "sha256": "244d8be0ea262bc14c3e294e61047ae57f862cdf0146c0d25b804e6f3c3f613e"
       }
     ],
-    "writes": [
-      {
-        "address": 4294480000,
-        "clear": 0,
-        "value": 67108864
-      },
-      {
-        "address": 4294480004,
-        "clear": 0,
-        "value": 67109888
-      },
-      {
-        "address": 4294480000,
-        "clear": 0,
-        "value": 536879104
-      },
-      {
-        "address": 4294480004,
-        "clear": 0,
-        "value": 536879104
-      }
-    ]
+    "initialization": {
+      "kind": "stock_gpio",
+      "ports": [
+        {
+          "port": 2,
+          "proof": 4
+        }
+      ]
+    }
   },
   {
     "firmware_id": "x100v-301",
@@ -286,30 +543,89 @@
         "offset": 5151852,
         "size": 40,
         "sha256": "d7644b4ea00e18d69bc29907471978ba482df57195d9c7e646fd8bf122a5ff8b"
+      },
+      {
+        "source": {
+          "dat_offset": 131700,
+          "size": 262144,
+          "compression": "raw",
+          "decoded_size": 262144,
+          "sha256": "30962efa249d6ef3c2992e09954ce4cc998e467fecf99c3aaca68c35047a824f"
+        },
+        "offset": 3928,
+        "size": 192,
+        "sha256": "28708c1cb0534924db4f4bdd98d783a470eceb6eec9594a6c9d69baf46c830e1"
+      },
+      {
+        "source": {
+          "dat_offset": 131700,
+          "size": 262144,
+          "compression": "raw",
+          "decoded_size": 262144,
+          "sha256": "30962efa249d6ef3c2992e09954ce4cc998e467fecf99c3aaca68c35047a824f"
+        },
+        "offset": 15156,
+        "size": 32,
+        "sha256": "4a8a525d3bc9659b6af89dfe8fda972e6a06e4ffad7998ef86382eb4f9d4b15c"
+      },
+      {
+        "source": {
+          "dat_offset": 131700,
+          "size": 262144,
+          "compression": "raw",
+          "decoded_size": 262144,
+          "sha256": "30962efa249d6ef3c2992e09954ce4cc998e467fecf99c3aaca68c35047a824f"
+        },
+        "offset": 14964,
+        "size": 192,
+        "sha256": "1fe42345982387765d9a6ab059975846fdaa901e89dc050c95676c39d968a80a"
+      },
+      {
+        "source": {
+          "dat_offset": 131700,
+          "size": 262144,
+          "compression": "raw",
+          "decoded_size": 262144,
+          "sha256": "30962efa249d6ef3c2992e09954ce4cc998e467fecf99c3aaca68c35047a824f"
+        },
+        "offset": 13400,
+        "size": 232,
+        "sha256": "28d53a63fdeb29fd2fb96b42a8e3871eecb65e7f96d4fd73d7ac681a10a72d03"
+      },
+      {
+        "source": {
+          "dat_offset": 131700,
+          "size": 262144,
+          "compression": "raw",
+          "decoded_size": 262144,
+          "sha256": "30962efa249d6ef3c2992e09954ce4cc998e467fecf99c3aaca68c35047a824f"
+        },
+        "offset": 16792,
+        "size": 24,
+        "sha256": "d8481dd0090820dd4f3229d398311644a73fcda844a6c2035fc3b91f38bf7cf6"
+      },
+      {
+        "source": {
+          "dat_offset": 131700,
+          "size": 262144,
+          "compression": "raw",
+          "decoded_size": 262144,
+          "sha256": "30962efa249d6ef3c2992e09954ce4cc998e467fecf99c3aaca68c35047a824f"
+        },
+        "offset": 37836,
+        "size": 28,
+        "sha256": "72d129ee9792644bc280024aec768a3dd59944e392b03046c4631711d7ce0145"
       }
     ],
-    "writes": [
-      {
-        "address": 4294185856,
-        "clear": 0,
-        "value": 262144
-      },
-      {
-        "address": 4294185860,
-        "clear": 0,
-        "value": 262148
-      },
-      {
-        "address": 4294185856,
-        "clear": 0,
-        "value": 524296
-      },
-      {
-        "address": 4294185860,
-        "clear": 0,
-        "value": 524296
-      }
-    ]
+    "initialization": {
+      "kind": "stock_gpio",
+      "ports": [
+        {
+          "port": 14,
+          "proof": 6
+        }
+      ]
+    }
   },
   {
     "firmware_id": "x100vi-131",
@@ -711,73 +1027,9 @@
         "sha256": "54136f3d7bf06b31aa2e2f3ccab5ecb049974d1d5c6eee2f370d51a5e8fd8c12"
       }
     ],
-    "writes": [
-      {
-        "address": 4287677208,
-        "clear": 131072,
-        "value": 131072
-      },
-      {
-        "address": 4287678764,
-        "clear": 65536,
-        "value": 65536
-      },
-      {
-        "address": 4287657216,
-        "clear": 0,
-        "value": 16777472
-      },
-      {
-        "address": 4287656448,
-        "clear": 0,
-        "value": 262144
-      },
-      {
-        "address": 4287656460,
-        "clear": 0,
-        "value": 3145728
-      },
-      {
-        "address": 4287656456,
-        "clear": 0,
-        "value": 262144
-      },
-      {
-        "address": 4287656452,
-        "clear": 0,
-        "value": 262148
-      },
-      {
-        "address": 4287657216,
-        "clear": 0,
-        "value": 4194368
-      },
-      {
-        "address": 4287656320,
-        "clear": 0,
-        "value": 262144
-      },
-      {
-        "address": 4287656332,
-        "clear": 0,
-        "value": 3145728
-      },
-      {
-        "address": 4287656328,
-        "clear": 0,
-        "value": 262144
-      },
-      {
-        "address": 4287656324,
-        "clear": 0,
-        "value": 262148
-      },
-      {
-        "address": 4287656448,
-        "clear": 0,
-        "value": 262148
-      }
-    ]
+    "initialization": {
+      "kind": "xp5"
+    }
   },
   {
     "firmware_id": "x20-103",
@@ -793,30 +1045,65 @@
         "offset": 1787408,
         "size": 56,
         "sha256": "b306f02a9171e1843017fe6c62a754b8aeb7444446360c3bb845c1c07bdc471d"
+      },
+      {
+        "source": {
+          "dat_offset": 967260,
+          "size": 1376256,
+          "compression": "method4",
+          "decoded_size": 2729376,
+          "sha256": "113fbe8e40aa799ed4a87b2f4e62ae87c7919d4ffc6a64ba9256b7584b824b07"
+        },
+        "offset": 527128,
+        "size": 400,
+        "sha256": "7a3ce57604d694b2ab3ee62d4f543043ce09e337891b5afa99cd25e0bc20fde4"
+      },
+      {
+        "source": {
+          "dat_offset": 967260,
+          "size": 1376256,
+          "compression": "method4",
+          "decoded_size": 2729376,
+          "sha256": "113fbe8e40aa799ed4a87b2f4e62ae87c7919d4ffc6a64ba9256b7584b824b07"
+        },
+        "offset": 527900,
+        "size": 404,
+        "sha256": "91ee7a147339e341fd932e201c6d2a1e41d142e30ef8090a0bbeb0da6cb2ce15"
+      },
+      {
+        "source": {
+          "dat_offset": 33372,
+          "size": 262144,
+          "compression": "raw",
+          "decoded_size": 262144,
+          "sha256": "07f971c7e884ffa63e916d0d519e1fff98c7a15de21b3b7e995f6a7d39d5a8c7"
+        },
+        "offset": 20000,
+        "size": 132,
+        "sha256": "86dffe1b067385e5f33fd18abca7c6bb076269132d0f9813433490388f3c6dc1"
+      },
+      {
+        "source": {
+          "dat_offset": 33372,
+          "size": 262144,
+          "compression": "raw",
+          "decoded_size": 262144,
+          "sha256": "07f971c7e884ffa63e916d0d519e1fff98c7a15de21b3b7e995f6a7d39d5a8c7"
+        },
+        "offset": 17588,
+        "size": 28,
+        "sha256": "cfead770fb27dd764ff61653877b90fab514c31d41ee052f57a208948dcc9797"
       }
     ],
-    "writes": [
-      {
-        "address": 4294480832,
-        "clear": 0,
-        "value": 65537
-      },
-      {
-        "address": 4294480836,
-        "clear": 0,
-        "value": 65537
-      },
-      {
-        "address": 4294480832,
-        "clear": 0,
-        "value": 262144
-      },
-      {
-        "address": 4294480836,
-        "clear": 0,
-        "value": 262148
-      }
-    ]
+    "initialization": {
+      "kind": "stock_gpio",
+      "ports": [
+        {
+          "port": 15,
+          "proof": 4
+        }
+      ]
+    }
   },
   {
     "firmware_id": "x30-103",
@@ -832,30 +1119,65 @@
         "offset": 2658912,
         "size": 56,
         "sha256": "691483756b2562bba86d0f38446a79db5025391c4bf7d3e6536a715f0dd220eb"
+      },
+      {
+        "source": {
+          "dat_offset": 1442396,
+          "size": 1835008,
+          "compression": "method4",
+          "decoded_size": 3648416,
+          "sha256": "19bd9d935f4493fd998f5812d9c5bca234584c854f5b479a998eb40e726238f3"
+        },
+        "offset": 684908,
+        "size": 400,
+        "sha256": "f05eb19b8e579d3920fde4488b40aaccd0e67a631066c5e82461b097d8a07c42"
+      },
+      {
+        "source": {
+          "dat_offset": 1442396,
+          "size": 1835008,
+          "compression": "method4",
+          "decoded_size": 3648416,
+          "sha256": "19bd9d935f4493fd998f5812d9c5bca234584c854f5b479a998eb40e726238f3"
+        },
+        "offset": 685680,
+        "size": 404,
+        "sha256": "9d13602a1750f7f3fd013da4dff98203793e564f3bafc82dd103447ffcdb4225"
+      },
+      {
+        "source": {
+          "dat_offset": 262748,
+          "size": 262144,
+          "compression": "raw",
+          "decoded_size": 262144,
+          "sha256": "2870cf308f78ae611fe0beeead90000966906ec14fb8327e29b143b63032d66b"
+        },
+        "offset": 9772,
+        "size": 152,
+        "sha256": "5e3dbfe3680e2fbcbf2305a4e1dd8bd8be4ef9130cd645b6fa9ce41f659fcdb4"
+      },
+      {
+        "source": {
+          "dat_offset": 262748,
+          "size": 262144,
+          "compression": "raw",
+          "decoded_size": 262144,
+          "sha256": "2870cf308f78ae611fe0beeead90000966906ec14fb8327e29b143b63032d66b"
+        },
+        "offset": 6952,
+        "size": 28,
+        "sha256": "6ea022a0f4e47781433ff21205b431bcf8e9252fafedc9b91f2cb8a02610b3ed"
       }
     ],
-    "writes": [
-      {
-        "address": 4294480000,
-        "clear": 0,
-        "value": 67108864
-      },
-      {
-        "address": 4294480004,
-        "clear": 0,
-        "value": 67109888
-      },
-      {
-        "address": 4294480000,
-        "clear": 0,
-        "value": 536879104
-      },
-      {
-        "address": 4294480004,
-        "clear": 0,
-        "value": 536879104
-      }
-    ]
+    "initialization": {
+      "kind": "stock_gpio",
+      "ports": [
+        {
+          "port": 2,
+          "proof": 4
+        }
+      ]
+    }
   },
   {
     "firmware_id": "x70-110",
@@ -871,30 +1193,65 @@
         "offset": 2404912,
         "size": 56,
         "sha256": "691483756b2562bba86d0f38446a79db5025391c4bf7d3e6536a715f0dd220eb"
+      },
+      {
+        "source": {
+          "dat_offset": 1442396,
+          "size": 1835008,
+          "compression": "method4",
+          "decoded_size": 3409248,
+          "sha256": "9923d542f84f07196f0acdae181f0d536578c3f3f0419dba5960d9b055925acb"
+        },
+        "offset": 677804,
+        "size": 400,
+        "sha256": "cc904d5fd23ebd92c7d655550276bed7b8f82c799ed59940d2369d37bf0a40fb"
+      },
+      {
+        "source": {
+          "dat_offset": 1442396,
+          "size": 1835008,
+          "compression": "method4",
+          "decoded_size": 3409248,
+          "sha256": "9923d542f84f07196f0acdae181f0d536578c3f3f0419dba5960d9b055925acb"
+        },
+        "offset": 678576,
+        "size": 404,
+        "sha256": "e7205dd2c0fcbf80a41bca3d66b19dd17b727fdd58efc68a0bf5c93222b8cac2"
+      },
+      {
+        "source": {
+          "dat_offset": 262748,
+          "size": 262144,
+          "compression": "raw",
+          "decoded_size": 262144,
+          "sha256": "8a0c9920de91b9383ed831da905258608fadf008e05376cb86d59ff0d9cb21f1"
+        },
+        "offset": 9772,
+        "size": 152,
+        "sha256": "5e3dbfe3680e2fbcbf2305a4e1dd8bd8be4ef9130cd645b6fa9ce41f659fcdb4"
+      },
+      {
+        "source": {
+          "dat_offset": 262748,
+          "size": 262144,
+          "compression": "raw",
+          "decoded_size": 262144,
+          "sha256": "8a0c9920de91b9383ed831da905258608fadf008e05376cb86d59ff0d9cb21f1"
+        },
+        "offset": 6952,
+        "size": 28,
+        "sha256": "244d8be0ea262bc14c3e294e61047ae57f862cdf0146c0d25b804e6f3c3f613e"
       }
     ],
-    "writes": [
-      {
-        "address": 4294480000,
-        "clear": 0,
-        "value": 67108864
-      },
-      {
-        "address": 4294480004,
-        "clear": 0,
-        "value": 67109888
-      },
-      {
-        "address": 4294480000,
-        "clear": 0,
-        "value": 536879104
-      },
-      {
-        "address": 4294480004,
-        "clear": 0,
-        "value": 536879104
-      }
-    ]
+    "initialization": {
+      "kind": "stock_gpio",
+      "ports": [
+        {
+          "port": 2,
+          "proof": 4
+        }
+      ]
+    }
   },
   {
     "firmware_id": "xa1-150",
@@ -910,30 +1267,65 @@
         "offset": 1757968,
         "size": 56,
         "sha256": "b306f02a9171e1843017fe6c62a754b8aeb7444446360c3bb845c1c07bdc471d"
+      },
+      {
+        "source": {
+          "dat_offset": 1442396,
+          "size": 1441792,
+          "compression": "method4",
+          "decoded_size": 2631616,
+          "sha256": "443caa12a281b58496ba10c467b39a00e1bddd88d8bdb1f8f67b141b426c6e92"
+        },
+        "offset": 557960,
+        "size": 400,
+        "sha256": "9b3059ac96b8bbceaf212b5a7a64b7715b6cb45c85650057e1567176bf3a8fa9"
+      },
+      {
+        "source": {
+          "dat_offset": 1442396,
+          "size": 1441792,
+          "compression": "method4",
+          "decoded_size": 2631616,
+          "sha256": "443caa12a281b58496ba10c467b39a00e1bddd88d8bdb1f8f67b141b426c6e92"
+        },
+        "offset": 558732,
+        "size": 404,
+        "sha256": "68798a21bd282e42e26d5aef05c4a3f4369eb1fca9a9b68cd9c6bcd4c027aa99"
+      },
+      {
+        "source": {
+          "dat_offset": 262748,
+          "size": 262144,
+          "compression": "raw",
+          "decoded_size": 262144,
+          "sha256": "c1c0255e6ac971a26151a083cf38f45061a8c621904fcfdf5aef61a5f0567b6f"
+        },
+        "offset": 9732,
+        "size": 132,
+        "sha256": "c9ca3f1cb2ddd224560136a023f3cf4c287b5b7b9b24fbb68606e222a9d1d058"
+      },
+      {
+        "source": {
+          "dat_offset": 262748,
+          "size": 262144,
+          "compression": "raw",
+          "decoded_size": 262144,
+          "sha256": "c1c0255e6ac971a26151a083cf38f45061a8c621904fcfdf5aef61a5f0567b6f"
+        },
+        "offset": 7332,
+        "size": 28,
+        "sha256": "4f0b0b2dd4cf644ee18cb9497ac899105144f3a33422ba268f96eb1bfa81183f"
       }
     ],
-    "writes": [
-      {
-        "address": 4294480832,
-        "clear": 0,
-        "value": 65537
-      },
-      {
-        "address": 4294480836,
-        "clear": 0,
-        "value": 65537
-      },
-      {
-        "address": 4294480832,
-        "clear": 0,
-        "value": 262144
-      },
-      {
-        "address": 4294480836,
-        "clear": 0,
-        "value": 262148
-      }
-    ]
+    "initialization": {
+      "kind": "stock_gpio",
+      "ports": [
+        {
+          "port": 15,
+          "proof": 4
+        }
+      ]
+    }
   },
   {
     "firmware_id": "xa2-130",
@@ -949,30 +1341,65 @@
         "offset": 1580228,
         "size": 56,
         "sha256": "b306f02a9171e1843017fe6c62a754b8aeb7444446360c3bb845c1c07bdc471d"
+      },
+      {
+        "source": {
+          "dat_offset": 1442396,
+          "size": 1310720,
+          "compression": "method4",
+          "decoded_size": 2452832,
+          "sha256": "de93659e222385b8a9d262ea27b796400ff7f6aef7e96990929c2a67bae18061"
+        },
+        "offset": 379076,
+        "size": 400,
+        "sha256": "079f9ad2bfebbd0ef5557af1ecf3608575766b8b981910c6c90686f4dc941b06"
+      },
+      {
+        "source": {
+          "dat_offset": 1442396,
+          "size": 1310720,
+          "compression": "method4",
+          "decoded_size": 2452832,
+          "sha256": "de93659e222385b8a9d262ea27b796400ff7f6aef7e96990929c2a67bae18061"
+        },
+        "offset": 379848,
+        "size": 404,
+        "sha256": "b5a3d64a3f25ec389778fec4a976103cc538bf0ea356859f596b44975aa397fa"
+      },
+      {
+        "source": {
+          "dat_offset": 262748,
+          "size": 262144,
+          "compression": "raw",
+          "decoded_size": 262144,
+          "sha256": "51e9af7dc49bcf80c23af63aececb7b2112b1199bbe1a7ef18d3f1e64e7eb80b"
+        },
+        "offset": 9732,
+        "size": 132,
+        "sha256": "c9ca3f1cb2ddd224560136a023f3cf4c287b5b7b9b24fbb68606e222a9d1d058"
+      },
+      {
+        "source": {
+          "dat_offset": 262748,
+          "size": 262144,
+          "compression": "raw",
+          "decoded_size": 262144,
+          "sha256": "51e9af7dc49bcf80c23af63aececb7b2112b1199bbe1a7ef18d3f1e64e7eb80b"
+        },
+        "offset": 7332,
+        "size": 28,
+        "sha256": "4f0b0b2dd4cf644ee18cb9497ac899105144f3a33422ba268f96eb1bfa81183f"
       }
     ],
-    "writes": [
-      {
-        "address": 4294480832,
-        "clear": 0,
-        "value": 65537
-      },
-      {
-        "address": 4294480836,
-        "clear": 0,
-        "value": 65537
-      },
-      {
-        "address": 4294480832,
-        "clear": 0,
-        "value": 262144
-      },
-      {
-        "address": 4294480836,
-        "clear": 0,
-        "value": 262148
-      }
-    ]
+    "initialization": {
+      "kind": "stock_gpio",
+      "ports": [
+        {
+          "port": 15,
+          "proof": 4
+        }
+      ]
+    }
   },
   {
     "firmware_id": "xe1-271",
@@ -988,30 +1415,41 @@
         "offset": 885692,
         "size": 56,
         "sha256": "b306f02a9171e1843017fe6c62a754b8aeb7444446360c3bb845c1c07bdc471d"
+      },
+      {
+        "source": {
+          "dat_offset": 262748,
+          "size": 262144,
+          "compression": "raw",
+          "decoded_size": 262144,
+          "sha256": "76c2a9890d53ac926ef4c87c0960fc930f383b36ad01f047f2eb047b9e1f4005"
+        },
+        "offset": 20348,
+        "size": 172,
+        "sha256": "c55a310d7a339bdacc5876cb8e8869b4da1c53f31f176da7e23e9ef9dc6d65ef"
+      },
+      {
+        "source": {
+          "dat_offset": 262748,
+          "size": 262144,
+          "compression": "raw",
+          "decoded_size": 262144,
+          "sha256": "76c2a9890d53ac926ef4c87c0960fc930f383b36ad01f047f2eb047b9e1f4005"
+        },
+        "offset": 17600,
+        "size": 28,
+        "sha256": "f02209ab23bb4b2c3ba86f7ae554571bbf867ed2ce16f030cac8acdc0fa13755"
       }
     ],
-    "writes": [
-      {
-        "address": 4294480832,
-        "clear": 0,
-        "value": 65537
-      },
-      {
-        "address": 4294480836,
-        "clear": 0,
-        "value": 65537
-      },
-      {
-        "address": 4294480832,
-        "clear": 0,
-        "value": 262144
-      },
-      {
-        "address": 4294480836,
-        "clear": 0,
-        "value": 262148
-      }
-    ]
+    "initialization": {
+      "kind": "stock_gpio",
+      "ports": [
+        {
+          "port": 15,
+          "proof": 2
+        }
+      ]
+    }
   },
   {
     "firmware_id": "xe2-411",
@@ -1027,30 +1465,65 @@
         "offset": 2536308,
         "size": 56,
         "sha256": "b306f02a9171e1843017fe6c62a754b8aeb7444446360c3bb845c1c07bdc471d"
+      },
+      {
+        "source": {
+          "dat_offset": 1442396,
+          "size": 1835008,
+          "compression": "method4",
+          "decoded_size": 3519680,
+          "sha256": "57236181275971691cc1248489626464115aa2bf3957ad52d65c201ef7e82403"
+        },
+        "offset": 674752,
+        "size": 400,
+        "sha256": "4d6af7c30682420586a92b1f137fc4102bc0a968f6dbaa18282e6f2ed33cad7e"
+      },
+      {
+        "source": {
+          "dat_offset": 1442396,
+          "size": 1835008,
+          "compression": "method4",
+          "decoded_size": 3519680,
+          "sha256": "57236181275971691cc1248489626464115aa2bf3957ad52d65c201ef7e82403"
+        },
+        "offset": 675524,
+        "size": 404,
+        "sha256": "ce25af7e309b35b1b7b59d4c6754937b6318e9cdb50a92798d3982f1b330fe56"
+      },
+      {
+        "source": {
+          "dat_offset": 262748,
+          "size": 262144,
+          "compression": "raw",
+          "decoded_size": 262144,
+          "sha256": "b96358118b0c1aa9ac57dedfe75058890459e0bd63ce8b254cb8015634e5283c"
+        },
+        "offset": 9772,
+        "size": 152,
+        "sha256": "5e3dbfe3680e2fbcbf2305a4e1dd8bd8be4ef9130cd645b6fa9ce41f659fcdb4"
+      },
+      {
+        "source": {
+          "dat_offset": 262748,
+          "size": 262144,
+          "compression": "raw",
+          "decoded_size": 262144,
+          "sha256": "b96358118b0c1aa9ac57dedfe75058890459e0bd63ce8b254cb8015634e5283c"
+        },
+        "offset": 7316,
+        "size": 28,
+        "sha256": "651f127683e71845437bb05bb9d28ce3fcc97bf710401f5d4db2887c2cf337f9"
       }
     ],
-    "writes": [
-      {
-        "address": 4294480832,
-        "clear": 0,
-        "value": 65537
-      },
-      {
-        "address": 4294480836,
-        "clear": 0,
-        "value": 65537
-      },
-      {
-        "address": 4294480832,
-        "clear": 0,
-        "value": 262144
-      },
-      {
-        "address": 4294480836,
-        "clear": 0,
-        "value": 262148
-      }
-    ]
+    "initialization": {
+      "kind": "stock_gpio",
+      "ports": [
+        {
+          "port": 15,
+          "proof": 4
+        }
+      ]
+    }
   },
   {
     "firmware_id": "xe2s-111",
@@ -1066,30 +1539,65 @@
         "offset": 2535636,
         "size": 56,
         "sha256": "b306f02a9171e1843017fe6c62a754b8aeb7444446360c3bb845c1c07bdc471d"
+      },
+      {
+        "source": {
+          "dat_offset": 1442396,
+          "size": 1835008,
+          "compression": "method4",
+          "decoded_size": 3523872,
+          "sha256": "2499a88196c5de7b9481b62c1619e593d78c7d99c09c005673aab8b101ba51b0"
+        },
+        "offset": 675012,
+        "size": 400,
+        "sha256": "4d6af7c30682420586a92b1f137fc4102bc0a968f6dbaa18282e6f2ed33cad7e"
+      },
+      {
+        "source": {
+          "dat_offset": 1442396,
+          "size": 1835008,
+          "compression": "method4",
+          "decoded_size": 3523872,
+          "sha256": "2499a88196c5de7b9481b62c1619e593d78c7d99c09c005673aab8b101ba51b0"
+        },
+        "offset": 675784,
+        "size": 404,
+        "sha256": "21d7bec8b8ea9c79a3ab301e2cd089d1ae917d75d84170e631f6d003ce61d6c0"
+      },
+      {
+        "source": {
+          "dat_offset": 262748,
+          "size": 262144,
+          "compression": "raw",
+          "decoded_size": 262144,
+          "sha256": "25aa565793e0260428cf20755a0f5cb059f7dabe43f20797572d00593d641184"
+        },
+        "offset": 9772,
+        "size": 152,
+        "sha256": "5e3dbfe3680e2fbcbf2305a4e1dd8bd8be4ef9130cd645b6fa9ce41f659fcdb4"
+      },
+      {
+        "source": {
+          "dat_offset": 262748,
+          "size": 262144,
+          "compression": "raw",
+          "decoded_size": 262144,
+          "sha256": "25aa565793e0260428cf20755a0f5cb059f7dabe43f20797572d00593d641184"
+        },
+        "offset": 7316,
+        "size": 28,
+        "sha256": "651f127683e71845437bb05bb9d28ce3fcc97bf710401f5d4db2887c2cf337f9"
       }
     ],
-    "writes": [
-      {
-        "address": 4294480832,
-        "clear": 0,
-        "value": 65537
-      },
-      {
-        "address": 4294480836,
-        "clear": 0,
-        "value": 65537
-      },
-      {
-        "address": 4294480832,
-        "clear": 0,
-        "value": 262144
-      },
-      {
-        "address": 4294480836,
-        "clear": 0,
-        "value": 262148
-      }
-    ]
+    "initialization": {
+      "kind": "stock_gpio",
+      "ports": [
+        {
+          "port": 15,
+          "proof": 4
+        }
+      ]
+    }
   },
   {
     "firmware_id": "xe4-201",
@@ -1105,30 +1613,89 @@
         "offset": 5581356,
         "size": 40,
         "sha256": "d7644b4ea00e18d69bc29907471978ba482df57195d9c7e646fd8bf122a5ff8b"
+      },
+      {
+        "source": {
+          "dat_offset": 131700,
+          "size": 262144,
+          "compression": "raw",
+          "decoded_size": 262144,
+          "sha256": "36a1bd757f2e18f07acdc951b22b256e20dfb654fefff52c4cd5208e8424dfc3"
+        },
+        "offset": 4472,
+        "size": 192,
+        "sha256": "e2745c2f9817c0416c594f87b09542f051ed232fc6c9f2fee095b44fffc5cf4e"
+      },
+      {
+        "source": {
+          "dat_offset": 131700,
+          "size": 262144,
+          "compression": "raw",
+          "decoded_size": 262144,
+          "sha256": "36a1bd757f2e18f07acdc951b22b256e20dfb654fefff52c4cd5208e8424dfc3"
+        },
+        "offset": 17988,
+        "size": 32,
+        "sha256": "812edc9c9ec6f5d1e20ed17bac77444402d5416ace761e5499334e44b4acc287"
+      },
+      {
+        "source": {
+          "dat_offset": 131700,
+          "size": 262144,
+          "compression": "raw",
+          "decoded_size": 262144,
+          "sha256": "36a1bd757f2e18f07acdc951b22b256e20dfb654fefff52c4cd5208e8424dfc3"
+        },
+        "offset": 17796,
+        "size": 192,
+        "sha256": "4b4f15e00448a37a9966a356018859b536d6801f5ee9d546f1d122fc55fae43e"
+      },
+      {
+        "source": {
+          "dat_offset": 131700,
+          "size": 262144,
+          "compression": "raw",
+          "decoded_size": 262144,
+          "sha256": "36a1bd757f2e18f07acdc951b22b256e20dfb654fefff52c4cd5208e8424dfc3"
+        },
+        "offset": 16232,
+        "size": 232,
+        "sha256": "b1fcd6e49e3f111756a3a60cbd2619e27b5591815baac30e9eb1627fd4068818"
+      },
+      {
+        "source": {
+          "dat_offset": 131700,
+          "size": 262144,
+          "compression": "raw",
+          "decoded_size": 262144,
+          "sha256": "36a1bd757f2e18f07acdc951b22b256e20dfb654fefff52c4cd5208e8424dfc3"
+        },
+        "offset": 19624,
+        "size": 24,
+        "sha256": "d8481dd0090820dd4f3229d398311644a73fcda844a6c2035fc3b91f38bf7cf6"
+      },
+      {
+        "source": {
+          "dat_offset": 131700,
+          "size": 262144,
+          "compression": "raw",
+          "decoded_size": 262144,
+          "sha256": "36a1bd757f2e18f07acdc951b22b256e20dfb654fefff52c4cd5208e8424dfc3"
+        },
+        "offset": 41104,
+        "size": 28,
+        "sha256": "a7e3ced507fcef715ef4e42c0bb2c9aadd77b944dfa063de1cb1b32928251b82"
       }
     ],
-    "writes": [
-      {
-        "address": 4294185856,
-        "clear": 0,
-        "value": 262144
-      },
-      {
-        "address": 4294185860,
-        "clear": 0,
-        "value": 262148
-      },
-      {
-        "address": 4294185856,
-        "clear": 0,
-        "value": 524296
-      },
-      {
-        "address": 4294185860,
-        "clear": 0,
-        "value": 524296
-      }
-    ]
+    "initialization": {
+      "kind": "stock_gpio",
+      "ports": [
+        {
+          "port": 14,
+          "proof": 6
+        }
+      ]
+    }
   },
   {
     "firmware_id": "xf1-101",
@@ -1144,30 +1711,53 @@
         "offset": 537704,
         "size": 56,
         "sha256": "ac969beb5cde76ee09ea7ae2a7daf095f1d9066f91338cf85696b600331a963c"
+      },
+      {
+        "source": {
+          "dat_offset": 33372,
+          "size": 262144,
+          "compression": "raw",
+          "decoded_size": 262144,
+          "sha256": "9cbf78a3e8b2c1410b4915d406fca36833909bad0bf7a16ec5b51a58431a27d8"
+        },
+        "offset": 19728,
+        "size": 124,
+        "sha256": "5e5100e1ab7c0903eda01661a33e4c78b24c8f647308a1c45958c2cdaa8f251c"
+      },
+      {
+        "source": {
+          "dat_offset": 33372,
+          "size": 262144,
+          "compression": "raw",
+          "decoded_size": 262144,
+          "sha256": "9cbf78a3e8b2c1410b4915d406fca36833909bad0bf7a16ec5b51a58431a27d8"
+        },
+        "offset": 19864,
+        "size": 4,
+        "sha256": "8a1fdeaa3fb4891234842301c2ca77c9e7e6301675dac9c4551268b3608ed64c"
+      },
+      {
+        "source": {
+          "dat_offset": 33372,
+          "size": 262144,
+          "compression": "raw",
+          "decoded_size": 262144,
+          "sha256": "9cbf78a3e8b2c1410b4915d406fca36833909bad0bf7a16ec5b51a58431a27d8"
+        },
+        "offset": 17600,
+        "size": 28,
+        "sha256": "5b8fe4dc72c3ded08afdfe9fd5d14f8954c4c07673b91ecd9ac7646836990c18"
       }
     ],
-    "writes": [
-      {
-        "address": 4294480832,
-        "clear": 0,
-        "value": 65537
-      },
-      {
-        "address": 4294480836,
-        "clear": 0,
-        "value": 65537
-      },
-      {
-        "address": 4294480832,
-        "clear": 0,
-        "value": 131072
-      },
-      {
-        "address": 4294480836,
-        "clear": 0,
-        "value": 131074
-      }
-    ]
+    "initialization": {
+      "kind": "stock_gpio",
+      "ports": [
+        {
+          "port": 15,
+          "proof": 3
+        }
+      ]
+    }
   },
   {
     "firmware_id": "xh1-215",
@@ -1183,30 +1773,89 @@
         "offset": 4599004,
         "size": 40,
         "sha256": "c54a74bc7b7f5453d540f9bd91727d977e29daec975edf1655b1133dabc6cea9"
+      },
+      {
+        "source": {
+          "dat_offset": 131700,
+          "size": 262144,
+          "compression": "raw",
+          "decoded_size": 262144,
+          "sha256": "2f6276a812fa218f51f0f5b2ab5d73d8afbdcb6724b4517242877116ba0acd44"
+        },
+        "offset": 3920,
+        "size": 180,
+        "sha256": "e6f173f625daded43b0e3462da3219562eec412857e877a534f97506dfccb85d"
+      },
+      {
+        "source": {
+          "dat_offset": 131700,
+          "size": 262144,
+          "compression": "raw",
+          "decoded_size": 262144,
+          "sha256": "2f6276a812fa218f51f0f5b2ab5d73d8afbdcb6724b4517242877116ba0acd44"
+        },
+        "offset": 38912,
+        "size": 304,
+        "sha256": "019d270d09b115764da94e82dccf616d83a75ed850069376f2b48907eaefbf87"
+      },
+      {
+        "source": {
+          "dat_offset": 131700,
+          "size": 262144,
+          "compression": "raw",
+          "decoded_size": 262144,
+          "sha256": "2f6276a812fa218f51f0f5b2ab5d73d8afbdcb6724b4517242877116ba0acd44"
+        },
+        "offset": 44032,
+        "size": 24,
+        "sha256": "749a2416329e7dbd66bf99d91b9d9c069ea00efbc533c4c5dc8980bff2cdb4b9"
+      },
+      {
+        "source": {
+          "dat_offset": 131700,
+          "size": 262144,
+          "compression": "raw",
+          "decoded_size": 262144,
+          "sha256": "2f6276a812fa218f51f0f5b2ab5d73d8afbdcb6724b4517242877116ba0acd44"
+        },
+        "offset": 41304,
+        "size": 36,
+        "sha256": "c4aafa5f18f5fe1577ee2d830c05d36dd61ba7533159b05b6257e06182ac44cf"
+      },
+      {
+        "source": {
+          "dat_offset": 131700,
+          "size": 262144,
+          "compression": "raw",
+          "decoded_size": 262144,
+          "sha256": "2f6276a812fa218f51f0f5b2ab5d73d8afbdcb6724b4517242877116ba0acd44"
+        },
+        "offset": 41116,
+        "size": 188,
+        "sha256": "6689f35f3bb04f3634c02899cb84e33e30f3a811d5bee6a95a9a4165a5cfd390"
+      },
+      {
+        "source": {
+          "dat_offset": 131700,
+          "size": 262144,
+          "compression": "raw",
+          "decoded_size": 262144,
+          "sha256": "2f6276a812fa218f51f0f5b2ab5d73d8afbdcb6724b4517242877116ba0acd44"
+        },
+        "offset": 66504,
+        "size": 28,
+        "sha256": "d5b7fda494a797afcd573ba9e4da140bcc31cd461b4799fff5f430f2f9b76c4d"
       }
     ],
-    "writes": [
-      {
-        "address": 4293968448,
-        "clear": 0,
-        "value": 4194304
-      },
-      {
-        "address": 4293968452,
-        "clear": 0,
-        "value": 4194368
-      },
-      {
-        "address": 4293968448,
-        "clear": 0,
-        "value": 8388736
-      },
-      {
-        "address": 4293968452,
-        "clear": 0,
-        "value": 8388736
-      }
-    ]
+    "initialization": {
+      "kind": "stock_gpio",
+      "ports": [
+        {
+          "port": 9,
+          "proof": 6
+        }
+      ]
+    }
   },
   {
     "firmware_id": "xm1-101",
@@ -1222,30 +1871,65 @@
         "offset": 1741920,
         "size": 56,
         "sha256": "b306f02a9171e1843017fe6c62a754b8aeb7444446360c3bb845c1c07bdc471d"
+      },
+      {
+        "source": {
+          "dat_offset": 1442396,
+          "size": 1441792,
+          "compression": "method4",
+          "decoded_size": 2614880,
+          "sha256": "6460dcff75216fb508cc5bdf8e6ff77ae005ab618883f28967da954986a9b35f"
+        },
+        "offset": 557380,
+        "size": 400,
+        "sha256": "df64493273ce4e888ab35f48d4ba02972b6910dbc267dd2dbf1663517651b290"
+      },
+      {
+        "source": {
+          "dat_offset": 1442396,
+          "size": 1441792,
+          "compression": "method4",
+          "decoded_size": 2614880,
+          "sha256": "6460dcff75216fb508cc5bdf8e6ff77ae005ab618883f28967da954986a9b35f"
+        },
+        "offset": 558152,
+        "size": 404,
+        "sha256": "427304be2cf1fa75a3ab0f61790c865968ddf238ed3f2d838bd107a87451df0f"
+      },
+      {
+        "source": {
+          "dat_offset": 262748,
+          "size": 262144,
+          "compression": "raw",
+          "decoded_size": 262144,
+          "sha256": "c1c0255e6ac971a26151a083cf38f45061a8c621904fcfdf5aef61a5f0567b6f"
+        },
+        "offset": 9732,
+        "size": 132,
+        "sha256": "c9ca3f1cb2ddd224560136a023f3cf4c287b5b7b9b24fbb68606e222a9d1d058"
+      },
+      {
+        "source": {
+          "dat_offset": 262748,
+          "size": 262144,
+          "compression": "raw",
+          "decoded_size": 262144,
+          "sha256": "c1c0255e6ac971a26151a083cf38f45061a8c621904fcfdf5aef61a5f0567b6f"
+        },
+        "offset": 7332,
+        "size": 28,
+        "sha256": "4f0b0b2dd4cf644ee18cb9497ac899105144f3a33422ba268f96eb1bfa81183f"
       }
     ],
-    "writes": [
-      {
-        "address": 4294480832,
-        "clear": 0,
-        "value": 65537
-      },
-      {
-        "address": 4294480836,
-        "clear": 0,
-        "value": 65537
-      },
-      {
-        "address": 4294480832,
-        "clear": 0,
-        "value": 262144
-      },
-      {
-        "address": 4294480836,
-        "clear": 0,
-        "value": 262148
-      }
-    ]
+    "initialization": {
+      "kind": "stock_gpio",
+      "ports": [
+        {
+          "port": 15,
+          "proof": 4
+        }
+      ]
+    }
   },
   {
     "firmware_id": "xm1-120",
@@ -1261,30 +1945,65 @@
         "offset": 1749840,
         "size": 56,
         "sha256": "b306f02a9171e1843017fe6c62a754b8aeb7444446360c3bb845c1c07bdc471d"
+      },
+      {
+        "source": {
+          "dat_offset": 1442396,
+          "size": 1441792,
+          "compression": "method4",
+          "decoded_size": 2623072,
+          "sha256": "9fd2deb94f5d40af35f38e378f6cdc1534f8b0e698d11cc2129433f9ab4280c6"
+        },
+        "offset": 557760,
+        "size": 400,
+        "sha256": "105e779261bc1cc7dd3afc50fd975bc900688374334ab5766ff9a05b1b17c45c"
+      },
+      {
+        "source": {
+          "dat_offset": 1442396,
+          "size": 1441792,
+          "compression": "method4",
+          "decoded_size": 2623072,
+          "sha256": "9fd2deb94f5d40af35f38e378f6cdc1534f8b0e698d11cc2129433f9ab4280c6"
+        },
+        "offset": 558532,
+        "size": 404,
+        "sha256": "ef5f16db2761be917687566b3c315ea8785dcac9d0148dee9ede906e7009e3c9"
+      },
+      {
+        "source": {
+          "dat_offset": 262748,
+          "size": 262144,
+          "compression": "raw",
+          "decoded_size": 262144,
+          "sha256": "c1c0255e6ac971a26151a083cf38f45061a8c621904fcfdf5aef61a5f0567b6f"
+        },
+        "offset": 9732,
+        "size": 132,
+        "sha256": "c9ca3f1cb2ddd224560136a023f3cf4c287b5b7b9b24fbb68606e222a9d1d058"
+      },
+      {
+        "source": {
+          "dat_offset": 262748,
+          "size": 262144,
+          "compression": "raw",
+          "decoded_size": 262144,
+          "sha256": "c1c0255e6ac971a26151a083cf38f45061a8c621904fcfdf5aef61a5f0567b6f"
+        },
+        "offset": 7332,
+        "size": 28,
+        "sha256": "4f0b0b2dd4cf644ee18cb9497ac899105144f3a33422ba268f96eb1bfa81183f"
       }
     ],
-    "writes": [
-      {
-        "address": 4294480832,
-        "clear": 0,
-        "value": 65537
-      },
-      {
-        "address": 4294480836,
-        "clear": 0,
-        "value": 65537
-      },
-      {
-        "address": 4294480832,
-        "clear": 0,
-        "value": 262144
-      },
-      {
-        "address": 4294480836,
-        "clear": 0,
-        "value": 262148
-      }
-    ]
+    "initialization": {
+      "kind": "stock_gpio",
+      "ports": [
+        {
+          "port": 15,
+          "proof": 4
+        }
+      ]
+    }
   },
   {
     "firmware_id": "xm1-150",
@@ -1300,30 +2019,65 @@
         "offset": 1757984,
         "size": 56,
         "sha256": "b306f02a9171e1843017fe6c62a754b8aeb7444446360c3bb845c1c07bdc471d"
+      },
+      {
+        "source": {
+          "dat_offset": 1442396,
+          "size": 1441792,
+          "compression": "method4",
+          "decoded_size": 2631680,
+          "sha256": "f2e2acab892dafeed85171f6870a411f0a2d5eae10921b86a24630d401dcff16"
+        },
+        "offset": 557960,
+        "size": 400,
+        "sha256": "9b3059ac96b8bbceaf212b5a7a64b7715b6cb45c85650057e1567176bf3a8fa9"
+      },
+      {
+        "source": {
+          "dat_offset": 1442396,
+          "size": 1441792,
+          "compression": "method4",
+          "decoded_size": 2631680,
+          "sha256": "f2e2acab892dafeed85171f6870a411f0a2d5eae10921b86a24630d401dcff16"
+        },
+        "offset": 558732,
+        "size": 404,
+        "sha256": "8b3ae383e4744f9e16c1b2e3a0c3d79f718972d305871b2d823c74802fb7406e"
+      },
+      {
+        "source": {
+          "dat_offset": 262748,
+          "size": 262144,
+          "compression": "raw",
+          "decoded_size": 262144,
+          "sha256": "c1c0255e6ac971a26151a083cf38f45061a8c621904fcfdf5aef61a5f0567b6f"
+        },
+        "offset": 9732,
+        "size": 132,
+        "sha256": "c9ca3f1cb2ddd224560136a023f3cf4c287b5b7b9b24fbb68606e222a9d1d058"
+      },
+      {
+        "source": {
+          "dat_offset": 262748,
+          "size": 262144,
+          "compression": "raw",
+          "decoded_size": 262144,
+          "sha256": "c1c0255e6ac971a26151a083cf38f45061a8c621904fcfdf5aef61a5f0567b6f"
+        },
+        "offset": 7332,
+        "size": 28,
+        "sha256": "4f0b0b2dd4cf644ee18cb9497ac899105144f3a33422ba268f96eb1bfa81183f"
       }
     ],
-    "writes": [
-      {
-        "address": 4294480832,
-        "clear": 0,
-        "value": 65537
-      },
-      {
-        "address": 4294480836,
-        "clear": 0,
-        "value": 65537
-      },
-      {
-        "address": 4294480832,
-        "clear": 0,
-        "value": 262144
-      },
-      {
-        "address": 4294480836,
-        "clear": 0,
-        "value": 262148
-      }
-    ]
+    "initialization": {
+      "kind": "stock_gpio",
+      "ports": [
+        {
+          "port": 15,
+          "proof": 4
+        }
+      ]
+    }
   },
   {
     "firmware_id": "xm5-130",
@@ -1749,73 +2503,9 @@
         "sha256": "6858af055bcc30ba7347a928e0761ef8f8204557b02b4d6d17a62e97a087ff14"
       }
     ],
-    "writes": [
-      {
-        "address": 4287677208,
-        "clear": 131072,
-        "value": 131072
-      },
-      {
-        "address": 4287678764,
-        "clear": 65536,
-        "value": 65536
-      },
-      {
-        "address": 4287657216,
-        "clear": 0,
-        "value": 16777472
-      },
-      {
-        "address": 4287656448,
-        "clear": 0,
-        "value": 262144
-      },
-      {
-        "address": 4287656460,
-        "clear": 0,
-        "value": 3145728
-      },
-      {
-        "address": 4287656456,
-        "clear": 0,
-        "value": 262144
-      },
-      {
-        "address": 4287656452,
-        "clear": 0,
-        "value": 262148
-      },
-      {
-        "address": 4287657216,
-        "clear": 0,
-        "value": 4194368
-      },
-      {
-        "address": 4287656320,
-        "clear": 0,
-        "value": 262144
-      },
-      {
-        "address": 4287656332,
-        "clear": 0,
-        "value": 3145728
-      },
-      {
-        "address": 4287656328,
-        "clear": 0,
-        "value": 262144
-      },
-      {
-        "address": 4287656324,
-        "clear": 0,
-        "value": 262148
-      },
-      {
-        "address": 4287656448,
-        "clear": 0,
-        "value": 262148
-      }
-    ]
+    "initialization": {
+      "kind": "xp5"
+    }
   },
   {
     "firmware_id": "xpro1-382",
@@ -1831,30 +2521,41 @@
         "offset": 885912,
         "size": 56,
         "sha256": "b306f02a9171e1843017fe6c62a754b8aeb7444446360c3bb845c1c07bdc471d"
+      },
+      {
+        "source": {
+          "dat_offset": 262748,
+          "size": 262144,
+          "compression": "raw",
+          "decoded_size": 262144,
+          "sha256": "ff31ef67c7b024a33ea3757cbff3d9564618c9660a90bbbbfecffaf6a31f24a7"
+        },
+        "offset": 20348,
+        "size": 172,
+        "sha256": "c55a310d7a339bdacc5876cb8e8869b4da1c53f31f176da7e23e9ef9dc6d65ef"
+      },
+      {
+        "source": {
+          "dat_offset": 262748,
+          "size": 262144,
+          "compression": "raw",
+          "decoded_size": 262144,
+          "sha256": "ff31ef67c7b024a33ea3757cbff3d9564618c9660a90bbbbfecffaf6a31f24a7"
+        },
+        "offset": 17600,
+        "size": 28,
+        "sha256": "f02209ab23bb4b2c3ba86f7ae554571bbf867ed2ce16f030cac8acdc0fa13755"
       }
     ],
-    "writes": [
-      {
-        "address": 4294480832,
-        "clear": 0,
-        "value": 65537
-      },
-      {
-        "address": 4294480836,
-        "clear": 0,
-        "value": 65537
-      },
-      {
-        "address": 4294480832,
-        "clear": 0,
-        "value": 262144
-      },
-      {
-        "address": 4294480836,
-        "clear": 0,
-        "value": 262148
-      }
-    ]
+    "initialization": {
+      "kind": "stock_gpio",
+      "ports": [
+        {
+          "port": 15,
+          "proof": 2
+        }
+      ]
+    }
   },
   {
     "firmware_id": "xpro2-511",
@@ -1870,30 +2571,77 @@
         "offset": 3336612,
         "size": 40,
         "sha256": "dbd83d4b05f9ee627d32d6127607680702ad618b48ebde021e755a951dc84643"
+      },
+      {
+        "source": {
+          "dat_offset": 131676,
+          "size": 262144,
+          "compression": "raw",
+          "decoded_size": 262144,
+          "sha256": "77895318f4a15178c3a837f0f351ef04e3c7ecf28d41f1a4e825e870808a20d1"
+        },
+        "offset": 3852,
+        "size": 180,
+        "sha256": "08f4f198a6973dbb2f97e05798bc8d77faf388ce1db1a45fdb2a7e5ed0c71ef2"
+      },
+      {
+        "source": {
+          "dat_offset": 131676,
+          "size": 262144,
+          "compression": "raw",
+          "decoded_size": 262144,
+          "sha256": "77895318f4a15178c3a837f0f351ef04e3c7ecf28d41f1a4e825e870808a20d1"
+        },
+        "offset": 28528,
+        "size": 304,
+        "sha256": "f273e3ea52e2b98aa9059cdb0ea519fa7bcae65668437a8c05d06bc9d15d7b66"
+      },
+      {
+        "source": {
+          "dat_offset": 131676,
+          "size": 262144,
+          "compression": "raw",
+          "decoded_size": 262144,
+          "sha256": "77895318f4a15178c3a837f0f351ef04e3c7ecf28d41f1a4e825e870808a20d1"
+        },
+        "offset": 33632,
+        "size": 24,
+        "sha256": "749a2416329e7dbd66bf99d91b9d9c069ea00efbc533c4c5dc8980bff2cdb4b9"
+      },
+      {
+        "source": {
+          "dat_offset": 131676,
+          "size": 262144,
+          "compression": "raw",
+          "decoded_size": 262144,
+          "sha256": "77895318f4a15178c3a837f0f351ef04e3c7ecf28d41f1a4e825e870808a20d1"
+        },
+        "offset": 30732,
+        "size": 244,
+        "sha256": "6ecd4bb96371ebfaedcec486eeaca35292f028501bd770c2f228e2239399b792"
+      },
+      {
+        "source": {
+          "dat_offset": 131676,
+          "size": 262144,
+          "compression": "raw",
+          "decoded_size": 262144,
+          "sha256": "77895318f4a15178c3a837f0f351ef04e3c7ecf28d41f1a4e825e870808a20d1"
+        },
+        "offset": 54072,
+        "size": 28,
+        "sha256": "559790d96b9538a67578a0e80341223520e42d772b4ad69b9cb4359c1eab1cad"
       }
     ],
-    "writes": [
-      {
-        "address": 4293968512,
-        "clear": 0,
-        "value": 134219776
-      },
-      {
-        "address": 4293968516,
-        "clear": 0,
-        "value": 134219776
-      },
-      {
-        "address": 4293968512,
-        "clear": 0,
-        "value": 268435456
-      },
-      {
-        "address": 4293968516,
-        "clear": 0,
-        "value": 268439552
-      }
-    ]
+    "initialization": {
+      "kind": "stock_gpio",
+      "ports": [
+        {
+          "port": 10,
+          "proof": 5
+        }
+      ]
+    }
   },
   {
     "firmware_id": "xpro3-200",
@@ -1909,30 +2657,89 @@
         "offset": 5385196,
         "size": 40,
         "sha256": "d7644b4ea00e18d69bc29907471978ba482df57195d9c7e646fd8bf122a5ff8b"
+      },
+      {
+        "source": {
+          "dat_offset": 131700,
+          "size": 262144,
+          "compression": "raw",
+          "decoded_size": 262144,
+          "sha256": "28174d37409f7eb900eeaf58b9f925f62c4a99dad878b2509ecc8fdfee5b9cb5"
+        },
+        "offset": 4464,
+        "size": 192,
+        "sha256": "17e626b3927e27a46e9e5240db5fc0398a73859a729329a311eafc17f50acb6c"
+      },
+      {
+        "source": {
+          "dat_offset": 131700,
+          "size": 262144,
+          "compression": "raw",
+          "decoded_size": 262144,
+          "sha256": "28174d37409f7eb900eeaf58b9f925f62c4a99dad878b2509ecc8fdfee5b9cb5"
+        },
+        "offset": 15740,
+        "size": 32,
+        "sha256": "25b579fad3d1dee70c644f0d748af6ddafece550602dd556ce3b5d940795f2c5"
+      },
+      {
+        "source": {
+          "dat_offset": 131700,
+          "size": 262144,
+          "compression": "raw",
+          "decoded_size": 262144,
+          "sha256": "28174d37409f7eb900eeaf58b9f925f62c4a99dad878b2509ecc8fdfee5b9cb5"
+        },
+        "offset": 15548,
+        "size": 192,
+        "sha256": "793e395bb3eb5cd615626da6862412e814344b63918b8bf49624cdc76631b776"
+      },
+      {
+        "source": {
+          "dat_offset": 131700,
+          "size": 262144,
+          "compression": "raw",
+          "decoded_size": 262144,
+          "sha256": "28174d37409f7eb900eeaf58b9f925f62c4a99dad878b2509ecc8fdfee5b9cb5"
+        },
+        "offset": 13984,
+        "size": 232,
+        "sha256": "d473e60c15b8a21ee036967cdf95b998df3f689b4c44534265569bab88ad1c48"
+      },
+      {
+        "source": {
+          "dat_offset": 131700,
+          "size": 262144,
+          "compression": "raw",
+          "decoded_size": 262144,
+          "sha256": "28174d37409f7eb900eeaf58b9f925f62c4a99dad878b2509ecc8fdfee5b9cb5"
+        },
+        "offset": 17376,
+        "size": 24,
+        "sha256": "d8481dd0090820dd4f3229d398311644a73fcda844a6c2035fc3b91f38bf7cf6"
+      },
+      {
+        "source": {
+          "dat_offset": 131700,
+          "size": 262144,
+          "compression": "raw",
+          "decoded_size": 262144,
+          "sha256": "28174d37409f7eb900eeaf58b9f925f62c4a99dad878b2509ecc8fdfee5b9cb5"
+        },
+        "offset": 38412,
+        "size": 28,
+        "sha256": "72d129ee9792644bc280024aec768a3dd59944e392b03046c4631711d7ce0145"
       }
     ],
-    "writes": [
-      {
-        "address": 4294185856,
-        "clear": 0,
-        "value": 262144
-      },
-      {
-        "address": 4294185860,
-        "clear": 0,
-        "value": 262148
-      },
-      {
-        "address": 4294185856,
-        "clear": 0,
-        "value": 524296
-      },
-      {
-        "address": 4294185860,
-        "clear": 0,
-        "value": 524296
-      }
-    ]
+    "initialization": {
+      "kind": "stock_gpio",
+      "ports": [
+        {
+          "port": 14,
+          "proof": 6
+        }
+      ]
+    }
   },
   {
     "firmware_id": "xq1-121",
@@ -1948,30 +2755,65 @@
         "offset": 1839340,
         "size": 56,
         "sha256": "c48837ede5b989c4ee115630e768507aad5279668745d24947a21528bebaee57"
+      },
+      {
+        "source": {
+          "dat_offset": 1442396,
+          "size": 1572864,
+          "compression": "method4",
+          "decoded_size": 2794816,
+          "sha256": "5a9f32d3dd1680bf8559982efb76b2b23985262eaf927b56aab762ea276463c4"
+        },
+        "offset": 375964,
+        "size": 400,
+        "sha256": "db0f8b5c9067ec58f660ddc37e881f18485910d279519b1d940dd50c5a7fec50"
+      },
+      {
+        "source": {
+          "dat_offset": 1442396,
+          "size": 1572864,
+          "compression": "method4",
+          "decoded_size": 2794816,
+          "sha256": "5a9f32d3dd1680bf8559982efb76b2b23985262eaf927b56aab762ea276463c4"
+        },
+        "offset": 376736,
+        "size": 404,
+        "sha256": "e76f28f5d35e3836728f8a872e45f5498c18632961920a53cf31799cf453ac3f"
+      },
+      {
+        "source": {
+          "dat_offset": 262748,
+          "size": 262144,
+          "compression": "raw",
+          "decoded_size": 262144,
+          "sha256": "79d7e5fdfa8db427b37616cd56a9aeaea2672e405d158c58f75d7da7330af24a"
+        },
+        "offset": 9732,
+        "size": 132,
+        "sha256": "c9ca3f1cb2ddd224560136a023f3cf4c287b5b7b9b24fbb68606e222a9d1d058"
+      },
+      {
+        "source": {
+          "dat_offset": 262748,
+          "size": 262144,
+          "compression": "raw",
+          "decoded_size": 262144,
+          "sha256": "79d7e5fdfa8db427b37616cd56a9aeaea2672e405d158c58f75d7da7330af24a"
+        },
+        "offset": 6996,
+        "size": 28,
+        "sha256": "99ea9f32232772a6987ee95a4d4e57de0b37da17abdede19cf0d9d5cdbf2fdf9"
       }
     ],
-    "writes": [
-      {
-        "address": 4294480064,
-        "clear": 0,
-        "value": 33554432
-      },
-      {
-        "address": 4294480068,
-        "clear": 0,
-        "value": 33554944
-      },
-      {
-        "address": 4294480064,
-        "clear": 0,
-        "value": 67109888
-      },
-      {
-        "address": 4294480068,
-        "clear": 0,
-        "value": 67109888
-      }
-    ]
+    "initialization": {
+      "kind": "stock_gpio",
+      "ports": [
+        {
+          "port": 3,
+          "proof": 4
+        }
+      ]
+    }
   },
   {
     "firmware_id": "xq2-101",
@@ -1987,30 +2829,65 @@
         "offset": 1840700,
         "size": 56,
         "sha256": "c48837ede5b989c4ee115630e768507aad5279668745d24947a21528bebaee57"
+      },
+      {
+        "source": {
+          "dat_offset": 1442396,
+          "size": 1572864,
+          "compression": "method4",
+          "decoded_size": 2800672,
+          "sha256": "0b6ca6d9b4ca82645f9ce3b1281f5c8c767368517a68f160fc1ef2e7656925ec"
+        },
+        "offset": 375960,
+        "size": 400,
+        "sha256": "0d3013b963aa22ca868dfb9fe085a5c2c0bd53392b3e8f492972025f2e7bf3f9"
+      },
+      {
+        "source": {
+          "dat_offset": 1442396,
+          "size": 1572864,
+          "compression": "method4",
+          "decoded_size": 2800672,
+          "sha256": "0b6ca6d9b4ca82645f9ce3b1281f5c8c767368517a68f160fc1ef2e7656925ec"
+        },
+        "offset": 376732,
+        "size": 404,
+        "sha256": "9ad8c7f1936a05c982e36a33166b1ce030b499d90e7e0364577d3709c6f27629"
+      },
+      {
+        "source": {
+          "dat_offset": 262748,
+          "size": 262144,
+          "compression": "raw",
+          "decoded_size": 262144,
+          "sha256": "79d7e5fdfa8db427b37616cd56a9aeaea2672e405d158c58f75d7da7330af24a"
+        },
+        "offset": 9732,
+        "size": 132,
+        "sha256": "c9ca3f1cb2ddd224560136a023f3cf4c287b5b7b9b24fbb68606e222a9d1d058"
+      },
+      {
+        "source": {
+          "dat_offset": 262748,
+          "size": 262144,
+          "compression": "raw",
+          "decoded_size": 262144,
+          "sha256": "79d7e5fdfa8db427b37616cd56a9aeaea2672e405d158c58f75d7da7330af24a"
+        },
+        "offset": 6996,
+        "size": 28,
+        "sha256": "99ea9f32232772a6987ee95a4d4e57de0b37da17abdede19cf0d9d5cdbf2fdf9"
       }
     ],
-    "writes": [
-      {
-        "address": 4294480064,
-        "clear": 0,
-        "value": 33554432
-      },
-      {
-        "address": 4294480068,
-        "clear": 0,
-        "value": 33554944
-      },
-      {
-        "address": 4294480064,
-        "clear": 0,
-        "value": 67109888
-      },
-      {
-        "address": 4294480068,
-        "clear": 0,
-        "value": 67109888
-      }
-    ]
+    "initialization": {
+      "kind": "stock_gpio",
+      "ports": [
+        {
+          "port": 3,
+          "proof": 4
+        }
+      ]
+    }
   },
   {
     "firmware_id": "xs1-102",
@@ -2026,30 +2903,53 @@
         "offset": 1483748,
         "size": 56,
         "sha256": "b306f02a9171e1843017fe6c62a754b8aeb7444446360c3bb845c1c07bdc471d"
+      },
+      {
+        "source": {
+          "dat_offset": 33372,
+          "size": 262144,
+          "compression": "raw",
+          "decoded_size": 262144,
+          "sha256": "720ed1e8d62ff06709afdf9ac6c095e7a7381912a2be0a7156832500b11a8051"
+        },
+        "offset": 21284,
+        "size": 112,
+        "sha256": "0081178a365c0cdb5fd21b0770feaf30bb8bd4f80f12f23711a349dd576abb22"
+      },
+      {
+        "source": {
+          "dat_offset": 33372,
+          "size": 262144,
+          "compression": "raw",
+          "decoded_size": 262144,
+          "sha256": "720ed1e8d62ff06709afdf9ac6c095e7a7381912a2be0a7156832500b11a8051"
+        },
+        "offset": 21408,
+        "size": 4,
+        "sha256": "eb803f7d155dac5ef81af73733ec79b34e22b9e8913163d1239dddaa31d48901"
+      },
+      {
+        "source": {
+          "dat_offset": 33372,
+          "size": 262144,
+          "compression": "raw",
+          "decoded_size": 262144,
+          "sha256": "720ed1e8d62ff06709afdf9ac6c095e7a7381912a2be0a7156832500b11a8051"
+        },
+        "offset": 17976,
+        "size": 24,
+        "sha256": "4051b1277b62cb52eb18c7fc1b8b6b0b85b400d1ce29bbb3c2863ab036ccd7e1"
       }
     ],
-    "writes": [
-      {
-        "address": 4294480832,
-        "clear": 0,
-        "value": 65537
-      },
-      {
-        "address": 4294480836,
-        "clear": 0,
-        "value": 65537
-      },
-      {
-        "address": 4294480832,
-        "clear": 0,
-        "value": 262144
-      },
-      {
-        "address": 4294480836,
-        "clear": 0,
-        "value": 262148
-      }
-    ]
+    "initialization": {
+      "kind": "stock_gpio",
+      "ports": [
+        {
+          "port": 15,
+          "proof": 3
+        }
+      ]
+    }
   },
   {
     "firmware_id": "xs10-311",
@@ -2065,30 +2965,89 @@
         "offset": 5857708,
         "size": 40,
         "sha256": "d7644b4ea00e18d69bc29907471978ba482df57195d9c7e646fd8bf122a5ff8b"
+      },
+      {
+        "source": {
+          "dat_offset": 131700,
+          "size": 262144,
+          "compression": "raw",
+          "decoded_size": 262144,
+          "sha256": "748686c58329c7f17643c68f518f0f29d3b38463889bf27b8b47d5ca5c8b5814"
+        },
+        "offset": 4464,
+        "size": 192,
+        "sha256": "de6d07ff858c064496ac1e6888fd5211455612b29c57513088130107f9b7c1fe"
+      },
+      {
+        "source": {
+          "dat_offset": 131700,
+          "size": 262144,
+          "compression": "raw",
+          "decoded_size": 262144,
+          "sha256": "748686c58329c7f17643c68f518f0f29d3b38463889bf27b8b47d5ca5c8b5814"
+        },
+        "offset": 18096,
+        "size": 32,
+        "sha256": "4e1cf7230e8086b2e745cbc9d4fded01b314244d50e1bc5576a701d1ef0c7f96"
+      },
+      {
+        "source": {
+          "dat_offset": 131700,
+          "size": 262144,
+          "compression": "raw",
+          "decoded_size": 262144,
+          "sha256": "748686c58329c7f17643c68f518f0f29d3b38463889bf27b8b47d5ca5c8b5814"
+        },
+        "offset": 17904,
+        "size": 192,
+        "sha256": "17fbbfe9c6d726a4dae8c6dec158deecf5ef75336a481aba29f7609060731e2f"
+      },
+      {
+        "source": {
+          "dat_offset": 131700,
+          "size": 262144,
+          "compression": "raw",
+          "decoded_size": 262144,
+          "sha256": "748686c58329c7f17643c68f518f0f29d3b38463889bf27b8b47d5ca5c8b5814"
+        },
+        "offset": 16340,
+        "size": 232,
+        "sha256": "a7ce92945d3f576e689d655829877887f771f01c8a7324afc74333542479d5c5"
+      },
+      {
+        "source": {
+          "dat_offset": 131700,
+          "size": 262144,
+          "compression": "raw",
+          "decoded_size": 262144,
+          "sha256": "748686c58329c7f17643c68f518f0f29d3b38463889bf27b8b47d5ca5c8b5814"
+        },
+        "offset": 19732,
+        "size": 24,
+        "sha256": "d8481dd0090820dd4f3229d398311644a73fcda844a6c2035fc3b91f38bf7cf6"
+      },
+      {
+        "source": {
+          "dat_offset": 131700,
+          "size": 262144,
+          "compression": "raw",
+          "decoded_size": 262144,
+          "sha256": "748686c58329c7f17643c68f518f0f29d3b38463889bf27b8b47d5ca5c8b5814"
+        },
+        "offset": 41168,
+        "size": 28,
+        "sha256": "72d129ee9792644bc280024aec768a3dd59944e392b03046c4631711d7ce0145"
       }
     ],
-    "writes": [
-      {
-        "address": 4294185856,
-        "clear": 0,
-        "value": 262144
-      },
-      {
-        "address": 4294185860,
-        "clear": 0,
-        "value": 262148
-      },
-      {
-        "address": 4294185856,
-        "clear": 0,
-        "value": 524296
-      },
-      {
-        "address": 4294185860,
-        "clear": 0,
-        "value": 524296
-      }
-    ]
+    "initialization": {
+      "kind": "stock_gpio",
+      "ports": [
+        {
+          "port": 14,
+          "proof": 6
+        }
+      ]
+    }
   },
   {
     "firmware_id": "xt1-552",
@@ -2104,30 +3063,65 @@
         "offset": 3093292,
         "size": 56,
         "sha256": "b306f02a9171e1843017fe6c62a754b8aeb7444446360c3bb845c1c07bdc471d"
+      },
+      {
+        "source": {
+          "dat_offset": 1442396,
+          "size": 2228224,
+          "compression": "method4",
+          "decoded_size": 4115008,
+          "sha256": "38042d1d8756c7269ff6d1b2c9ae31dc19fefd296989aa9d524b8af6ed1b169f"
+        },
+        "offset": 1027268,
+        "size": 400,
+        "sha256": "ff1f84b30a2eff030c3ed902a9221fdda924d0520f015d4e1d4a765fd5ce4097"
+      },
+      {
+        "source": {
+          "dat_offset": 1442396,
+          "size": 2228224,
+          "compression": "method4",
+          "decoded_size": 4115008,
+          "sha256": "38042d1d8756c7269ff6d1b2c9ae31dc19fefd296989aa9d524b8af6ed1b169f"
+        },
+        "offset": 1028040,
+        "size": 404,
+        "sha256": "4ce636768d60037d52ed30d162795fceb394421f95c0b1ada466da803af07b5d"
+      },
+      {
+        "source": {
+          "dat_offset": 262748,
+          "size": 262144,
+          "compression": "raw",
+          "decoded_size": 262144,
+          "sha256": "752b6c19c7bdd6a58fe2e882fa6a5de812ec8176269753e72e831ab92d6e3e0a"
+        },
+        "offset": 9772,
+        "size": 152,
+        "sha256": "5e3dbfe3680e2fbcbf2305a4e1dd8bd8be4ef9130cd645b6fa9ce41f659fcdb4"
+      },
+      {
+        "source": {
+          "dat_offset": 262748,
+          "size": 262144,
+          "compression": "raw",
+          "decoded_size": 262144,
+          "sha256": "752b6c19c7bdd6a58fe2e882fa6a5de812ec8176269753e72e831ab92d6e3e0a"
+        },
+        "offset": 7316,
+        "size": 28,
+        "sha256": "fb388a8a3c6c8bc685009933165ada37ccc2771f2fef3237a9f40b192611fb0c"
       }
     ],
-    "writes": [
-      {
-        "address": 4294480832,
-        "clear": 0,
-        "value": 65537
-      },
-      {
-        "address": 4294480836,
-        "clear": 0,
-        "value": 65537
-      },
-      {
-        "address": 4294480832,
-        "clear": 0,
-        "value": 262144
-      },
-      {
-        "address": 4294480836,
-        "clear": 0,
-        "value": 262148
-      }
-    ]
+    "initialization": {
+      "kind": "stock_gpio",
+      "ports": [
+        {
+          "port": 15,
+          "proof": 4
+        }
+      ]
+    }
   },
   {
     "firmware_id": "xt10-131",
@@ -2143,30 +3137,65 @@
         "offset": 2538024,
         "size": 56,
         "sha256": "b306f02a9171e1843017fe6c62a754b8aeb7444446360c3bb845c1c07bdc471d"
+      },
+      {
+        "source": {
+          "dat_offset": 1442396,
+          "size": 1835008,
+          "compression": "method4",
+          "decoded_size": 3522720,
+          "sha256": "8b8e0cfc5729523da8078a4fc311265fd0ba0c87ed79837fd6da78751075d9c4"
+        },
+        "offset": 674472,
+        "size": 400,
+        "sha256": "7bdf6e00c33ab9cf36bfd82beb89cd37b3eafd8a39229029b6aef4a934c79cd1"
+      },
+      {
+        "source": {
+          "dat_offset": 1442396,
+          "size": 1835008,
+          "compression": "method4",
+          "decoded_size": 3522720,
+          "sha256": "8b8e0cfc5729523da8078a4fc311265fd0ba0c87ed79837fd6da78751075d9c4"
+        },
+        "offset": 675244,
+        "size": 404,
+        "sha256": "6c942bd1674d064e9d8dd088dc69da56941ec50eb5546f6d85069e45bf6063b0"
+      },
+      {
+        "source": {
+          "dat_offset": 262748,
+          "size": 262144,
+          "compression": "raw",
+          "decoded_size": 262144,
+          "sha256": "410ddbdf14865aa5fecc24edfabef53ae84aa713a11ee5ca6ac79bb94efe64fa"
+        },
+        "offset": 9772,
+        "size": 152,
+        "sha256": "5e3dbfe3680e2fbcbf2305a4e1dd8bd8be4ef9130cd645b6fa9ce41f659fcdb4"
+      },
+      {
+        "source": {
+          "dat_offset": 262748,
+          "size": 262144,
+          "compression": "raw",
+          "decoded_size": 262144,
+          "sha256": "410ddbdf14865aa5fecc24edfabef53ae84aa713a11ee5ca6ac79bb94efe64fa"
+        },
+        "offset": 7316,
+        "size": 28,
+        "sha256": "651f127683e71845437bb05bb9d28ce3fcc97bf710401f5d4db2887c2cf337f9"
       }
     ],
-    "writes": [
-      {
-        "address": 4294480832,
-        "clear": 0,
-        "value": 65537
-      },
-      {
-        "address": 4294480836,
-        "clear": 0,
-        "value": 65537
-      },
-      {
-        "address": 4294480832,
-        "clear": 0,
-        "value": 262144
-      },
-      {
-        "address": 4294480836,
-        "clear": 0,
-        "value": 262148
-      }
-    ]
+    "initialization": {
+      "kind": "stock_gpio",
+      "ports": [
+        {
+          "port": 15,
+          "proof": 4
+        }
+      ]
+    }
   },
   {
     "firmware_id": "xt2-441",
@@ -2182,30 +3211,77 @@
         "offset": 3859852,
         "size": 40,
         "sha256": "70fea51c91a875debeaf151b64363b31ff72d3198cbff7bf7218c12d9e66611f"
+      },
+      {
+        "source": {
+          "dat_offset": 131676,
+          "size": 262144,
+          "compression": "raw",
+          "decoded_size": 262144,
+          "sha256": "621fff2dcb9f22fab4a86b9fb19f9bc99e7cdbb435e4a11900794d2f30fc974e"
+        },
+        "offset": 3920,
+        "size": 180,
+        "sha256": "1ab7b26874e3429a80997b5f6b038cf7ed1fbaa7176e838d5100383696ce1974"
+      },
+      {
+        "source": {
+          "dat_offset": 131676,
+          "size": 262144,
+          "compression": "raw",
+          "decoded_size": 262144,
+          "sha256": "621fff2dcb9f22fab4a86b9fb19f9bc99e7cdbb435e4a11900794d2f30fc974e"
+        },
+        "offset": 30072,
+        "size": 304,
+        "sha256": "3a05e545b60e138c499f09ec9d8537a3f288eb1d908ac892223bec70e0cd58b4"
+      },
+      {
+        "source": {
+          "dat_offset": 131676,
+          "size": 262144,
+          "compression": "raw",
+          "decoded_size": 262144,
+          "sha256": "621fff2dcb9f22fab4a86b9fb19f9bc99e7cdbb435e4a11900794d2f30fc974e"
+        },
+        "offset": 35176,
+        "size": 24,
+        "sha256": "749a2416329e7dbd66bf99d91b9d9c069ea00efbc533c4c5dc8980bff2cdb4b9"
+      },
+      {
+        "source": {
+          "dat_offset": 131676,
+          "size": 262144,
+          "compression": "raw",
+          "decoded_size": 262144,
+          "sha256": "621fff2dcb9f22fab4a86b9fb19f9bc99e7cdbb435e4a11900794d2f30fc974e"
+        },
+        "offset": 32276,
+        "size": 244,
+        "sha256": "9354285407f40a327005804c0c6c7f9ac2caef3a19876ebf61bad945fd6d344b"
+      },
+      {
+        "source": {
+          "dat_offset": 131676,
+          "size": 262144,
+          "compression": "raw",
+          "decoded_size": 262144,
+          "sha256": "621fff2dcb9f22fab4a86b9fb19f9bc99e7cdbb435e4a11900794d2f30fc974e"
+        },
+        "offset": 56992,
+        "size": 28,
+        "sha256": "04a39d9c1892c89e8565aedda84d443932441c7e08d444480d1f4c3606eaf541"
       }
     ],
-    "writes": [
-      {
-        "address": 4293968512,
-        "clear": 0,
-        "value": 134217728
-      },
-      {
-        "address": 4293968516,
-        "clear": 0,
-        "value": 134219776
-      },
-      {
-        "address": 4293968512,
-        "clear": 0,
-        "value": 268439552
-      },
-      {
-        "address": 4293968516,
-        "clear": 0,
-        "value": 268439552
-      }
-    ]
+    "initialization": {
+      "kind": "stock_gpio",
+      "ports": [
+        {
+          "port": 10,
+          "proof": 5
+        }
+      ]
+    }
   },
   {
     "firmware_id": "xt20-211",
@@ -2221,30 +3297,77 @@
         "offset": 3692376,
         "size": 40,
         "sha256": "70fea51c91a875debeaf151b64363b31ff72d3198cbff7bf7218c12d9e66611f"
+      },
+      {
+        "source": {
+          "dat_offset": 131676,
+          "size": 262144,
+          "compression": "raw",
+          "decoded_size": 262144,
+          "sha256": "ae72c2c03d7d517ba417a24de3da86bb70be1d7cc63e877ee7d436eece2b6cf2"
+        },
+        "offset": 3920,
+        "size": 180,
+        "sha256": "6473bc9e555e0a74bc3e685cf1aefdc79caeefa10c697697fed83d47c3c7f8b1"
+      },
+      {
+        "source": {
+          "dat_offset": 131676,
+          "size": 262144,
+          "compression": "raw",
+          "decoded_size": 262144,
+          "sha256": "ae72c2c03d7d517ba417a24de3da86bb70be1d7cc63e877ee7d436eece2b6cf2"
+        },
+        "offset": 28488,
+        "size": 304,
+        "sha256": "9e501274ae136fc61acb93e8b91dff72d64289fa7a47a1e4a5de1bea326abbe3"
+      },
+      {
+        "source": {
+          "dat_offset": 131676,
+          "size": 262144,
+          "compression": "raw",
+          "decoded_size": 262144,
+          "sha256": "ae72c2c03d7d517ba417a24de3da86bb70be1d7cc63e877ee7d436eece2b6cf2"
+        },
+        "offset": 33592,
+        "size": 24,
+        "sha256": "749a2416329e7dbd66bf99d91b9d9c069ea00efbc533c4c5dc8980bff2cdb4b9"
+      },
+      {
+        "source": {
+          "dat_offset": 131676,
+          "size": 262144,
+          "compression": "raw",
+          "decoded_size": 262144,
+          "sha256": "ae72c2c03d7d517ba417a24de3da86bb70be1d7cc63e877ee7d436eece2b6cf2"
+        },
+        "offset": 30692,
+        "size": 244,
+        "sha256": "265467a39aebe1bd75f109e5536086ded5f5f13d316d3ff706943c6edb25db19"
+      },
+      {
+        "source": {
+          "dat_offset": 131676,
+          "size": 262144,
+          "compression": "raw",
+          "decoded_size": 262144,
+          "sha256": "ae72c2c03d7d517ba417a24de3da86bb70be1d7cc63e877ee7d436eece2b6cf2"
+        },
+        "offset": 55644,
+        "size": 28,
+        "sha256": "580009d1bdb27869580f9d2755150bfef1c76aad7b36e090106803772b2a6f0a"
       }
     ],
-    "writes": [
-      {
-        "address": 4293968512,
-        "clear": 0,
-        "value": 134217728
-      },
-      {
-        "address": 4293968516,
-        "clear": 0,
-        "value": 134219776
-      },
-      {
-        "address": 4293968512,
-        "clear": 0,
-        "value": 268439552
-      },
-      {
-        "address": 4293968516,
-        "clear": 0,
-        "value": 268439552
-      }
-    ]
+    "initialization": {
+      "kind": "stock_gpio",
+      "ports": [
+        {
+          "port": 10,
+          "proof": 5
+        }
+      ]
+    }
   },
   {
     "firmware_id": "xt3-511",
@@ -2260,30 +3383,89 @@
         "offset": 5045164,
         "size": 40,
         "sha256": "d7644b4ea00e18d69bc29907471978ba482df57195d9c7e646fd8bf122a5ff8b"
+      },
+      {
+        "source": {
+          "dat_offset": 131700,
+          "size": 262144,
+          "compression": "raw",
+          "decoded_size": 262144,
+          "sha256": "bf786435b5120828e1fd1fe76f5fc534643ac1f386eb1183827abe72487bd65c"
+        },
+        "offset": 4452,
+        "size": 192,
+        "sha256": "53fee99f10590b0c77b4d159bae19c38a38c6ab968274a5a39687763e460b274"
+      },
+      {
+        "source": {
+          "dat_offset": 131700,
+          "size": 262144,
+          "compression": "raw",
+          "decoded_size": 262144,
+          "sha256": "bf786435b5120828e1fd1fe76f5fc534643ac1f386eb1183827abe72487bd65c"
+        },
+        "offset": 15840,
+        "size": 32,
+        "sha256": "4a8a525d3bc9659b6af89dfe8fda972e6a06e4ffad7998ef86382eb4f9d4b15c"
+      },
+      {
+        "source": {
+          "dat_offset": 131700,
+          "size": 262144,
+          "compression": "raw",
+          "decoded_size": 262144,
+          "sha256": "bf786435b5120828e1fd1fe76f5fc534643ac1f386eb1183827abe72487bd65c"
+        },
+        "offset": 15648,
+        "size": 192,
+        "sha256": "c7f6b535c3629b9fcad7c73fc5a0aab805416f57b6a605dd4626f00904b21264"
+      },
+      {
+        "source": {
+          "dat_offset": 131700,
+          "size": 262144,
+          "compression": "raw",
+          "decoded_size": 262144,
+          "sha256": "bf786435b5120828e1fd1fe76f5fc534643ac1f386eb1183827abe72487bd65c"
+        },
+        "offset": 14084,
+        "size": 232,
+        "sha256": "da49e0d607e69289ae7dfce026237882807053fc448108f5f274bbc5cef0c8fb"
+      },
+      {
+        "source": {
+          "dat_offset": 131700,
+          "size": 262144,
+          "compression": "raw",
+          "decoded_size": 262144,
+          "sha256": "bf786435b5120828e1fd1fe76f5fc534643ac1f386eb1183827abe72487bd65c"
+        },
+        "offset": 17476,
+        "size": 24,
+        "sha256": "d8481dd0090820dd4f3229d398311644a73fcda844a6c2035fc3b91f38bf7cf6"
+      },
+      {
+        "source": {
+          "dat_offset": 131700,
+          "size": 262144,
+          "compression": "raw",
+          "decoded_size": 262144,
+          "sha256": "bf786435b5120828e1fd1fe76f5fc534643ac1f386eb1183827abe72487bd65c"
+        },
+        "offset": 37836,
+        "size": 28,
+        "sha256": "72d129ee9792644bc280024aec768a3dd59944e392b03046c4631711d7ce0145"
       }
     ],
-    "writes": [
-      {
-        "address": 4294185856,
-        "clear": 0,
-        "value": 262144
-      },
-      {
-        "address": 4294185860,
-        "clear": 0,
-        "value": 262148
-      },
-      {
-        "address": 4294185856,
-        "clear": 0,
-        "value": 524296
-      },
-      {
-        "address": 4294185860,
-        "clear": 0,
-        "value": 524296
-      }
-    ]
+    "initialization": {
+      "kind": "stock_gpio",
+      "ports": [
+        {
+          "port": 14,
+          "proof": 6
+        }
+      ]
+    }
   },
   {
     "firmware_id": "xt30-201",
@@ -2299,30 +3481,89 @@
         "offset": 4850412,
         "size": 40,
         "sha256": "d7644b4ea00e18d69bc29907471978ba482df57195d9c7e646fd8bf122a5ff8b"
+      },
+      {
+        "source": {
+          "dat_offset": 131700,
+          "size": 262144,
+          "compression": "raw",
+          "decoded_size": 262144,
+          "sha256": "fb04ad9444b0a02cf5fad1a85b8e1d57ba7cdd44125f7702abe407850dfa68e7"
+        },
+        "offset": 4464,
+        "size": 192,
+        "sha256": "17e626b3927e27a46e9e5240db5fc0398a73859a729329a311eafc17f50acb6c"
+      },
+      {
+        "source": {
+          "dat_offset": 131700,
+          "size": 262144,
+          "compression": "raw",
+          "decoded_size": 262144,
+          "sha256": "fb04ad9444b0a02cf5fad1a85b8e1d57ba7cdd44125f7702abe407850dfa68e7"
+        },
+        "offset": 15740,
+        "size": 32,
+        "sha256": "25b579fad3d1dee70c644f0d748af6ddafece550602dd556ce3b5d940795f2c5"
+      },
+      {
+        "source": {
+          "dat_offset": 131700,
+          "size": 262144,
+          "compression": "raw",
+          "decoded_size": 262144,
+          "sha256": "fb04ad9444b0a02cf5fad1a85b8e1d57ba7cdd44125f7702abe407850dfa68e7"
+        },
+        "offset": 15548,
+        "size": 192,
+        "sha256": "793e395bb3eb5cd615626da6862412e814344b63918b8bf49624cdc76631b776"
+      },
+      {
+        "source": {
+          "dat_offset": 131700,
+          "size": 262144,
+          "compression": "raw",
+          "decoded_size": 262144,
+          "sha256": "fb04ad9444b0a02cf5fad1a85b8e1d57ba7cdd44125f7702abe407850dfa68e7"
+        },
+        "offset": 13984,
+        "size": 232,
+        "sha256": "d473e60c15b8a21ee036967cdf95b998df3f689b4c44534265569bab88ad1c48"
+      },
+      {
+        "source": {
+          "dat_offset": 131700,
+          "size": 262144,
+          "compression": "raw",
+          "decoded_size": 262144,
+          "sha256": "fb04ad9444b0a02cf5fad1a85b8e1d57ba7cdd44125f7702abe407850dfa68e7"
+        },
+        "offset": 17376,
+        "size": 24,
+        "sha256": "d8481dd0090820dd4f3229d398311644a73fcda844a6c2035fc3b91f38bf7cf6"
+      },
+      {
+        "source": {
+          "dat_offset": 131700,
+          "size": 262144,
+          "compression": "raw",
+          "decoded_size": 262144,
+          "sha256": "fb04ad9444b0a02cf5fad1a85b8e1d57ba7cdd44125f7702abe407850dfa68e7"
+        },
+        "offset": 38412,
+        "size": 28,
+        "sha256": "72d129ee9792644bc280024aec768a3dd59944e392b03046c4631711d7ce0145"
       }
     ],
-    "writes": [
-      {
-        "address": 4294185856,
-        "clear": 0,
-        "value": 262144
-      },
-      {
-        "address": 4294185860,
-        "clear": 0,
-        "value": 262148
-      },
-      {
-        "address": 4294185856,
-        "clear": 0,
-        "value": 524296
-      },
-      {
-        "address": 4294185860,
-        "clear": 0,
-        "value": 524296
-      }
-    ]
+    "initialization": {
+      "kind": "stock_gpio",
+      "ports": [
+        {
+          "port": 14,
+          "proof": 6
+        }
+      ]
+    }
   },
   {
     "firmware_id": "xt30ii-204",
@@ -2338,30 +3579,89 @@
         "offset": 5610476,
         "size": 40,
         "sha256": "d7644b4ea00e18d69bc29907471978ba482df57195d9c7e646fd8bf122a5ff8b"
+      },
+      {
+        "source": {
+          "dat_offset": 131700,
+          "size": 262144,
+          "compression": "raw",
+          "decoded_size": 262144,
+          "sha256": "43d26aebe6a6db73581baad36c6c685459472b462d52cb61f3902c3c7f962dd7"
+        },
+        "offset": 4464,
+        "size": 192,
+        "sha256": "7a5a65c26482a42f00e4a89580c2cfb87dd63ef2706c03981e914714d4a24458"
+      },
+      {
+        "source": {
+          "dat_offset": 131700,
+          "size": 262144,
+          "compression": "raw",
+          "decoded_size": 262144,
+          "sha256": "43d26aebe6a6db73581baad36c6c685459472b462d52cb61f3902c3c7f962dd7"
+        },
+        "offset": 18192,
+        "size": 32,
+        "sha256": "bf1cc38c9012d11fdf895a84463e158c7a6e37e6dd301f7aecd8a7e02dbb173b"
+      },
+      {
+        "source": {
+          "dat_offset": 131700,
+          "size": 262144,
+          "compression": "raw",
+          "decoded_size": 262144,
+          "sha256": "43d26aebe6a6db73581baad36c6c685459472b462d52cb61f3902c3c7f962dd7"
+        },
+        "offset": 18000,
+        "size": 192,
+        "sha256": "7a21e24ffabe1df03c0d214006bad63e5b10487efc6bc7ee56337ccb53cc4a10"
+      },
+      {
+        "source": {
+          "dat_offset": 131700,
+          "size": 262144,
+          "compression": "raw",
+          "decoded_size": 262144,
+          "sha256": "43d26aebe6a6db73581baad36c6c685459472b462d52cb61f3902c3c7f962dd7"
+        },
+        "offset": 16436,
+        "size": 232,
+        "sha256": "e476aa799ea425558f5a6ca95baa343ce7ac739af90bec8b111854527191330e"
+      },
+      {
+        "source": {
+          "dat_offset": 131700,
+          "size": 262144,
+          "compression": "raw",
+          "decoded_size": 262144,
+          "sha256": "43d26aebe6a6db73581baad36c6c685459472b462d52cb61f3902c3c7f962dd7"
+        },
+        "offset": 19828,
+        "size": 24,
+        "sha256": "d8481dd0090820dd4f3229d398311644a73fcda844a6c2035fc3b91f38bf7cf6"
+      },
+      {
+        "source": {
+          "dat_offset": 131700,
+          "size": 262144,
+          "compression": "raw",
+          "decoded_size": 262144,
+          "sha256": "43d26aebe6a6db73581baad36c6c685459472b462d52cb61f3902c3c7f962dd7"
+        },
+        "offset": 41296,
+        "size": 28,
+        "sha256": "72d129ee9792644bc280024aec768a3dd59944e392b03046c4631711d7ce0145"
       }
     ],
-    "writes": [
-      {
-        "address": 4294185856,
-        "clear": 0,
-        "value": 262144
-      },
-      {
-        "address": 4294185860,
-        "clear": 0,
-        "value": 262148
-      },
-      {
-        "address": 4294185856,
-        "clear": 0,
-        "value": 524296
-      },
-      {
-        "address": 4294185860,
-        "clear": 0,
-        "value": 524296
-      }
-    ]
+    "initialization": {
+      "kind": "stock_gpio",
+      "ports": [
+        {
+          "port": 14,
+          "proof": 6
+        }
+      ]
+    }
   },
   {
     "firmware_id": "xt30iii-110",
@@ -2763,73 +4063,9 @@
         "sha256": "6858af055bcc30ba7347a928e0761ef8f8204557b02b4d6d17a62e97a087ff14"
       }
     ],
-    "writes": [
-      {
-        "address": 4287677208,
-        "clear": 131072,
-        "value": 131072
-      },
-      {
-        "address": 4287678764,
-        "clear": 65536,
-        "value": 65536
-      },
-      {
-        "address": 4287657216,
-        "clear": 0,
-        "value": 16777472
-      },
-      {
-        "address": 4287656448,
-        "clear": 0,
-        "value": 262144
-      },
-      {
-        "address": 4287656460,
-        "clear": 0,
-        "value": 3145728
-      },
-      {
-        "address": 4287656456,
-        "clear": 0,
-        "value": 262144
-      },
-      {
-        "address": 4287656452,
-        "clear": 0,
-        "value": 262148
-      },
-      {
-        "address": 4287657216,
-        "clear": 0,
-        "value": 4194368
-      },
-      {
-        "address": 4287656320,
-        "clear": 0,
-        "value": 262144
-      },
-      {
-        "address": 4287656332,
-        "clear": 0,
-        "value": 3145728
-      },
-      {
-        "address": 4287656328,
-        "clear": 0,
-        "value": 262144
-      },
-      {
-        "address": 4287656324,
-        "clear": 0,
-        "value": 262148
-      },
-      {
-        "address": 4287656448,
-        "clear": 0,
-        "value": 262148
-      }
-    ]
+    "initialization": {
+      "kind": "xp5"
+    }
   },
   {
     "firmware_id": "xt4-212",
@@ -2845,29 +4081,88 @@
         "offset": 5692012,
         "size": 40,
         "sha256": "d7644b4ea00e18d69bc29907471978ba482df57195d9c7e646fd8bf122a5ff8b"
+      },
+      {
+        "source": {
+          "dat_offset": 131700,
+          "size": 262144,
+          "compression": "raw",
+          "decoded_size": 262144,
+          "sha256": "324cc497a3eec9e0a5a738aa2211a0510d36a49a3d61ce16e5d60a104a3a0a4e"
+        },
+        "offset": 4704,
+        "size": 192,
+        "sha256": "f45daa5ea050fd3d1e93520ce8edd685e7d6a6d57c906758cf063fbbcc51f14e"
+      },
+      {
+        "source": {
+          "dat_offset": 131700,
+          "size": 262144,
+          "compression": "raw",
+          "decoded_size": 262144,
+          "sha256": "324cc497a3eec9e0a5a738aa2211a0510d36a49a3d61ce16e5d60a104a3a0a4e"
+        },
+        "offset": 18632,
+        "size": 32,
+        "sha256": "c5f1ce59db9ce6998e61578dbdd29ff5ab57dff7ce5b3bc0e58d4eed8afdac3d"
+      },
+      {
+        "source": {
+          "dat_offset": 131700,
+          "size": 262144,
+          "compression": "raw",
+          "decoded_size": 262144,
+          "sha256": "324cc497a3eec9e0a5a738aa2211a0510d36a49a3d61ce16e5d60a104a3a0a4e"
+        },
+        "offset": 18440,
+        "size": 192,
+        "sha256": "c791d8856c6958327a73a45fe0ce4901e4727d0647440802eaed825c86db08e0"
+      },
+      {
+        "source": {
+          "dat_offset": 131700,
+          "size": 262144,
+          "compression": "raw",
+          "decoded_size": 262144,
+          "sha256": "324cc497a3eec9e0a5a738aa2211a0510d36a49a3d61ce16e5d60a104a3a0a4e"
+        },
+        "offset": 16876,
+        "size": 232,
+        "sha256": "1a628f0fa7bd6c609bb944f02a02b9f73434075e00f86bed443c4a37100c20f0"
+      },
+      {
+        "source": {
+          "dat_offset": 131700,
+          "size": 262144,
+          "compression": "raw",
+          "decoded_size": 262144,
+          "sha256": "324cc497a3eec9e0a5a738aa2211a0510d36a49a3d61ce16e5d60a104a3a0a4e"
+        },
+        "offset": 20268,
+        "size": 24,
+        "sha256": "d8481dd0090820dd4f3229d398311644a73fcda844a6c2035fc3b91f38bf7cf6"
+      },
+      {
+        "source": {
+          "dat_offset": 131700,
+          "size": 262144,
+          "compression": "raw",
+          "decoded_size": 262144,
+          "sha256": "324cc497a3eec9e0a5a738aa2211a0510d36a49a3d61ce16e5d60a104a3a0a4e"
+        },
+        "offset": 41744,
+        "size": 28,
+        "sha256": "72d129ee9792644bc280024aec768a3dd59944e392b03046c4631711d7ce0145"
       }
     ],
-    "writes": [
-      {
-        "address": 4294185856,
-        "clear": 0,
-        "value": 262144
-      },
-      {
-        "address": 4294185860,
-        "clear": 0,
-        "value": 262148
-      },
-      {
-        "address": 4294185856,
-        "clear": 0,
-        "value": 524296
-      },
-      {
-        "address": 4294185860,
-        "clear": 0,
-        "value": 524296
-      }
-    ]
+    "initialization": {
+      "kind": "stock_gpio",
+      "ports": [
+        {
+          "port": 14,
+          "proof": 6
+        }
+      ]
+    }
   }
 ]

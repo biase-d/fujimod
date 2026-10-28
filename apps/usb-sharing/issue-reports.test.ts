@@ -4,14 +4,6 @@ import { runtime } from './test-runtime.ts';
 const origin = 'https://justjake.github.io';
 const id = 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa';
 const tar = new Uint8Array(1024);
-function crc32(bytes: Uint8Array) {
-  let crc = 0xffffffff;
-  for (const b of bytes) {
-    crc ^= b;
-    for (let n = 0; n < 8; n++) crc = (crc >>> 1) ^ (crc & 1 ? 0xedb88320 : 0);
-  }
-  return ((crc ^ 0xffffffff) >>> 0).toString(16).padStart(8, '0');
-}
 async function submission(overrides: Record<string, unknown> = {}) {
   const body = new FormData();
   body.set('report', new Blob([tar]), 'R1234567.TAR');
@@ -24,7 +16,6 @@ async function submission(overrides: Record<string, unknown> = {}) {
       commit: 'a'.repeat(8),
       path: 'A:\\FUJIMOD\\REPORTS\\R1234567.TAR',
       bytes: 1024,
-      crc32: crc32(tar),
       files: '403a0000',
       ...overrides,
     }),
@@ -43,12 +34,27 @@ async function submission(overrides: Record<string, unknown> = {}) {
   };
 }
 await test('explicit intake saves privately, creates one issue and deduplicates retries', async () => {
-  let issues = 0;
+  let issues = 0,
+    labels = 0;
   const mf = await runtime({
     bindings: { GITHUB_ISSUES_TOKEN: 'test-only' },
     outboundService: async (request) => {
+      if (request.url === 'https://api.github.com/repos/justjake/fujimod/labels/x70') {
+        assert.equal(request.method, 'GET');
+        return new Response('{}', { status: 404 });
+      }
+      if (request.url === 'https://api.github.com/repos/justjake/fujimod/labels') {
+        assert.deepEqual(await request.json(), {
+          name: 'x70',
+          description: 'Fujifilm X70 (EXR Processor 2)',
+          color: '1d76db',
+        });
+        labels++;
+        return Response.json({}, { status: 201 });
+      }
       assert.equal(request.url, 'https://api.github.com/repos/justjake/fujimod/issues');
-      const body = (await request.json()) as { body: string };
+      const body = (await request.json()) as { body: string; labels: string[] };
+      assert.deepEqual(body.labels, ['bug', 'from-camera', 'x70']);
       assert.match(body.body, /Menu froze/);
       assert.match(body.body, /stored privately/);
       assert.equal(body.body.includes('/report.tar'), false);
@@ -71,14 +77,25 @@ await test('explicit intake saves privately, creates one issue and deduplicates 
       200,
     );
     assert.equal(issues, 1);
+    assert.equal(labels, 1);
     const bucket = await mf.getR2Bucket('ISSUE_REPORTS');
     assert.deepEqual(
       new Uint8Array(await (await bucket.get(`${id}/report.tar`))!.arrayBuffer()),
       tar,
     );
-    const rows = await (await mf.getD1Database('REPORTS_INDEX'))
+    const rows = await (
+      await mf.getD1Database('REPORTS_INDEX')
+    )
       .prepare('SELECT key, kind, id, state, bytes, summary, metadata FROM objects ORDER BY key')
-      .all<{ key: string; kind: string; id: string; state: string; bytes: number; summary: string; metadata: string }>();
+      .all<{
+        key: string;
+        kind: string;
+        id: string;
+        state: string;
+        bytes: number;
+        summary: string;
+        metadata: string;
+      }>();
     assert.deepEqual(
       rows.results.map(({ key, kind, state, summary }) => [key, kind, state, summary]),
       [
@@ -145,8 +162,8 @@ await test('uncertain GitHub response retains the archive without duplicate issu
   let calls = 0;
   const mf = await runtime({
     bindings: { GITHUB_ISSUES_TOKEN: 'test-only' },
-    outboundService: async () => {
-      calls++;
+    outboundService: async (request) => {
+      if (request.url.endsWith('/issues')) calls++;
       return new Response('Unavailable', { status: 502 });
     },
   });
@@ -156,7 +173,9 @@ await test('uncertain GitHub response retains the archive without duplicate issu
       await submission(),
     );
     assert.equal(response.status, 202);
-    assert.deepEqual(await response.json(), { id });
+    const receipt = (await response.json()) as { id: string; shareUrl: string };
+    assert.equal(receipt.id, id);
+    assert.match(receipt.shareUrl, /^https:\/\/share.fujimod.com\/contribution\//);
     await mf.dispatchFetch('https://worker.example/issue-reports', await submission());
     assert.equal(calls, 1);
     assert.ok(await (await mf.getR2Bucket('ISSUE_REPORTS')).get(`${id}/report.tar`));

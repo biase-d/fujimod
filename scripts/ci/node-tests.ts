@@ -39,6 +39,8 @@ function test(name: string, files: string[], directory = '.') {
 // These tests were previously absent from the package test commands.
 test('tooling', ['scripts/ci/*.test.ts']);
 test('assets', ['scripts/assets/*.test.ts']);
+test('cloudflare', ['scripts/cloudflare/*.test.ts']);
+test('review-mount', ['scripts/local-review-files.test.ts'], 'apps/web');
 test('wheel', ['bindings/python/scripts/*.test.ts']);
 test('proxy', ['crates/usb-proxy/web/*.test.ts']);
 test('staging', ['bindings/javascript/scripts/*.test.ts']);

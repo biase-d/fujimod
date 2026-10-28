@@ -51,13 +51,15 @@ function workflowSession() {
   const table = JSON.stringify({
     firmware_id: 'x70-110',
     firmware_sha256: 'a'.repeat(64),
+    setup: {},
+    persistence: {},
   });
   vi.stubGlobal(
     'fetch',
     vi.fn(
       async (url: URL) =>
         new Response(
-          url.pathname.endsWith('camera.json')
+          url.pathname.endsWith('service-workflow.generated.json')
             ? table
             : JSON.stringify({
                 schema: 1,
@@ -70,7 +72,7 @@ function workflowSession() {
                     sha256: 'a'.repeat(64),
                     bytes: 42,
                     download_url: 'https://example.org/firmware',
-                    camera_table: 'runtime/x70-110/camera.json',
+                    service_workflow: 'runtime/x70-110/service-workflow.generated.json',
                   },
                 ],
               }),
@@ -118,7 +120,11 @@ test('Disable debug mode persists debug access off for the camera firmware', asy
       expect(p.button('Open workbench')).toBeTruthy();
     });
     p.button('Open workbench')!.click();
-    flush();
+    // The bug-report scan holds the session briefly when the workbench opens.
+    await vi.waitFor(() => {
+      flush();
+      expect(p.button('Disable debug mode')!.disabled).toBe(false);
+    });
     p.button('Disable debug mode')!.click();
     flush();
     p.host.querySelector<HTMLButtonElement>('.dm-huge')!.click();
@@ -143,7 +149,7 @@ test('the service guide connects without selecting firmware or writing anything'
     flush();
     expect(p.host.querySelector('.dm-camera')).toBeNull();
     expect(p.host.querySelector('.dpad .u.glow')).not.toBeNull();
-    expect(p.host.querySelector('.slide.full')).not.toBeNull();
+    expect(p.host.querySelector('[data-part="shutter"] [data-action="full"].on')).not.toBeNull();
     expect(p.host.querySelector('[aria-label="USB connected"]')).not.toBeNull();
     expect(p.host.textContent).toContain('do not use the OFF switch');
     p.host.querySelector<HTMLInputElement>('.dm-check input')!.click();

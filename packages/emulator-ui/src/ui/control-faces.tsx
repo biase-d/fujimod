@@ -89,7 +89,8 @@ function Actuator(props: {
 export function KeyFace(props: FaceProps & { hint?: string }) {
   return (
     <span
-      class={`control-face ${props.size}`}
+      class="control-face"
+      data-size={props.size}
       data-part="key"
       role={props.size === 'mini' ? 'img' : undefined}
       aria-label={props.size === 'mini' ? partLabel(props.part) : undefined}
@@ -108,23 +109,36 @@ export function KeyFace(props: FaceProps & { hint?: string }) {
     </span>
   );
 }
-export function ShutterFace(props: FaceProps & { left?: string }) {
+export function ShutterFace(props: FaceProps) {
   const stage = () => (props.part.kind === 'shutter' ? props.part.stage : undefined);
   return (
     <span
-      class={`control-face ${props.size}`}
+      class="control-face"
+      data-size={props.size}
       data-part="shutter"
       role={props.size === 'mini' ? 'img' : undefined}
       aria-label={props.size === 'mini' ? partLabel(props.part) : undefined}
     >
-      <span class={`slide ${stage() ?? ''}`}>
-        <span
-          class={['thumb', { glow: props.size === 'mini' && props.held }]}
-          style={{ left: props.left }}
-        >
-          {stage()?.toUpperCase()}
+      <span class="seg wide">
+        <span class="vals">
+          <For each={['half', 'full'] as const}>
+            {(value) => (
+              <Actuator
+                render={props.renderKey}
+                action={value}
+                // A rendered panel key styles its own stage; a changing class here
+                // would rebuild that key and drop the pointer holding it.
+                class={
+                  props.renderKey || stage() !== value
+                    ? ''
+                    : `on ${props.size === 'mini' && props.held ? 'glow' : ''}`
+                }
+              >
+                {value.toUpperCase()}
+              </Actuator>
+            )}
+          </For>
         </span>
-        <span class="end">FULL</span>
       </span>
       <ShortName {...props} />
     </span>
@@ -133,7 +147,8 @@ export function ShutterFace(props: FaceProps & { left?: string }) {
 export function CommandFace(props: FaceProps) {
   return (
     <span
-      class={`control-face ${props.size}`}
+      class="control-face"
+      data-size={props.size}
       data-part="command"
       role={props.size === 'mini' ? 'img' : undefined}
       aria-label={props.size === 'mini' ? partLabel(props.part) : undefined}
@@ -146,7 +161,8 @@ export function CommandFace(props: FaceProps) {
   );
 }
 function CommandKnurl(props: FaceProps) {
-  const held = (action: string) => props.part.kind === 'command' && props.part.held === action;
+  const held = (action: string) =>
+    (props.part.kind === 'command' || props.part.kind === 'rocker') && props.part.held === action;
   return (
     <span class="cmd">
       <span class="knurl">
@@ -171,38 +187,17 @@ function CommandKnurl(props: FaceProps) {
     </span>
   );
 }
-/** A rocker: on the panel, three contact targets; as a mini, the manual's drawing. */
+/** A rocker: on the panel, the command control's knurl with its sides and tab; as a mini, the manual's drawing. */
 export function RockerFace(props: FaceProps) {
-  const held = (action: string) => props.part.kind === 'rocker' && props.part.held === action;
   return (
     <span
-      class={`control-face ${props.size}`}
+      class="control-face"
+      data-size={props.size}
       data-part="rocker"
       role={props.size === 'mini' ? 'img' : undefined}
       aria-label={props.size === 'mini' ? partLabel(props.part) : undefined}
     >
-      <Show
-        when={props.size === 'mini'}
-        fallback={
-          <span class="rocker">
-            <span class="knurl">
-              <For each={['decrease', 'press', 'increase']}>
-                {(action) => (
-                  <Actuator
-                    render={props.renderKey}
-                    action={action}
-                    class={`key ${action === 'press' ? 'tab' : `side ${action === 'decrease' ? 'l' : 'r'}`} ${held(action) ? 'glow' : ''}`}
-                  >
-                    <Show when={action === 'press'}>
-                      <PrintedMark marking={props.part.marking} />
-                    </Show>
-                  </Actuator>
-                )}
-              </For>
-            </span>
-          </span>
-        }
-      >
+      <Show when={props.size === 'mini'} fallback={<CommandKnurl {...props} />}>
         <RockerDrawing held={props.part.kind === 'rocker' ? props.part.held : undefined} />
       </Show>
       <ShortName {...props} />
@@ -220,7 +215,8 @@ export function PadFace(props: FaceProps) {
   ];
   return (
     <span
-      class={`control-face ${props.size}`}
+      class="control-face"
+      data-size={props.size}
       data-part="pad"
       role={props.size === 'mini' ? 'img' : undefined}
       aria-label={props.size === 'mini' ? partLabel(props.part) : undefined}
@@ -255,7 +251,8 @@ export function PositionsFace(
   const selected = () => (props.part.kind === 'positions' ? props.part.position : undefined);
   return (
     <span
-      class={`control-face ${props.size}`}
+      class="control-face"
+      data-size={props.size}
       data-part="positions"
       role={props.size === 'mini' ? 'img' : undefined}
       aria-label={props.size === 'mini' ? partLabel(props.part) : undefined}

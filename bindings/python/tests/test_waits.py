@@ -136,3 +136,12 @@ def test_an_explicit_continuation_ceiling_does_not_replace_the_total_allowance()
     assert board.instructions == 3
     with pytest.raises(ValueError, match='ceiling'):
         wait_until(board, lambda: False, 'invalid', max_run_instructions=0)
+
+
+def test_ignored_device_wakes_require_and_use_bounded_continuations():
+    board = Board()
+    assert wait_until(board, lambda: board.device('sd-host') >= 7, 'card state',
+                      max_run_instructions=3, ignored_devices=('sd-host',))
+    assert board.calls == [(3, None, [], []), (3, None, [], []), (3, None, [], [])]
+    with pytest.raises(ValueError, match='nothing watchable'):
+        wait_until(Board(), lambda: False, 'unbounded', ignored_devices=('sd-host',))

@@ -1,15 +1,24 @@
 import { EmulatorWorkspace } from '@fujimod/emulator-ui/EmulatorWorkspace';
+import { cardDownloadAllowed } from '../cameras/download-policy';
 import { CameraLauncher } from '../cameras/Launcher';
 import { Show, createSignal, onSettled } from 'solid-js';
 import { createHomeState } from './state';
 import { startHome, type HomeController } from './controller';
 import { FaultPanel } from '@fujimod/emulator-ui/ui/fault';
 import { CameraTable } from '../ui/cameras';
-import { byModel, type FirmwareProgress } from '../ui/camera-progress';
+import {
+  byModel,
+  withOverrides,
+  type FirmwareProgress,
+  type ProgressOverride,
+} from '../ui/camera-progress';
 import { PersonalNote } from '../ui/personal-note';
 import { SiteHeader } from '../ui/site-header';
 import { FeatureCatalog } from './Features';
-import { FirmwareChoice, createFirmwareChoice } from '../ui/firmware-actions';
+import { createFirmwareLibrary } from '../cameras/firmware-library';
+import { sha256 } from '../patch/patcher';
+import { initialize } from 'fujimod';
+import { identify } from '../recovery/identify';
 import { EmulatorFeedback } from '@fujimod/emulator-ui/Feedback';
 import { ViewportControls } from '@fujimod/emulator-ui/ViewportControls';
 import { Icon } from '@fujimod/emulator-ui/ui/icons';
@@ -18,13 +27,27 @@ import owners from '../../devices/owners.json';
 import '../home/site.css';
 import '../navigation.css';
 
-/** Latest recorded bring-up progress, assembled from the catalog at build time. */
+/** Latest recorded bring-up progress with publishing overrides, from the catalog at build time. */
 const cameraProgress = byModel(
-  Object.values(
-    import.meta.glob<FirmwareProgress>('../../../../catalog/progress/*/*/progress.generated.json', {
-      eager: true,
-      import: 'default',
-    }),
+  withOverrides(
+    Object.values(
+      import.meta.glob<FirmwareProgress>(
+        '../../../../catalog/progress/*/*/progress.generated.json',
+        {
+          eager: true,
+          import: 'default',
+        },
+      ),
+    ),
+    Object.values(
+      import.meta.glob<ProgressOverride>(
+        '../../../../catalog/progress/*/*/progress.override.json',
+        {
+          eager: true,
+          import: 'default',
+        },
+      ),
+    ),
   ),
 );
 
@@ -34,13 +57,22 @@ export default function Home() {
   const [feedback, setFeedback] = createSignal<{
     event: 'feedback' | 'crash';
   }>();
-  const choice = createFirmwareChoice();
-  let viewer!: HTMLDivElement,
-    workspace!: HTMLElement,
-    file!: HTMLInputElement,
-    lcd!: HTMLCanvasElement;
+  const library = createFirmwareLibrary(async (file) => {
+    if (!file.size || file.size > 256 * 1024 * 1024)
+      throw Error('Choose a firmware DAT smaller than 256 MB.');
+    const bytes = new Uint8Array(await file.arrayBuffer());
+    const hash = await sha256(bytes);
+    const firmware = state.cameras.find((entry) => entry.firmware.sha256 === hash)?.firmware;
+    if (firmware) {
+      if (file.size !== firmware.bytes) throw Error('Firmware size differs from the catalog.');
+      return firmware;
+    }
+    await initialize();
+    return identify(bytes);
+  });
+  let viewer!: HTMLDivElement, workspace!: HTMLElement, lcd!: HTMLCanvasElement;
   onSettled(() => {
-    const app = startHome(state, setState, { viewer, workspace, file, lcd }, choice);
+    const app = startHome(state, setState, { viewer, workspace, lcd }, library);
     setRuntime(app);
     if (new URLSearchParams(location.search).has('feedback')) setFeedback({ event: 'feedback' });
     const dragOver = (event: DragEvent) => {
@@ -67,12 +99,15 @@ export default function Home() {
           <PersonalNote />
           <FeatureCatalog />
           <div class="emulator-heading">
-            <h2 class="section-heading" id="emulator-heading">
-              Emulator
+            <h2 class="section-heading" id="software">
+              Software
             </h2>
             <Show when={state.activeCamera}>
               <span
-                class={{ 'camera-storage-status': true, error: state.storageError }}
+                class={{
+                  'camera-storage-status': true,
+                  error: state.storageError,
+                }}
                 role="status"
                 aria-live="polite"
               >
@@ -94,7 +129,7 @@ export default function Home() {
             state={state}
             runtime={runtime()}
             bodyPreview={state.bodyPreview}
-            labelledBy="emulator-heading"
+            labelledBy="software"
             workspace={(element) => {
               workspace = element;
             }}
@@ -105,6 +140,14 @@ export default function Home() {
               lcd = element;
             }}
             selectFile={(selected) => runtime()?.selectFile(selected)}
+            canDownloadCardFile={(entry) =>
+              cardDownloadAllowed(
+                entry.name,
+                state.release?.firmwares.find(
+                  (firmware) => firmware.sha256 === state.firmware?.sha256,
+                )?.downloads,
+              )
+            }
             onLayoutChange={(panel) => runtime()?.saveLayout(panel)}
             toolbar={
               <EmulatorFeedback runtime={runtime()} request={feedback()}>
@@ -131,29 +174,22 @@ export default function Home() {
           >
             <Show when={state.promptVisible}>
               <CameraLauncher
-                ready={state.savedCamerasRead}
+                ready={state.savedCamerasRead && library.ready()}
                 cameras={state.savedCameras}
+                library={library}
+                release={state.release}
                 supported={state.cameras}
                 busy={state.cameraBusy}
                 message={state.storageMessage}
                 error={state.storageError}
-                resume={(camera) => void runtime()?.openCamera(camera)}
-                create={(camera) => void runtime()?.newCamera(camera)}
+                run={(firmware, mod, fresh) => void runtime()?.runCamera(firmware, mod, fresh)}
+                download={(firmware, format) => {
+                  const app = runtime();
+                  if (!app) return Promise.reject(Error('The launcher is not ready.'));
+                  return app.downloadFirmware(firmware, format);
+                }}
               />
             </Show>
-            {/* A MIME type keeps iOS from offering Photo Library and Camera for an unmapped .dat extension. */}
-            <input
-              ref={file}
-              class="visually-hidden"
-              id="firmware-file"
-              type="file"
-              accept=".dat,.DAT,application/octet-stream"
-              aria-label="Choose FPUPDATE.DAT"
-              onChange={(event) => {
-                runtime()?.selectFile(event.currentTarget.files?.[0]);
-                event.currentTarget.value = '';
-              }}
-            />
           </EmulatorWorkspace>
           <CameraTable columns={generations} progress={cameraProgress} owners={owners} />
         </main>
@@ -179,7 +215,6 @@ export default function Home() {
         restart={() => void runtime()?.restart()}
         report={() => setFeedback({ event: 'crash' })}
       />
-      <FirmwareChoice choice={choice} />
     </>
   );
 }

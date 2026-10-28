@@ -93,6 +93,56 @@ fn memory_encode_publishes_complete_jpeg_and_decoder_pixels_before_irq() {
     assert_eq!(read(&mut decoder, &mut h, 0xfff63004), 0x10000);
 }
 #[test]
+fn decoder_refills_input_without_publishing_partial_pixels_and_survives_checkpoint() {
+    let mut h = TestHost::new();
+    h.ram[0x8000..0x8100].fill(128);
+    h.ram[0xa000..0xa100].fill(0xa5);
+    let mut encoded = encoder(Default::default());
+    configure(&mut encoded, &mut h, false);
+    write(&mut encoded, &mut h, 0xfff62000, 5);
+    advance(&mut encoded, &mut h, 10);
+    let count = read(&mut encoded, &mut h, 0xfff62094) as usize;
+    let jpeg = h.ram[0x9000..0x9000 + count].to_vec();
+    let split = count - 1; // EOI itself crosses the input boundary.
+    h.ram[0x9000 + split..0x9000 + count].fill(0);
+    let mut decoded = Decoder::new(
+        decoder::Options {
+            completion_ticks: 5,
+            reset_ticks: 2,
+        },
+        Irq { core: 0, line: 76 },
+    )
+    .unwrap();
+    for (offset, value) in [
+        (8, 0xfd0020),
+        (0x100, 0xa000),
+        (0x104, 256),
+        (0x10c, 0x9000),
+        (0x110, split as u32),
+        (0, 1),
+    ] {
+        write(&mut decoded, &mut h, 0xfff63000 + offset, value);
+    }
+    advance_from_checkpoint(&mut decoded, &mut h, 15);
+    assert_eq!(read(&mut decoded, &mut h, 0xfff63004), 0x1000000);
+    assert_eq!(&h.ram[0xa000..0xa100], &[0xa5; 256]);
+    assert_eq!(read(&mut decoded, &mut h, 0xfff63108), 0);
+    write(&mut decoded, &mut h, 0xfff63004, 0x1000000);
+    h.ram[0x9000] = jpeg[split];
+    for (offset, value) in [(0x10c, 0x9000), (0x110, 1), (0x118, 4)] {
+        write(&mut decoded, &mut h, 0xfff63000 + offset, value);
+    }
+    assert_eq!(read(&mut decoded, &mut h, 0xfff63118), 0);
+    advance(&mut decoded, &mut h, 19);
+    assert_eq!(&h.ram[0xa000..0xa100], &[0xa5; 256]);
+    advance_from_checkpoint(&mut decoded, &mut h, 20);
+    assert_eq!(&h.ram[0xa000..0xa004], &[128; 4]);
+    assert_eq!(read(&mut decoded, &mut h, 0xfff63108), count as u64);
+    assert_eq!(read(&mut decoded, &mut h, 0xfff63004), 16);
+    assert_eq!(h.irqs, [(0, 77), (0, 76), (0, 76)]);
+}
+
+#[test]
 fn wide_and_tall_jpegs_decode_with_programmed_downsampling_and_bounded_dma() {
     for (width, height) in [(9792, 8), (16, 8200)] {
         let mut h = TestHost::new();

@@ -1,6 +1,5 @@
 // TAR fixture created with Python tarfile (USTAR), gzip mtime=0.
 import { gunzipSync } from 'node:zlib';
-import { crc32 } from '@fujimod/emulator-ui/archive';
 import { base64url, type ReportLink } from './report-link';
 export const tar = Uint8Array.from(
   gunzipSync(
@@ -16,7 +15,6 @@ export const link: ReportLink = {
   commit: 'a'.repeat(8),
   path: 'A:\\FUJIMOD\\REPORTS\\R1234567.TAR',
   bytes: tar.length,
-  crc32: crc32(tar).toString(16).padStart(8, '0'),
   files: '403a0000',
 };
 export const hash = (value = link) =>
@@ -28,9 +26,52 @@ export const hash = (value = link) =>
         b: value.commit,
         r: value.path.match(/R([a-fA-F0-9]{7})\.TAR$/)?.[1] ?? '',
         n: value.bytes,
-        c: value.crc32,
         f: value.files,
         a: value.archive,
       }),
     ),
   );
+/** A USTAR report like the camera writes: `files`, then a manifest. */
+export function reportTar(files: Record<string, Uint8Array>, capturedAt?: string) {
+  const encoder = new TextEncoder();
+  const manifest = encoder.encode(
+    JSON.stringify({
+      format_version: 1,
+      firmware: 'x70-110',
+      ...(capturedAt === undefined ? {} : { captured_at: capturedAt }),
+      files: Object.entries(files).map(([path, data]) => ({
+        path,
+        bytes: data.length,
+        status: 0,
+      })),
+    }),
+  );
+  const parts: Uint8Array[] = [];
+  for (const [name, data] of [...Object.entries(files), ['manifest.json', manifest] as const]) {
+    const header = new Uint8Array(512);
+    const field = (offset: number, text: string) => header.set(encoder.encode(text), offset);
+    field(0, name);
+    field(100, '0000644\0');
+    field(124, data.length.toString(8).padStart(11, '0') + '\0');
+    field(136, '00000000000\0');
+    header[156] = 48;
+    field(257, 'ustar\0');
+    header.fill(32, 148, 156);
+    field(
+      148,
+      header
+        .reduce((sum, byte) => sum + byte, 0)
+        .toString(8)
+        .padStart(6, '0') + '\0 ',
+    );
+    parts.push(header, data, new Uint8Array((512 - (data.length % 512)) % 512));
+  }
+  parts.push(new Uint8Array(1024));
+  const bytes = new Uint8Array(parts.reduce((total, part) => total + part.length, 0));
+  let offset = 0;
+  for (const part of parts) {
+    bytes.set(part, offset);
+    offset += part.length;
+  }
+  return bytes;
+}

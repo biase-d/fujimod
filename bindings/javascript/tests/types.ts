@@ -1,4 +1,4 @@
-import { usb, type UsbError, type Session, type Device, type InfoReply } from '../src/index.js';
+import { usb, type UsbError, type Session, type Memory, type Device, type InfoReply } from '../src/index.js';
 import type { LensClockMode, PartAttachment, StabilizerCommand, BodyProfile } from '../pkg/fujimod.js';
 declare const lensClock: LensClockMode;
 if (lensClock.kind === 'divided') {
@@ -20,7 +20,7 @@ void stabilizer;
 void invalidStabilizer;
 declare const session: Session;
 declare const device: Device;
-const bytes: Promise<Uint8Array> = session.readMemory(0x1000, 4);
+const bytes: Promise<Uint8Array> = session.readSinglePacket(0x1000, 4);
 const info: Promise<InfoReply> = session.deviceInfo(usb.InfoSelector.Product);
 const opened: Promise<Session> = usb.Session.open(
   device,
@@ -33,10 +33,9 @@ async function inspect(): Promise<void> {
   const reply = await info;
   const raw: NotAny<typeof reply.raw> = reply.raw;
   const array: Uint8Array = raw;
-  for await (const part of usb.memory.readChunks(session, 0x1000, 8)) {
-    const output: Uint8Array = part;
-    void output;
-  }
+  const memory: Memory = await session.memory('x70-110');
+  const output: Uint8Array = await memory.read(0x40390000, 0x4000);
+  void output;
   void array;
 }
 function errors(value: unknown): void {

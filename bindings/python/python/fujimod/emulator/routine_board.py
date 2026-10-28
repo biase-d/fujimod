@@ -15,20 +15,22 @@ class RoutineBoard:
     Device construction finishes before this adapter is created. Identity
     words and input metadata are explicit construction facts, recorded in
     each call result. Host stop reasons are local caller instrumentation.
+    A None identity leaves cores without an R-profile input unchanged.
     """
 
     def __init__(
         self,
         board: Board,
         *,
-        cpu_identity: tuple[int, ...],
+        cpu_identity: tuple[int | None, ...],
         device_graph: dict[str, object],
         input_manifest: dict[str, object],
     ) -> None:
         if len(cpu_identity) != len(board.cpus) or any(
-            type(value) is not int or not 0 <= value < 1 << 32 for value in cpu_identity
+            value is not None and (type(value) is not int or not 0 <= value < 1 << 32)
+            for value in cpu_identity
         ):
-            raise ValueError("Declare one unsigned ARM identity word per processor")
+            raise ValueError("Declare one R-profile identity word or None per processor")
         self._board = board
         self.identity = list(cpu_identity)
         self.cpus = board.cpus

@@ -1,9 +1,17 @@
 import { For, Show, createMemo, createSignal } from 'solid-js';
+import { shownError } from '@fujimod/emulator-ui/ui/shown-error';
 import type { Camera, CameraModel } from '../camera-model';
-import { MIB, bulkSelection, captureRanges, stateScope, type CaptureSet } from './capture';
+import {
+  MIB,
+  bulkSelection,
+  canceled,
+  captureRanges,
+  stateScope,
+  type CaptureSet,
+} from './capture';
 import { slug, type AddFile } from '../../files/shelf';
 import { CAPTURE_STATES, type CaptureState } from './states';
-import { CapturePanel, emptySet, message } from './CapturePanel';
+import { CapturePanel, emptySet } from './CapturePanel';
 import './captures.css';
 
 /** Capture RAM in states the person sets with the camera's own controls. */
@@ -22,6 +30,7 @@ export function StateCaptures(props: {
   const [progress, setProgress] = createSignal({ done: 0, total: 1 });
   const [failure, setFailure] = createSignal('');
   const [names, setNames] = createSignal<Record<string, string>>({});
+  let abort: AbortController | undefined;
   const set = () => props.set ?? emptySet(selection()!.firmware.id);
   const available = () =>
     Boolean(
@@ -41,9 +50,17 @@ export function StateCaptures(props: {
     if (!current || !camera || !firmwareId || !text || !available()) return;
     setRunning(state.id);
     setFailure('');
+    abort = new AbortController();
+    const signal = abort.signal;
     try {
       const read = await props.model.withSession(camera.id, 'Camera mode capture', (session) =>
-        captureRanges(session, firmwareId, current, (done, total) => setProgress({ done, total })),
+        captureRanges(
+          session,
+          firmwareId,
+          current,
+          (done, total) => setProgress({ done, total }),
+          signal,
+        ),
       );
       const capture = {
         state: state.id,
@@ -68,7 +85,7 @@ export function StateCaptures(props: {
       props.onSet({ ...previous, states: [...previous.states, capture] });
       if (state.named) setNames((all) => ({ ...all, [state.id]: '' }));
     } catch (error) {
-      setFailure(message(error));
+      if (!canceled(error)) setFailure(shownError(error));
     } finally {
       setRunning(undefined);
     }
@@ -146,6 +163,9 @@ export function StateCaptures(props: {
                     <Show when={state.held}>Keep holding · </Show>
                     {Math.floor(progress().done / MIB)} / {Math.ceil(progress().total / MIB)} MiB
                   </span>
+                  <button class="wb-btn" onClick={() => abort?.abort()}>
+                    Cancel
+                  </button>
                 </div>
               </Show>
             </li>

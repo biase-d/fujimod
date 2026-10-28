@@ -1,5 +1,14 @@
+import { releaseFilename, releaseTag } from './releases.ts';
 import { inspectPatch, sha256 } from './patcher.ts';
+export interface ReleaseDownloads {
+  sd_card: boolean;
+  installable: boolean;
+}
+export interface ReleaseNotes {
+  name: string;
+}
 export interface PatchFirmware {
+  downloads: ReleaseDownloads;
   id: string;
   model: string;
   version: string;
@@ -13,11 +22,12 @@ export interface PatchFirmware {
   mods?: string[];
 }
 export interface PatchIndex {
-  schema: number;
+  schema: 2;
   release: string;
   built_utc?: string;
   patches: Record<string, string>;
   firmwares: PatchFirmware[];
+  notes?: ReleaseNotes;
 }
 const hash = /^[0-9a-f]{64}$/;
 const calendarDate = (value: unknown) => {
@@ -28,18 +38,31 @@ const calendarDate = (value: unknown) => {
 export function validateIndex(value: unknown): PatchIndex {
   const index = value as PatchIndex;
   if (
-    index?.schema !== 1 ||
+    index?.schema !== 2 ||
     typeof index.release !== 'string' ||
-    !index.release ||
+    !releaseTag.test(index.release) ||
     (index.built_utc !== undefined &&
       (typeof index.built_utc !== 'string' || Number.isNaN(Date.parse(index.built_utc)))) ||
     !index.patches ||
+    typeof index.patches !== 'object' ||
+    Array.isArray(index.patches) ||
     !Array.isArray(index.firmwares) ||
     !index.firmwares.length
   )
     throw new Error('The release index is invalid.');
+  if (
+    index.notes !== undefined &&
+    (!index.notes ||
+      typeof index.notes.name !== 'string' ||
+      !releaseFilename.test(index.notes.name) ||
+      !index.notes.name.endsWith('.md'))
+  )
+    throw new Error('The release notes entry is invalid.');
   const seen = new Set();
+  const firmwares: PatchFirmware[] = [];
   for (const entry of index.firmwares) {
+    if (!entry || typeof entry !== 'object')
+      throw new Error('A supported firmware entry is invalid.');
     const filename = index.patches[entry.sha256];
     if (
       !hash.test(entry.sha256) ||
@@ -62,6 +85,23 @@ export function validateIndex(value: unknown): PatchIndex {
       new URL(entry.download_url).protocol !== 'https:'
     )
       throw new Error('A supported firmware entry is invalid.');
+    const downloads = entry.downloads;
+    if (
+      downloads !== undefined &&
+      (!downloads ||
+        typeof downloads !== 'object' ||
+        Array.isArray(downloads) ||
+        (downloads.sd_card !== undefined && typeof downloads.sd_card !== 'boolean') ||
+        (downloads.installable !== undefined && typeof downloads.installable !== 'boolean'))
+    )
+      throw new Error('The release download switches are invalid.');
+    firmwares.push({
+      ...entry,
+      downloads: {
+        sd_card: downloads?.sd_card ?? false,
+        installable: downloads?.installable ?? false,
+      },
+    });
     seen.add(entry.sha256);
   }
   if (
@@ -69,7 +109,7 @@ export function validateIndex(value: unknown): PatchIndex {
     new Set(Object.values(index.patches)).size !== seen.size
   )
     throw new Error('The release patch map is inconsistent.');
-  return index;
+  return { ...index, firmwares };
 }
 
 export async function verifyPatch(index: PatchIndex, entry: PatchFirmware, data: Uint8Array) {
@@ -81,6 +121,7 @@ export async function verifyPatch(index: PatchIndex, entry: PatchFirmware, data:
     meta.source.bytes !== entry.bytes ||
     meta.firmware !== entry.id ||
     meta.release !== index.release ||
+    (entry.downloads.installable && !meta.outputs.fpupdate) ||
     !Array.isArray(meta.mods) ||
     !meta.mods.every((name) => typeof name === 'string') ||
     (await sha256(program)) !== meta.program_sha256

@@ -9,6 +9,8 @@ export interface ClientErrorRecord {
   kind: 'error' | 'rejection' | 'console' | 'fault';
   message: string;
   stack?: string;
+  /** The error's own properties and cause chain. */
+  details?: unknown;
   fault?: unknown;
   page: string;
   build: string;
@@ -69,6 +71,7 @@ export function clientErrorLog(record: ClientErrorRecord, country: string | unde
       kind: record.kind,
       message: record.message,
       ...(record.stack ? { stack: record.stack } : {}),
+      ...(record.details !== undefined ? { details: record.details } : {}),
       ...(record.fault ? { fault: record.fault } : {}),
     },
   };

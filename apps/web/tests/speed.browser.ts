@@ -80,7 +80,10 @@ try {
   result.csp = response?.headers()['content-security-policy'];
   assert.match(String(result.csp), /'wasm-unsafe-eval'/);
   await page.waitForFunction(() => performance.getEntriesByName('camera-catalog-ready').length > 0);
-  if (values.dat) await page.locator('#firmware-file').setInputFiles(values.dat);
+  if (values.dat) {
+    await page.locator('#firmware-file').setInputFiles(values.dat);
+    await page.getByRole('button', { name: 'Run unmodified in your browser', exact: true }).click();
+  }
   await page.waitForFunction(() => window.cameraPerformance || window.speedTestFault, undefined, {
     timeout: 240000,
   });

@@ -1,10 +1,12 @@
 import { Show, createEffect, createSignal } from 'solid-js';
 import type { JSX } from '@solidjs/web';
 import { FileList, type FileListItem } from '@fujimod/emulator-ui/ui/file-list';
+import { shownError } from '@fujimod/emulator-ui/ui/shown-error';
 import './files.css';
 
 export interface ContributeReceipt {
   id: string;
+  shareUrl: string;
   link?: { href: string; label: string };
 }
 
@@ -28,10 +30,13 @@ export function ContributeDialog(props: {
   onClose: () => void;
   /** Extra choices or notices shown above the message, such as the bug report's public notice. */
   children?: JSX.Element;
+  /** Offered after a successful upload, such as contributing the next report. */
+  next?: { label: string; run: () => void };
 }) {
   let dialog!: HTMLDialogElement;
   const [message, setMessage] = createSignal('');
   const [phase, setPhase] = createSignal<Phase>({ kind: 'idle' });
+  const [copied, setCopied] = createSignal(false);
   createEffect(
     () => props.open,
     (open) => {
@@ -39,11 +44,20 @@ export function ContributeDialog(props: {
       if (open && !dialog.open) {
         setMessage('');
         setPhase({ kind: 'idle' });
+        setCopied(false);
         dialog.showModal();
       } else if (!open && dialog.open) dialog.close();
     },
   );
   const busy = () => phase().kind === 'uploading';
+  async function copyShareUrl(url: string) {
+    try {
+      await navigator.clipboard.writeText(url);
+      setCopied(true);
+    } catch {
+      setCopied(false);
+    }
+  }
   async function upload() {
     if (busy()) return;
     setPhase({ kind: 'uploading', fraction: 0 });
@@ -52,8 +66,9 @@ export function ContributeDialog(props: {
         setPhase({ kind: 'uploading', fraction }),
       );
       setPhase({ kind: 'done', receipt });
+      await copyShareUrl(receipt.shareUrl);
     } catch (error) {
-      setPhase({ kind: 'failed', error: error instanceof Error ? error.message : String(error) });
+      setPhase({ kind: 'failed', error: shownError(error) });
     }
   }
   return (
@@ -72,7 +87,8 @@ export function ContributeDialog(props: {
       <p>
         Sharing this data with FujiMod contributors can help us improve support for your camera. It
         may contain your camera serial number, wifi pairing code, current screen contents, or live
-        sensor data. We believe this isn’t a security concern but you should be informed.
+        sensor data. We believe this isn’t a security concern but you should be informed. Anyone
+        with the share URL can download these files.
       </p>
       <FileList items={props.items} />
       {props.children}
@@ -113,7 +129,11 @@ export function ContributeDialog(props: {
           >
             {(receipt) => (
               <span class="cd-clip">
-                Uploaded · <code>{receipt().id.slice(0, 8)}</code>
+                {copied() ? 'Share URL copied' : 'Uploaded'}
+                {' · '}
+                <a href={receipt().shareUrl} target="_blank" rel="noopener noreferrer">
+                  Share URL
+                </a>
                 <Show when={receipt().link}>
                   {(link) => (
                     <>
@@ -135,9 +155,30 @@ export function ContributeDialog(props: {
           <Show
             when={phase().kind !== 'done'}
             fallback={
-              <button type="button" class="cd-btn" onClick={() => props.onClose()}>
-                Close
-              </button>
+              <>
+                <Show when={!copied()}>
+                  <button
+                    type="button"
+                    class="cd-btn"
+                    onClick={() => {
+                      const current = phase();
+                      if (current.kind === 'done') void copyShareUrl(current.receipt.shareUrl);
+                    }}
+                  >
+                    Copy URL
+                  </button>
+                </Show>
+                <button type="button" class="cd-btn" onClick={() => props.onClose()}>
+                  Close
+                </button>
+                <Show when={props.next}>
+                  {(next) => (
+                    <button type="button" class="cd-btn primary" onClick={() => next().run()}>
+                      {next().label}
+                    </button>
+                  )}
+                </Show>
+              </>
             }
           >
             <button type="button" class="cd-btn" disabled={busy()} onClick={() => props.onClose()}>

@@ -2,20 +2,19 @@ import { For, createSignal, createEffect, createMemo, untrack } from 'solid-js';
 import type { Engine } from '../engine/api';
 import type { CardEntry, CardState } from 'fujimod/emulator';
 import { zipBlob } from '../archive';
-import { flags } from '../flags';
 import { FileList, type FileListItem } from './file-list';
 import { downloadBlob } from './download';
+import { shownError } from './shown-error';
 
-function downloadable(entry: CardEntry) {
-  return flags.allowSdCardBootDownload || !/^ff(?:boot|sys)\.bin$/i.test(entry.name);
-}
-
-function visibleEntries(entries: CardEntry[]): CardEntry[] {
+function visibleEntries(
+  entries: CardEntry[],
+  canDownload: (entry: CardEntry) => boolean,
+): CardEntry[] {
   return entries
-    .filter((entry) => entry.kind === 'directory' || downloadable(entry))
+    .filter((entry) => entry.kind === 'directory' || canDownload(entry))
     .map((entry) =>
       entry.kind === 'directory'
-        ? { ...entry, children: visibleEntries(entry.children ?? []) }
+        ? { ...entry, children: visibleEntries(entry.children ?? [], canDownload) }
         : entry,
     );
 }
@@ -31,12 +30,15 @@ function listItems(entries: readonly CardEntry[]): FileListItem[] {
 /** All observations/downloads are bound to the engine and the card revision that supplied them. */
 export function CardBrowser(props: {
   engine?: Engine;
+  canDownload?: (entry: CardEntry) => boolean;
   present: (value: boolean) => Promise<void>;
   format: () => Promise<void>;
 }) {
   const [state, setState] = createSignal<CardState>();
   const [tree, setTree] = createSignal<{ revision: number; entries: CardEntry[] }>();
-  const entries = createMemo(() => visibleEntries(tree()?.entries ?? []));
+  const entries = createMemo(() =>
+    visibleEntries(tree()?.entries ?? [], (entry) => props.canDownload?.(entry) ?? true),
+  );
   const files = createMemo(() => {
     const result: CardEntry[] = [];
     const visit = (items: CardEntry[]) => {
@@ -90,7 +92,7 @@ export function CardBrowser(props: {
             setTree({ revision: value.revision, entries: value.entries });
           })
           .catch((error) => {
-            if (current === generation && observed === observation) setStatus(String(error));
+            if (current === generation && observed === observation) setStatus(shownError(error));
           })
           .finally(() => {
             if (pendingRevision === revision) pendingRevision = undefined;
@@ -107,14 +109,14 @@ export function CardBrowser(props: {
     try {
       await task();
     } catch (error) {
-      if (current === generation) setStatus(String(error));
+      if (current === generation) setStatus(shownError(error));
     }
   }
   async function download(entry: CardEntry) {
     const engine = props.engine,
       current = generation,
       revision = tree()?.revision;
-    if (!engine || revision === undefined || !downloadable(entry)) return;
+    if (!engine || revision === undefined || props.canDownload?.(entry) === false) return;
     await perform(async () => {
       const bytes = await engine.readCardFile(entry.path, { revision });
       if (current === generation) downloadBlob(new Blob([bytes.slice().buffer]), entry.name);

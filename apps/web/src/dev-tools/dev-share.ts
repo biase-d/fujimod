@@ -1,4 +1,5 @@
 import { createEffect, createRoot } from 'solid-js';
+import { shownError } from '@fujimod/emulator-ui/ui/shown-error';
 import type { Camera, CameraModel } from './camera-model';
 import { holdReloadsDuringCameraSessions } from './reload-hold';
 
@@ -70,7 +71,7 @@ export function startDevShare(model: CameraModel, options: DevShareOptions): () 
         if (!announced) options.report(record.camera.id, 'Development share registered');
         announced = true;
       } catch (error) {
-        options.report(record.camera.id, String(error), true);
+        options.report(record.camera.id, shownError(error), true);
         socket.close();
       }
     };
@@ -127,7 +128,7 @@ export function startDevShare(model: CameraModel, options: DevShareOptions): () 
                 .setSharing(camera.id, true)
                 .catch((error: unknown) => {
                   current.suspended = true;
-                  options.report(camera.id, String(error), true);
+                  options.report(camera.id, shownError(error), true);
                 })
                 .finally(() => {
                   current.pending = false;

@@ -1,7 +1,8 @@
 /** Qualify generated camera capabilities through the ordinary upload and panel UI. */
-import { chromium } from 'playwright';
+import { chromium, webkit } from 'playwright';
 import assert from 'node:assert/strict';
 import { readFile, mkdir, writeFile } from 'node:fs/promises';
+import { resolve, sep } from 'node:path';
 import type { Catalog } from '../src/catalog';
 
 declare global {
@@ -15,17 +16,35 @@ const manifest = process.env.FUJIMOD_TEST_CATALOG;
 const files: Record<string, string> = JSON.parse(process.env.FUJIMOD_TEST_FIRMWARE_FILES || '{}');
 const output = process.env.FUJIMOD_TEST_OUTPUT;
 const installed = process.env.FUJIMOD_TEST_INSTALLED_CATALOG === '1';
+const runtime = process.env.FUJIMOD_TEST_RUNTIME;
+if (runtime && installed) throw Error('Choose either a local runtime or installed assets.');
+const browserName = process.env.FUJIMOD_TEST_BROWSER ?? 'chromium';
+if (!['chromium', 'webkit'].includes(browserName)) throw Error('Unknown qualification browser.');
 if (!url || !manifest || !output)
   throw Error('Set the web URL, generated catalog, DAT inputs and output directory.');
 const catalog: Catalog = JSON.parse(await readFile(manifest, 'utf8'));
 await mkdir(output, { recursive: true });
-const browser = await chromium.launch({ headless: true });
+const browser = await (browserName === 'webkit' ? webkit : chromium).launch({ headless: true });
 let failures = 0;
 try {
   for (const firmware of catalog.firmwares.filter((entry) => entry.emulate)) {
     assert.ok(files[firmware.id], `Missing DAT input for ${firmware.id}`);
     const context = await browser.newContext({ viewport: { width: 1440, height: 1000 } });
     await context.routeWebSocket('**/*', () => {});
+    // This workflow captures errors directly; the preview's diagnostic collector is separate.
+    await context.route('**/__browser-diagnostics.js', (route) =>
+      route.fulfill({ contentType: 'text/javascript', body: '' }),
+    );
+    await context.route('**/__browser-diagnostics', (route) => route.fulfill({ status: 204 }));
+    if (runtime) {
+      const directory = resolve(runtime);
+      await context.route('**/runtime/**', async (route) => {
+        const pathname = new URL(route.request().url()).pathname;
+        const file = resolve(directory, decodeURIComponent(pathname.split('/runtime/')[1]!));
+        assert.ok(file.startsWith(directory + sep), 'Runtime request escaped its directory');
+        await route.fulfill({ path: file });
+      });
+    }
     if (!installed)
       await context.route('**/runtime/catalog.json', (route) => route.fulfill({ json: catalog }));
     await context.route('**/local/firmware/**', (route) => route.fulfill({ status: 404 }));
@@ -76,8 +95,11 @@ try {
       await page.goto(url);
       console.log(`${firmware.id}: choosing DAT`);
       const chooser = page.waitForEvent('filechooser');
-      await page.locator('#firmware-prompt').click();
+      await page.locator('label.file-drop-choose').click();
       await (await chooser).setFiles(files[firmware.id]);
+      await page
+        .getByRole('button', { name: 'Run unmodified in your browser', exact: true })
+        .click();
       console.log(`${firmware.id}: waiting for cold boot`);
       await page.waitForFunction(
         () =>
@@ -93,6 +115,7 @@ try {
         false,
         await page.locator('#status').innerText(),
       );
+      console.log(`${firmware.id}: cold boot completed`);
       async function settled() {
         await page.waitForFunction(() => {
           const queue = window.catalogState?.inputQueue;
@@ -109,6 +132,7 @@ try {
         assert.equal(await page.evaluate(() => window.catalogError), undefined);
       }
       async function press(id: string) {
+        console.log(`${firmware.id}: pressing ${id}`);
         const before = await page.evaluate(() => window.catalogState?.inputQueue?.completed ?? 0);
         await page.locator(`#controls button[data-id="${id}"]`).click();
         await page.waitForFunction(
@@ -121,16 +145,22 @@ try {
         await waitTicks(6_000_000);
       }
       await settled();
+      console.log(`${firmware.id}: input queue settled`);
       await waitTicks(6_000_000);
+      console.log(`${firmware.id}: initial guest interval completed`);
       const menuId = await page
-        .locator('#controls button[data-id="menu_ok_button"], #controls button[data-id="selector.press"]')
+        .locator(
+          '#controls button[data-id="menu_ok_button"], #controls button[data-id="selector.press"]',
+        )
         .getAttribute('data-id');
       assert.ok(menuId, 'The body must expose its MENU/OK contact');
       const pixels = () =>
         page.locator('#lcd-source').evaluate(async (canvas: HTMLCanvasElement) => {
           const pixels = canvas.getContext('2d')!.getImageData(0, 0, canvas.width, canvas.height);
           const digest = await crypto.subtle.digest('SHA-256', pixels.data);
-          return [...new Uint8Array(digest)].map((byte) => byte.toString(16).padStart(2, '0')).join('');
+          return [...new Uint8Array(digest)]
+            .map((byte) => byte.toString(16).padStart(2, '0'))
+            .join('');
         });
       const shooting = await pixels();
       await press(menuId);
@@ -147,6 +177,7 @@ try {
         `${output}/${firmware.id}-browser.json`,
         JSON.stringify({
           firmware: firmware.id,
+          browser: browserName,
           sha256: firmware.sha256,
           pixels: { shooting, menu, selection },
           passed: true,

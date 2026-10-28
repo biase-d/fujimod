@@ -491,7 +491,7 @@ class Board:
         return self._native.checkpoint(previous)
 
     def restore_checkpoint(self, saved: _native.Checkpoint) -> None:
-        """Restore a checkpoint created by this board's native session."""
+        """Restore an in-memory or portable checkpoint for this board."""
         self._ensure_open()
         self._native.restore_checkpoint(saved)
 

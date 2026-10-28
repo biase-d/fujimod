@@ -7,7 +7,7 @@ use crate::board::{
     set,
 };
 use fujimod_emulator_cpu::{Cpu, ExecutionPolicy, Register, memory::Backing, timeline::Ratio};
-use fujimod_emulator_cpu_unicorn::rprofile::{memory as rprofile_memory, worker};
+use fujimod_emulator_cpu_unicorn::{memory as cpu_memory, rprofile::worker};
 use fujimod_emulator_devices::{Cx, Device, checkpoint::Checkpoint};
 use serde::{Deserialize, Serialize};
 
@@ -72,7 +72,7 @@ impl Device for DeadlineSample {
 
 fn board(policy: ExecutionPolicy, due: Option<u64>) -> (Board, usize) {
     let backing = Backing::aligned_zeros(0x4000, 4096).unwrap();
-    let shared_memory = rprofile_memory::Memory::default().shared();
+    let shared_memory = cpu_memory::Memory::default().shared();
     let cpus = (0..2)
         .map(|core| {
             let cpu = worker::spawn(worker::Config {

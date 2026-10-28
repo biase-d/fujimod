@@ -81,8 +81,10 @@ impl Renderer {
         &self,
         saved: &fujimod_emulator_devices::checkpoint::Checkpoint,
     ) -> Result<(), String> {
-        let (calibration, projection): (Calibration, Option<fujimod_emulator_imaging::optics::Spec>) =
-            saved.decode("radiometric-renderer")?;
+        let (calibration, projection): (
+            Calibration,
+            Option<fujimod_emulator_imaging::optics::Spec>,
+        ) = saved.decode("radiometric-renderer")?;
         if calibration != self.calibration
             || projection.as_ref() != self.projection.as_ref().map(|p| p.spec())
             || !saved.blobs().is_empty()
@@ -192,9 +194,14 @@ impl Image {
         )?
         .with_children(vec![self.exposure.checkpoint()?]))
     }
-    pub fn from_checkpoint(saved: &fujimod_emulator_devices::checkpoint::Checkpoint) -> Result<Self, String> {
-        let (film, gain, projection): (Film, [u32; 3], Option<fujimod_emulator_imaging::optics::Spec>) =
-            saved.decode("radiometric-image")?;
+    pub fn from_checkpoint(
+        saved: &fujimod_emulator_devices::checkpoint::Checkpoint,
+    ) -> Result<Self, String> {
+        let (film, gain, projection): (
+            Film,
+            [u32; 3],
+            Option<fujimod_emulator_imaging::optics::Spec>,
+        ) = saved.decode("radiometric-image")?;
         if saved.children().len() != 1
             || !saved.blobs().is_empty()
             || gain.iter().any(|v| *v > 32767)
@@ -258,16 +265,7 @@ impl Image {
             return Ok(frame.clone());
         }
         drop(cache);
-        let mut frame = self.exposure.clone();
-        let view = frame.view.take();
-        let full = [[0, 0, grid[0], grid[1]]];
-        let prepared_windows = if view.is_some() { &full[..] } else { windows };
-        if let Some(projection) = &self.projection {
-            projection.prepare_binned_windows(&mut frame, dimensions, grid, prepared_windows)?
-        } else {
-            super::optics::bin_exposure(&mut frame, dimensions)?
-        }
-        frame.view = view;
+        let frame = self.prepare_measurement(grid, windows)?;
         // Bound retained derived pixels; the immutable source is shared.
         let cost = dimensions[0] * dimensions[1];
         let mut cache = self
@@ -294,6 +292,27 @@ impl Image {
         if cost <= 4 * 1024 * 1024 {
             cache.push((grid, windows.to_vec(), frame.clone()));
         }
+        Ok(frame)
+    }
+    fn prepare_measurement(
+        &self,
+        grid: [usize; 2],
+        windows: &[[usize; 4]],
+    ) -> Result<ExposedFrame, String> {
+        let dimensions = [
+            grid[0].min(self.exposure.frame.width),
+            grid[1].min(self.exposure.frame.height),
+        ];
+        let mut frame = self.exposure.clone();
+        let view = frame.view.take();
+        let full = [[0, 0, grid[0], grid[1]]];
+        let prepared_windows = if view.is_some() { &full[..] } else { windows };
+        if let Some(projection) = &self.projection {
+            projection.prepare_binned_windows(&mut frame, dimensions, grid, prepared_windows)?
+        } else {
+            super::optics::bin_exposure(&mut frame, dimensions)?
+        }
+        frame.view = view;
         Ok(frame)
     }
     #[inline(always)]
@@ -485,6 +504,21 @@ impl Image {
 }
 
 impl SensorImage for Image {
+    fn sensor_sample_rgb(&self, width: usize, height: usize) -> Result<Vec<u8>, String> {
+        if !(1..=256).contains(&width) || !(1..=256).contains(&height) {
+            return Err("passive sensor sample grid must be between 1 and 256 on each axis".into());
+        }
+        let frame = self.prepare_measurement([width, height], &[[0, 0, width, height]])?;
+        let mut bytes = Vec::with_capacity(width * height * 6);
+        for y in 0..height {
+            for x in 0..width {
+                for sample in frame.sample(x, y, [width, height]) {
+                    bytes.extend_from_slice(&sample.to_le_bytes());
+                }
+            }
+        }
+        Ok(bytes)
+    }
     fn render(&self, layout: ImageLayout, workers: usize) -> Result<Arc<[u8]>, String> {
         Image::render(self, layout, workers)
     }
@@ -503,7 +537,9 @@ impl Image {
             .map_err(|_| "sensor pixels are not a radiometric image".into())
     }
     /// Decode a checkpointed sensor image.
-    pub fn decode(saved: &fujimod_emulator_devices::checkpoint::Checkpoint) -> Result<Arc<dyn SensorImage>, String> {
+    pub fn decode(
+        saved: &fujimod_emulator_devices::checkpoint::Checkpoint,
+    ) -> Result<Arc<dyn SensorImage>, String> {
         Ok(Arc::new(Self::from_checkpoint(saved)?))
     }
 }
@@ -516,6 +552,58 @@ mod tests {
         exr2_isp::parameters::Parameters,
         scene::{Frame, FramePixels, SensorFrames},
     };
+    #[test]
+    fn passive_adc_samples_freeze_noise_and_leave_image_state_unchanged() {
+        use fujimod_emulator_imaging::scene::noise::SensorNoise;
+        let (mut renderer, _, exposure) = renderer();
+        *exposure.lock().unwrap() = Exposure {
+            seconds: 0.0001,
+            analog_gain: 2.,
+        };
+        let pixels: Arc<[u8]> = vec![128; 64 * 48 * 3].into();
+        let frame = |realization| {
+            let mut frame = Frame::new(64, 48, FramePixels::Rgb24(pixels.clone())).unwrap();
+            frame.noise = Some(SensorNoise {
+                seed: 9,
+                realization,
+                full_well_electrons: 20000.,
+                read_noise_electrons: 3.,
+            });
+            frame
+        };
+        renderer.frames.lock().unwrap().set_frame(frame(1));
+        let image = renderer.capture().unwrap().unwrap();
+        let before = image.fingerprint();
+        let readouts = image.readouts();
+        let a = image.sensor_sample_rgb(32, 24).unwrap();
+        assert_eq!(a.len(), 32 * 24 * 6);
+        assert_eq!(a, image.sensor_sample_rgb(32, 24).unwrap());
+        assert_eq!(before, image.fingerprint());
+        assert_eq!(readouts, image.readouts());
+        renderer.frames.lock().unwrap().set_frame(frame(2));
+        let next = renderer.capture().unwrap().unwrap();
+        assert_ne!(a, next.sensor_sample_rgb(32, 24).unwrap());
+        assert_eq!(a, image.sensor_sample_rgb(32, 24).unwrap());
+        let restored = Image::from_checkpoint(&image.checkpoint().unwrap()).unwrap();
+        assert_eq!(a, restored.sensor_sample_rgb(32, 24).unwrap());
+        assert!(image.sensor_sample_rgb(0, 1).is_err());
+        assert!(image.sensor_sample_rgb(1, 257).is_err());
+        *exposure.lock().unwrap() = Exposure {
+            seconds: 1.,
+            analog_gain: 2.,
+        };
+        let clipped = renderer
+            .capture()
+            .unwrap()
+            .unwrap()
+            .sensor_sample_rgb(16, 16)
+            .unwrap();
+        assert!(
+            clipped
+                .chunks_exact(2)
+                .all(|p| u16::from_le_bytes([p[0], p[1]]) == 16383)
+        );
+    }
     fn renderer() -> (Renderer, ParameterHandle, ExposureHandle) {
         renderer_with_projection(None)
     }
@@ -857,9 +945,10 @@ mod tests {
                             let color = |x| {
                                 let raw = sampled.sample(x, y, [out_width, out_height]);
                                 film.develop(std::array::from_fn(|c| {
-                                    let gain = ([257u64, 193, 311][c] * 1024 * LIVE_FRONT_END_GAIN_Q10
-                                        + (1 << 19))
-                                        >> 20;
+                                    let gain =
+                                        ([257u64, 193, 311][c] * 1024 * LIVE_FRONT_END_GAIN_Q10
+                                            + (1 << 19))
+                                            >> 20;
                                     ((u64::from(raw[c]) * gain) >> 8).min(16383) as u16
                                 }))
                             };

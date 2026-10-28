@@ -100,9 +100,17 @@
   cursor: pointer;
 }
 .cap-progress {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 4px 10px;
+}
+.cap-progress > :not(button) {
+  grid-column: 1;
+}
+.cap-progress > button {
+  grid-column: 2;
+  grid-row: 1 / span 2;
 }
 .cap-steps {
   display: grid;

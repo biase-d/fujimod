@@ -5,19 +5,15 @@ use crate::{
 };
 use serde::Deserialize;
 
-#[derive(Deserialize)]
-#[serde(deny_unknown_fields)]
-struct Write {
-    address: u32,
-    clear: u32,
-    value: u32,
-}
+pub(crate) mod initialization;
+use initialization::Initialization;
+
 #[derive(Deserialize)]
 #[serde(deny_unknown_fields)]
 struct Binding {
     firmware_id: String,
     proofs: Vec<Xp5SourceProof>,
-    writes: Vec<Write>,
+    initialization: Initialization,
 }
 #[derive(Deserialize)]
 #[serde(deny_unknown_fields)]
@@ -56,8 +52,10 @@ pub fn filenames(recipe: &Recipe) -> Result<Vec<String>> {
     })
 }
 
-/// Verify the selected official update, bind GPIO writes, and package a terminal entry.
-pub fn build(recipe: &Recipe, source: &[u8]) -> Result<Vec<File>> {
+pub(crate) fn verified_writes(
+    recipe: &Recipe,
+    source: &[u8],
+) -> Result<Vec<initialization::Write>> {
     require(
         source.len() == recipe.source_size,
         "Update size differs from recipe",
@@ -66,13 +64,84 @@ pub fn build(recipe: &Recipe, source: &[u8]) -> Result<Vec<File>> {
     let binding = binding(&recipe.firmware_id)?
         .ok_or_else(|| image::Error::Invalid("Missing green LED binding".into()))?;
     let inverted = fujimod_firmware::invert(source);
+    let mut verified = Vec::new();
     for proof in &binding.proofs {
         let bytes = proof.source.read(&inverted)?;
-        image::hash(
-            image::extent(&bytes, proof.offset, proof.size)?,
-            &proof.sha256,
-        )?;
+        let span = image::extent(&bytes, proof.offset, proof.size)?;
+        image::hash(span, &proof.sha256)?;
+        verified.push(span.to_vec());
     }
+    binding.writes(recipe, &verified)
+}
+
+/// Keep the selected green latch asserted through the stock loader GPIO table.
+/// The application and its endpoint writer remain unchanged.
+pub(crate) fn preserve_loader_green(
+    recipe: &Recipe,
+    source: &[u8],
+    ram: &mut [u8],
+) -> Result<Vec<(usize, u32, u32)>> {
+    let _ = verified_writes(recipe, source)?;
+    let binding = binding(&recipe.firmware_id)?
+        .ok_or_else(|| image::Error::Invalid("Missing green LED binding".into()))?;
+    let initialization::Initialization::StockGpio { ports } = &binding.initialization else {
+        return Ok(vec![]);
+    };
+    let inverted = fujimod_firmware::invert(source);
+    let pair = &binding.proofs[0];
+    let raw = pair.source.read(&inverted)?;
+    let id_at = if matches!(
+        recipe.generation,
+        Generation::Exr | Generation::ExrPro | Generation::Exr2
+    ) {
+        8
+    } else {
+        4
+    };
+    let ident = image::word(&raw, pair.offset + id_at)?;
+    let polarity = image::word(&raw, pair.offset + id_at + 4)?;
+    let port = ports
+        .iter()
+        .find(|p| p.port == ident >> 16)
+        .ok_or_else(|| image::Error::Invalid("Missing green GPIO port".into()))?;
+    let proof = &binding.proofs[port.proof];
+    let plan = recipe
+        .plan
+        .as_ref()
+        .ok_or_else(|| image::Error::Invalid("Missing RAM plan".into()))?;
+    let regions: Vec<_> = plan
+        .regions
+        .iter()
+        .filter(|r| {
+            r.source.dat_offset == proof.source.dat_offset && r.source.sha256 == proof.source.sha256
+        })
+        .collect();
+    require(
+        regions.len() == 1 && regions[0].address == 0,
+        "Green GPIO table is not in the loader",
+    )?;
+    let at = regions[0].address + proof.offset + 20;
+    let raw = proof.source.read(&inverted)?;
+    let old = image::word(&raw, proof.offset + 20)?;
+    let bit = 1 << (ident & 0xffff);
+    let new = (old & !bit) | (polarity << (ident & 0xffff));
+    require(
+        image::word(ram, at)? == old,
+        "Green loader GPIO default differs",
+    )?;
+    put(ram, at, new)?;
+    Ok(vec![(at, old, new)])
+}
+
+/// Verify the selected official update, bind GPIO writes, and package a terminal entry.
+pub fn build(recipe: &Recipe, source: &[u8]) -> Result<Vec<File>> {
+    require(
+        source.len() == recipe.source_size,
+        "Update size differs from recipe",
+    )?;
+    image::hash(source, &recipe.source_sha256)?;
+    let writes = verified_writes(recipe, source)?;
+    let inverted = fujimod_firmware::invert(source);
     let aarch64 = matches!(recipe.generation, Generation::Xp5);
     let (program, layout) = if aarch64 {
         (
@@ -91,8 +160,8 @@ pub fn build(recipe: &Recipe, source: &[u8]) -> Result<Vec<File>> {
         layout.schema == 1
             && layout.size == program.len()
             && layout.capacity == 24
-            && !binding.writes.is_empty()
-            && binding.writes.len() <= layout.capacity,
+            && !writes.is_empty()
+            && writes.len() <= layout.capacity,
         "Invalid green LED program layout",
     )?;
     let mut program = program.to_vec();
@@ -102,8 +171,8 @@ pub fn build(recipe: &Recipe, source: &[u8]) -> Result<Vec<File>> {
             .all(|v| *v == 0),
         "Green LED configuration is not empty",
     )?;
-    put(&mut program, layout.config, binding.writes.len() as u32)?;
-    for (index, write) in binding.writes.iter().enumerate() {
+    put(&mut program, layout.config, writes.len() as u32)?;
+    for (index, write) in writes.iter().enumerate() {
         require(
             write.address >= 0xf0000000 && write.address < 0xfffff000 && write.address % 4 == 0,
             "Invalid green LED register",

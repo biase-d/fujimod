@@ -3,6 +3,10 @@ export interface FileMemory {
   read(address: number, count: number): Promise<Uint8Array>;
   write(address: number, bytes: Uint8Array<ArrayBuffer>): Promise<void>;
 }
+export interface DeviceFileEntry {
+  bytes: number;
+  name: string;
+}
 export class DeviceFiles {
   private descriptor?: Uint8Array;
   private pointers?: number[];
@@ -27,7 +31,7 @@ export class DeviceFiles {
     const view = new DataView(bytes.buffer, bytes.byteOffset, 64);
     if (
       view.getUint32(0, true) !== 0x314c4946 ||
-      view.getUint32(4, true) !== 1 ||
+      ![1, 2].includes(view.getUint32(4, true)) ||
       view.getUint32(8, true) !== this.build
     )
       throw Error('This device has a different file service or build.');
@@ -78,12 +82,16 @@ export class DeviceFiles {
       await new Promise((resolve) => setTimeout(resolve, 40));
     }
   }
-  private async path(path: string) {
+  private async path(path: string, listing = false) {
     const p = await this.check();
     await this.idle(p);
     if ((await this.word(p[9])) !== 0xffffffff) throw Error('Another camera file is open.');
     if (
-      !/^[A-Z]:\\[A-Za-z0-9._\\-]+$/.test(path) ||
+      !(
+        listing
+          ? /^[A-Z]:\\(?:[A-Za-z0-9._-]+\\)*[A-Za-z0-9._*?-]{1,12}$/
+          : /^[A-Z]:\\[A-Za-z0-9._\\-]+$/
+      ).test(path) ||
       path.split('\\').some((part) => part === '..' || part === '.')
     )
       throw Error('Invalid camera file path.');
@@ -132,6 +140,38 @@ export class DeviceFiles {
       }
       throw error;
     }
+  }
+
+  async list(pattern: string, skip = 0): Promise<DeviceFileEntry[]> {
+    await this.check();
+    if (new DataView(this.descriptor!.buffer, this.descriptor!.byteOffset).getUint32(4, true) < 2)
+      throw Error('Folder listing requires file-service ABI 2.');
+    if (!Number.isSafeInteger(skip) || skip < 0 || skip > 0xffffff)
+      throw Error('Invalid folder listing skip count.');
+    await this.path(pattern, true);
+    const count = await this.command(8, skip);
+    if (count > this.capacity || count % 24) throw Error('Invalid folder listing byte count.');
+    if (!count) return [];
+    const data = await this.memory.read(this.pointers![6], count);
+    if (data.length !== count) throw Error('Incomplete folder listing.');
+    const view = new DataView(data.buffer, data.byteOffset, data.byteLength);
+    const entries: DeviceFileEntry[] = [];
+    for (let offset = 0; offset < count; offset += 24) {
+      const raw = data.subarray(offset + 4, offset + 24),
+        end = raw.indexOf(0);
+      if (end < 1 || raw.subarray(end).some((value) => value !== 0))
+        throw Error('Invalid folder listing name.');
+      const name = String.fromCharCode(...raw.subarray(0, end));
+      if (
+        raw.subarray(0, end).some((value) => value < 32 || value > 126) ||
+        /[\\/:]/.test(name) ||
+        name === '.' ||
+        name === '..'
+      )
+        throw Error('Invalid folder listing name.');
+      entries.push({ bytes: view.getUint32(offset, true), name });
+    }
+    return entries;
   }
 
   async remove(path: string) {

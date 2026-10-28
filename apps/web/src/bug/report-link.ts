@@ -1,4 +1,3 @@
-import { crc32 } from '@fujimod/emulator-ui/archive';
 export const MAX_REPORT_BYTES = 64 * 1024 * 1024;
 export interface ReportLink {
   v: 1;
@@ -6,7 +5,6 @@ export interface ReportLink {
   commit: string;
   path: string;
   bytes: number;
-  crc32: string;
   files: string;
   archive?: string;
 }
@@ -35,7 +33,7 @@ export function parseReportLink(hash: string): ReportLink {
     Array.isArray(wire) ||
     typeof wire.r !== 'string' ||
     !/^[a-fA-F0-9]{7}$/.test(wire.r) ||
-    Object.keys(wire).some((key) => !['v', 'b', 'r', 'n', 'c', 'f', 'a'].includes(key))
+    Object.keys(wire).some((key) => !['v', 'b', 'r', 'n', 'f', 'a'].includes(key))
   )
     throw Error('Unsupported camera report link.');
   return parseReportMetadata({
@@ -44,7 +42,6 @@ export function parseReportLink(hash: string): ReportLink {
     commit: wire.b,
     path: `A:\\FUJIMOD\\REPORTS\\R${wire.r}.TAR`,
     bytes: wire.n,
-    crc32: wire.c,
     files: wire.f,
     ...(wire.a === undefined ? {} : { archive: wire.a }),
   });
@@ -64,10 +61,11 @@ export function parseReportMetadata(value: ReportLink): ReportLink {
     !Number.isSafeInteger(value.bytes) ||
     value.bytes < 1024 ||
     value.bytes > MAX_REPORT_BYTES ||
-    typeof value.crc32 !== 'string' ||
-    !/^[a-f0-9]{8}$/.test(value.crc32) ||
     typeof value.files !== 'string' ||
     !/^[a-f0-9]{8}$/.test(value.files) ||
+    Object.keys(value).some(
+      (key) => !['v', 'firmware', 'commit', 'path', 'bytes', 'files', 'archive'].includes(key),
+    ) ||
     (value.archive !== undefined && typeof value.archive !== 'string')
   )
     throw Error('Unsupported camera report link.');
@@ -76,7 +74,7 @@ export function parseReportMetadata(value: ReportLink): ReportLink {
 export function reportName(link: ReportLink): string {
   return link.path.split('\\').at(-1)!;
 }
-/** Checks the complete archive before making it available for reporting. No extraction to disk. */
+/** Checks archive size and TAR structure before making it available for reporting. */
 export interface ReportEntry {
   name: string;
   bytes: number;
@@ -84,8 +82,11 @@ export interface ReportEntry {
   offset: number;
 }
 export function reportEntries(bytes: Uint8Array<ArrayBuffer>, link: ReportLink): ReportEntry[] {
-  if (bytes.length !== link.bytes || crc32(bytes).toString(16).padStart(8, '0') !== link.crc32)
-    throw Error('The report is incomplete or belongs to another capture.');
+  if (bytes.length !== link.bytes) throw Error('The report size does not match its link.');
+  return tarEntries(bytes);
+}
+/** The entries of a complete USTAR archive, checking every header. */
+function tarEntries(bytes: Uint8Array<ArrayBuffer>): ReportEntry[] {
   if (bytes.length % 512 || bytes.length < 1024) throw Error('Invalid TAR archive.');
   let offset = 0,
     ended = false;
@@ -129,4 +130,78 @@ export function reportEntries(bytes: Uint8Array<ArrayBuffer>, link: ReportLink):
 export function validateReport(bytes: Uint8Array<ArrayBuffer>, link: ReportLink): Blob {
   reportEntries(bytes, link);
   return new Blob([bytes], { type: 'application/x-tar' });
+}
+
+/** What the camera recorded about a report, read from its manifest. */
+export interface ReportDetails {
+  /** Camera-local date and time of capture, `YYYY-MM-DDTHH:MM:SS`. */
+  capturedAt?: string;
+  /** The screen when the report was captured. */
+  screen?: ReportEntry;
+}
+interface ManifestFile {
+  path: string;
+  bytes: number;
+  status: number;
+}
+function manifest(bytes: Uint8Array<ArrayBuffer>, entries: readonly ReportEntry[]) {
+  const entry = entries.find((candidate) => candidate.name === 'manifest.json');
+  if (!entry) return undefined;
+  const value: unknown = JSON.parse(
+    new TextDecoder().decode(bytes.subarray(entry.offset, entry.offset + entry.bytes)),
+  );
+  return value && typeof value === 'object'
+    ? (value as { captured_at?: unknown; files?: ManifestFile[] })
+    : undefined;
+}
+export function reportDetails(
+  bytes: Uint8Array<ArrayBuffer>,
+  entries: readonly ReportEntry[],
+): ReportDetails {
+  const capturedAt = manifest(bytes, entries)?.captured_at;
+  return {
+    capturedAt:
+      typeof capturedAt === 'string' && /^\d{4}-\d\d-\d\dT\d\d:\d\d:\d\d$/.test(capturedAt)
+        ? capturedAt
+        : undefined,
+    screen: entries.find((entry) => entry.name === 'screen.bmp'),
+  };
+}
+/** A camera-local capture time as the reader's locale shows dates. */
+export function capturedText(capturedAt: string): string {
+  const [date, time] = capturedAt.split('T');
+  const [year, month, day] = date.split('-').map(Number);
+  const [hour, minute, second] = time.split(':').map(Number);
+  return new Date(year, month - 1, day, hour, minute, second).toLocaleString(undefined, {
+    dateStyle: 'medium',
+    timeStyle: 'short',
+  });
+}
+/** Report files are named R plus seven hexadecimal digits. */
+export const REPORT_FILE = /^R[0-9A-Fa-f]{7}\.TAR$/;
+/** A report found on the camera rather than named by a QR code. */
+export function listedReport(
+  bytes: Uint8Array<ArrayBuffer>,
+  service: ReportLink,
+  name: string,
+): { blob: Blob; link: ReportLink } {
+  if (!REPORT_FILE.test(name)) throw Error('Not a report file name.');
+  const entries = tarEntries(bytes);
+  const files = manifest(bytes, entries)?.files;
+  if (!Array.isArray(files)) throw Error('The report has no manifest.');
+  for (const file of files) {
+    if (file.status !== 0) continue;
+    const entry = entries.find((candidate) => candidate.name === file.path);
+    if (!entry || entry.bytes !== file.bytes)
+      throw Error('The report is incomplete or damaged.');
+  }
+  const link = parseReportMetadata({
+    v: 1,
+    firmware: service.firmware,
+    commit: service.commit,
+    path: service.path.replace(/R[0-9A-Fa-f]{7}\.TAR$/, name.toUpperCase()),
+    bytes: bytes.length,
+    files: service.files,
+  });
+  return { blob: new Blob([bytes], { type: 'application/x-tar' }), link };
 }

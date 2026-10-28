@@ -25,7 +25,7 @@
   font-size: 15px;
   font-weight: 600;
 }
-.dial .vals span[data-value='A'] {
+.dial .vals span[data-action='A'] {
   color: #f00;
 }
 .dial:before {
@@ -267,61 +267,6 @@
     0 1px 0 #6e6e73 inset,
     0 2px 4px rgba(0, 0, 0, 0.6);
 }
-.slide {
-  position: relative;
-  height: 38px;
-  border-radius: 11px;
-  background: #141416;
-  box-shadow:
-    inset 0 2px 4px rgba(0, 0, 0, 0.85),
-    inset 0 -1px 0 #2a2a2d;
-}
-.slide .end {
-  position: absolute;
-  right: 14px;
-  top: 0;
-  bottom: 0;
-  display: grid;
-  place-items: center;
-  font-size: 10.5px;
-  font-weight: 700;
-  letter-spacing: 0.05em;
-  color: #5a5a5e;
-}
-.slide .thumb {
-  position: absolute;
-  left: 3px;
-  top: 3px;
-  bottom: 3px;
-  width: 64px;
-  border-radius: 8px;
-  display: grid;
-  place-items: center;
-  z-index: 1;
-  font-size: 10.5px;
-  font-weight: 700;
-  letter-spacing: 0.05em;
-  color: #fff;
-  background: linear-gradient(#e5e5ea, #a1a1a6);
-  box-shadow:
-    0 1px 0 #fff inset,
-    0 2px 5px rgba(0, 0, 0, 0.6);
-}
-.slide.half .thumb {
-  background: linear-gradient(#a1a1a6, #c7c7cc);
-  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.45);
-  color: #1c1c1e;
-}
-.slide.full .thumb {
-  left: auto;
-  right: 3px;
-  background: linear-gradient(#a1a1a6, #c7c7cc);
-  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.45);
-  color: #1c1c1e;
-}
-.slide.full .end {
-  opacity: 0;
-}
 .key.rec i {
   width: 18px;
   height: 18px;
@@ -375,18 +320,6 @@
 .dial.ticks .vals {
   width: 100%;
 }
-.slide {
-  touch-action: none;
-  user-select: none;
-  cursor: ew-resize;
-}
-.slide .thumb {
-  color: #1c1c1e;
-}
-.slide .thumb,
-.slide .end {
-  pointer-events: none;
-}
 .key.wifi {
   position: relative;
 }
@@ -431,16 +364,23 @@
   vertical-align: middle;
   color: #e5e5ea;
 }
-.control-face.mini {
+.control-face[data-size='mini'] {
   --control-scale: 0.6;
   gap: 4px;
   pointer-events: none;
 }
 /* At mini size a key's marking fills most of it, so it stays legible. */
-.control-face.mini .key > span:not(.two) {
+/* A D-pad or shutter at the panel's mini scale would dwarf the keys beside it. */
+.control-face[data-size='mini'][data-part='pad'] {
+  --control-scale: 0.34;
+}
+.control-face[data-size='mini'][data-part='shutter'] {
+  --control-scale: 0.45;
+}
+.control-face[data-size='mini'] .key > span:not(.two) {
   font-size: 20px;
 }
-.control-face.mini .key.rec i {
+.control-face[data-size='mini'] .key.rec i {
   width: 30px;
   height: 30px;
 }
@@ -465,21 +405,14 @@
 .control-face .dpad {
   display: inline-block;
 }
-.control-face .slide {
-  display: inline-block;
-  width: 142px;
-}
 .control-face .dial {
   display: block;
   width: 100%;
   background-color: #141416;
 }
-.control-face.panel[data-part='positions'],
-.control-face.panel[data-part='shutter'] {
+.control-face[data-size='panel'][data-part='positions'],
+.control-face[data-size='panel'][data-part='shutter'] {
   display: flex;
-  width: 100%;
-}
-.control-face.panel .slide {
   width: 100%;
 }
 .key-wrapper {
@@ -502,13 +435,12 @@
 .key-wrapper.glow .key {
   outline: 2px solid #fff;
 }
-.dial-wrapper,
-.shutter-wrapper {
+.dial-wrapper {
   width: 100%;
   touch-action: none;
   cursor: ew-resize;
 }
-.control-face .seg {
+.control-face[data-size='mini'] .seg {
   display: inline-grid;
   width: auto;
 }
@@ -541,6 +473,13 @@
 }
 .control-face .seg button {
   cursor: pointer;
+}
+/* Shutter stages act while held: no text selection, scrolling or long-press menu. */
+.control-face[data-part='shutter'] .seg button {
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
 }
 .control-face .seg button:disabled {
   opacity: 0.35;
@@ -591,10 +530,11 @@
 }
 .combo {
   flex-wrap: wrap;
-  gap: 12px;
+  gap: 8px 10px;
 }
 .combo .power-combo-keys {
-  flex: 1 1 100%;
+  flex: 0 1 auto;
+  gap: 12px;
 }
 
 .glow {
@@ -606,36 +546,4 @@
 .dpad .a.glow {
   background: linear-gradient(#c7c7cc, #686870);
   color: #fff;
-}
-
-.rocker {
-  display: inline-block;
-  width: 168px;
-  position: relative;
-}
-.rocker .knurl {
-  border-radius: 45% 45% 46% 46% / 20% 20% 75% 75%;
-  height: 38px;
-  overflow: visible;
-}
-.rocker .knurl .side {
-  height: 38px;
-  background: transparent;
-}
-.rocker .knurl .tab {
-  height: 32px;
-  width: 38px;
-  border-radius: 3px 3px 8px 8px;
-  align-self: end;
-  margin-bottom: -3px;
-}
-.rocker .knurl .side.l {
-  border-radius: 50% 0 0 80%;
-}
-.rocker .knurl .side.r {
-  border-radius: 0 50% 80% 0;
-}
-.rocker .knurl .side.active,
-.rocker .knurl .tab.active {
-  background-color: #252528;
 }

@@ -31,7 +31,13 @@ await test('real R2 multipart upload resumes, finishes privately, and deduplicat
       index
         .prepare('SELECT kind, id, state, bytes, stored_at FROM objects WHERE key = ?1')
         .bind(key)
-        .first<{ kind: string; id: string; state: string; bytes: number | null; stored_at: string | null }>();
+        .first<{
+          kind: string;
+          id: string;
+          state: string;
+          bytes: number | null;
+          stored_at: string | null;
+        }>();
     assert.deepEqual(await row(started.key), {
       kind: 'contribution',
       id,
@@ -64,8 +70,30 @@ await test('real R2 multipart upload resumes, finishes privately, and deduplicat
     assert.ok(stored?.stored_at);
     assert.deepEqual(new Uint8Array(await object!.arrayBuffer()).subarray(first.length), last);
     const finish = { manifest: { files: ['flash.bin'] }, message: 'Camera capture' };
-    assert.equal((await call('/finish', 'POST', finish)).status, 200);
-    assert.equal((await call('/finish', 'POST', { manifest: {}, message: 'changed' })).status, 200);
+    const receipt = (await (await call('/finish', 'POST', finish)).json()) as {
+      id: string;
+      shareUrl: string;
+    };
+    assert.equal(receipt.id, id);
+    assert.match(receipt.shareUrl, /^https:\/\/share.fujimod.com\/contribution\//);
+    assert.ok(!receipt.shareUrl.includes(id));
+    const retry = await (
+      await call('/finish', 'POST', { manifest: {}, message: 'changed' })
+    ).json();
+    assert.deepEqual(retry, receipt);
+    const shared = receipt.shareUrl.replace('https://share.fujimod.com', 'https://worker.example');
+    const sharedPage = await mf.dispatchFetch(shared);
+    assert.equal(sharedPage.status, 200);
+    const sharedHtml = await sharedPage.text();
+    assert.match(sharedHtml, /flash.bin.gz/);
+    assert.ok(!sharedHtml.includes(id));
+    const sharedDownload = await mf.dispatchFetch(`${shared}/file/0/download`);
+    assert.equal(sharedDownload.headers.get('Cache-Control'), 'no-store');
+    assert.equal(sharedDownload.headers.get('Content-Type'), 'application/octet-stream');
+    assert.equal((await sharedDownload.arrayBuffer()).byteLength, first.length + last.length);
+    assert.equal((await mf.dispatchFetch(`${shared}/file/999`)).status, 404);
+    assert.equal((await mf.dispatchFetch(shared, { method: 'POST' })).status, 405);
+    assert.equal((await mf.dispatchFetch(`https://worker.example/contribution/${id}`)).status, 404);
     assert.deepEqual(
       JSON.parse(await (await bucket.get(`contributions/${id}/manifest.json`))!.text()),
       finish.manifest,

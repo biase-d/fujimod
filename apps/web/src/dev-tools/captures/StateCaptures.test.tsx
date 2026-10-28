@@ -34,13 +34,30 @@ afterEach(() => {
 const button = (host: HTMLElement, name: string) =>
   [...host.querySelectorAll('button')].find((node) => node.textContent?.trim() === name)!;
 
-function mount(component: typeof StateCaptures, reads: () => Uint8Array) {
+function mount(
+  component: typeof StateCaptures,
+  reads: () => Uint8Array,
+  gate: () => Promise<void> = async () => {},
+) {
   const calls: [string, number, number][] = [];
+  let closed = 0;
   const test = createTestCameraModel({
     session: () => ({
-      async readBulk(firmware, address, size) {
-        calls.push([firmware, address, size]);
-        return { data: reads().slice(0, size), overwritten: { address: 0x9000, size: 4 } };
+      async memory(firmware) {
+        return {
+          async read(address, size) {
+            calls.push([firmware, address, size]);
+            await gate();
+            return reads().slice(0, size);
+          },
+          async write() {
+            throw Error('Captures only read.');
+          },
+          overwritten: { address: 0x9000, size: 4 },
+          async close() {
+            closed++;
+          },
+        };
       },
     }),
   });
@@ -62,7 +79,7 @@ function mount(component: typeof StateCaptures, reads: () => Uint8Array) {
     />
   );
   cleanup = render(view, host);
-  return { host, calls, set: () => set, files };
+  return { host, calls, set: () => set, files, closed: () => closed };
 }
 
 test('a state capture reads the largest scope and adds each range as a file', async () => {
@@ -89,6 +106,33 @@ test('a state capture reads the largest scope and adds each range as a file', as
     scope: 'full',
     label: 'AF-S half press',
   });
+});
+
+test('canceling a capture restores the camera and records nothing', async () => {
+  let release = () => {};
+  const { host, set, files, closed } = mount(
+    StateCaptures,
+    () => new Uint8Array(16),
+    () => new Promise((resolve) => (release = resolve)),
+  );
+  flush();
+  const row = () =>
+    [...host.querySelectorAll('.cap-row')].find((node) =>
+      node.textContent?.startsWith('Still shooting'),
+    )!;
+  row().querySelector('button')!.click();
+  await vi.waitFor(() => {
+    flush();
+    expect(button(host, 'Cancel')).toBeTruthy();
+  });
+  button(host, 'Cancel').click();
+  release();
+  await vi.waitFor(() => expect(closed()).toBe(1));
+  flush();
+  expect(button(host, 'Cancel')).toBeUndefined();
+  expect(host.querySelector('[role="alert"]')).toBeNull();
+  expect(set()).toBeUndefined();
+  expect(files).toEqual([]);
 });
 
 test('menu pages need a page name before capturing', () => {

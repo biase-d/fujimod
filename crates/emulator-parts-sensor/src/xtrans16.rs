@@ -82,15 +82,21 @@ impl Sensor {
         })
     }
     fn publish(&mut self) -> Result<(), String> {
-        if self.state.registers[1] & 4 != 0 && self.state.horizontal != 0 {
+        if self.state.registers[0] & 1 == 0
+            && self.state.registers[1] & 4 != 0
+            && self.state.horizontal != 0
+            && self.state.vertical != 0
+            && self.state.global_seconds.is_none()
+        {
             let shutter = self
                 .shutter
                 .as_ref()
                 .ok_or("global reset needs its physical leaf shutter")?;
             let shr =
                 u32::from(self.state.registers[5]) | (u32::from(self.state.registers[6] & 15) << 8);
-            // Configuring global reset before enabling its external shutter
-            // waveform is valid. No exposed frame exists until both are ready.
+            // Standby may configure reset before the shutter waveform is
+            // enabled. Once running, retain the measured exposure through
+            // readout; later receiver timing must not move optical closure.
             if let Some(drive) = self.state.shutter_drive {
                 self.state.global_seconds = Some(
                     shutter.integration(
@@ -101,6 +107,13 @@ impl Sensor {
                             .aperture
                             .lock()
                             .map_err(|_| "iris transmission poisoned")?,
+                        f64::from(self.state.horizontal)
+                            * f64::from(self.state.vertical)
+                            * f64::from(
+                                1 + u32::from(self.state.registers[2])
+                                    + (u32::from(self.state.registers[3] & 15) << 8),
+                            )
+                            / self.options.pixel_clock_hz as f64,
                     )?,
                 );
             }
@@ -218,7 +231,10 @@ impl Controls for Sensor {
             ),
         )
     }
-    fn validate_checkpoint(&self, saved: &fujimod_emulator_devices::checkpoint::Checkpoint) -> Result<(), String> {
+    fn validate_checkpoint(
+        &self,
+        saved: &fujimod_emulator_devices::checkpoint::Checkpoint,
+    ) -> Result<(), String> {
         let (options, state, timebase): (Options, State, Option<u64>) =
             saved.decode("xtrans16-controls")?;
         if timebase != self.frame_clock.as_ref().map(|(_, ticks)| *ticks)
@@ -240,7 +256,10 @@ impl Controls for Sensor {
         }
         Ok(())
     }
-    fn restore_checkpoint(&mut self, saved: &fujimod_emulator_devices::checkpoint::Checkpoint) -> Result<(), String> {
+    fn restore_checkpoint(
+        &mut self,
+        saved: &fujimod_emulator_devices::checkpoint::Checkpoint,
+    ) -> Result<(), String> {
         self.validate_checkpoint(saved)?;
         let (_, state, _): (Options, State, Option<u64>) = saved.decode("xtrans16-controls")?;
         self.state = state;
@@ -263,10 +282,8 @@ impl Controls for Sensor {
             if b[1] == 0 {
                 let changed = b[2] & 0xfc != self.state.registers[0] & 0xfc;
                 let restarted = b[2] & 1 == 0 && self.state.registers[0] & 1 != 0;
-                if changed {
-                    self.state.global_seconds = None;
-                }
                 if changed || restarted {
+                    self.state.global_seconds = None;
                     self.state.rolling_seconds = None;
                     self.state.settling = self.options.mode_change_frames;
                 }
@@ -387,15 +404,21 @@ mod tests {
                     pixel_clock_hz: 33_000_000,
                     shutter: None,
                     rolling_references: vec![RollingReference {
-                        mode: 0xec, horizontal, vertical, lines: scan,
+                        mode: 0xec,
+                        horizontal,
+                        vertical,
+                        lines: scan,
                     }],
                     mode_change_frames: 0,
                     preview_field: None,
                 },
                 wire.clone(),
                 std::sync::Arc::new(std::sync::Mutex::new(64.)),
-            ).unwrap();
-            sensor.attach_frame_clock(clock.clone(), 12_000_000).unwrap();
+            )
+            .unwrap();
+            sensor
+                .attach_frame_clock(clock.clone(), 12_000_000)
+                .unwrap();
             sensor.timing(horizontal, vertical, None).unwrap();
             let command = |reset: u32| {
                 [
@@ -427,20 +450,32 @@ mod tests {
             };
             sensor.command(&command(reset)).unwrap();
             sensor.frame().unwrap();
-            assert!((wire.lock().unwrap().seconds
-                - f64::from((frame - reset) * horizontal) / 33_000_000.).abs() < 1e-12);
-            assert_eq!(*clock.lock().unwrap(),
-                (u64::from(frame) * u64::from(horizontal) * 12_000_000 + 16_500_000) / 33_000_000);
+            assert!(
+                (wire.lock().unwrap().seconds
+                    - f64::from((frame - reset) * horizontal) / 33_000_000.)
+                    .abs()
+                    < 1e-12
+            );
+            assert_eq!(
+                *clock.lock().unwrap(),
+                (u64::from(frame) * u64::from(horizontal) * 12_000_000 + 16_500_000) / 33_000_000
+            );
             let saved = sensor.checkpoint().unwrap();
             sensor.command(&command(scan - 17)).unwrap();
             sensor.frame().unwrap();
             sensor.frame().unwrap();
-            assert!((wire.lock().unwrap().seconds
-                - f64::from(17 * horizontal) / 33_000_000.).abs() < 1e-12);
+            assert!(
+                (wire.lock().unwrap().seconds - f64::from(17 * horizontal) / 33_000_000.).abs()
+                    < 1e-12
+            );
             sensor.restore_checkpoint(&saved).unwrap();
             sensor.frame().unwrap();
-            assert!((wire.lock().unwrap().seconds
-                - f64::from((frame - reset) * horizontal) / 33_000_000.).abs() < 1e-12);
+            assert!(
+                (wire.lock().unwrap().seconds
+                    - f64::from((frame - reset) * horizontal) / 33_000_000.)
+                    .abs()
+                    < 1e-12
+            );
         }
     }
 
@@ -615,6 +650,7 @@ mod tests {
             .unwrap();
         assert_eq!(wire.lock().unwrap().seconds, 0.);
         s.timing(660, 1000, Some(6600)).unwrap();
+        s.command(&command(&[(0, 0x2c)])).unwrap();
         assert!((wire.lock().unwrap().seconds - 0.0012).abs() < 1e-12);
         s.timing(660, 1000, None).unwrap();
         assert!((wire.lock().unwrap().seconds - 0.0012).abs() < 1e-12);
@@ -626,6 +662,61 @@ mod tests {
         assert!((wire.lock().unwrap().seconds - 0.06548).abs() < 1e-12);
         s.restore(&saved).unwrap();
         assert!((wire.lock().unwrap().seconds - 0.0012).abs() < 1e-12);
+    }
+
+    #[test]
+    fn selfie_capture_wraps_reset_to_closure_and_retains_it_during_readout() {
+        // Owner camera observation (2026-10-26): X70 shoots with the LCD in
+        // selfie position. This register sequence formerly refused that shot.
+        let wire: ExposureHandle = Default::default();
+        let mut sensor = Sensor::new(
+            Options {
+                pixel_clock_hz: 33_000_000,
+                shutter: Some(crate::leaf_shutter::Options {
+                    closing_delay_seconds: vec![(2., 0.003), (16., 0.003)],
+                }),
+                rolling_references: vec![],
+                mode_change_frames: 2,
+                preview_field: None,
+            },
+            wire.clone(),
+            std::sync::Arc::new(std::sync::Mutex::new(32.)),
+        )
+        .unwrap();
+        let command = |pairs: &[(u8, u8)]| {
+            pairs
+                .iter()
+                .flat_map(|&(r, v)| [0x81, r, v, 0, 0, 0, 0, 0])
+                .collect::<Vec<_>>()
+        };
+        sensor.timing(1278, 645, None).unwrap();
+        sensor
+            .command(&command(&[(0, 0x2d), (1, 0x84), (5, 0x33), (6, 2)]))
+            .unwrap();
+        assert!(!sensor.frame().unwrap());
+        assert_eq!(wire.lock().unwrap().seconds, 0.);
+        sensor.command(&command(&[(0, 0x2c)])).unwrap();
+        sensor.timing(1278, 645, Some(304321)).unwrap();
+        let expected = ((645. - 563.) * 1278. + 304321.) / 33_000_000. + 0.003;
+        assert!((wire.lock().unwrap().seconds - expected).abs() < 1e-12);
+        let saved = sensor.checkpoint().unwrap();
+        // The receiver expands its raster for still readout. It must not
+        // remeasure an exposure whose optical shutter has already closed.
+        sensor.timing(1278, 3374, Some(304321)).unwrap();
+        sensor.command(&command(&[(1, 0x80)])).unwrap();
+        for _ in 0..4 {
+            sensor.frame().unwrap();
+        }
+        assert!((wire.lock().unwrap().seconds - expected).abs() < 1e-12);
+        sensor.restore_checkpoint(&saved).unwrap();
+        sensor.timing(1278, 3374, None).unwrap();
+        assert!((wire.lock().unwrap().seconds - expected).abs() < 1e-12);
+        // Restarting the same drive mode starts a new physical exposure.
+        sensor.command(&command(&[(0, 0x2d), (5, 0x32)])).unwrap();
+        sensor.timing(1278, 645, Some(304321)).unwrap();
+        assert!(!sensor.frame().unwrap());
+        sensor.command(&command(&[(0, 0x2c)])).unwrap();
+        assert!((wire.lock().unwrap().seconds - expected - 1278. / 33_000_000.).abs() < 1e-12);
     }
 
     #[test]
@@ -652,7 +743,9 @@ mod tests {
         // clocks cannot consume startup readouts while the sensor is stopped.
         sensor.command(&mode(0xed)).unwrap();
         let saved = sensor.checkpoint().unwrap();
-        for _ in 0..5 { assert!(!sensor.frame().unwrap()); }
+        for _ in 0..5 {
+            assert!(!sensor.frame().unwrap());
+        }
         sensor.command(&mode(0xec)).unwrap();
         let frames: Vec<bool> = (0..3).map(|_| sensor.frame().unwrap()).collect();
         assert_eq!(frames, [false, false, true]);

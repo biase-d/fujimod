@@ -34,13 +34,7 @@ try {
       uploadThroughput: 1000000,
     });
     await page.locator('#firmware-file').setInputFiles(dat);
-    await page.waitForFunction(
-      () =>
-        document.querySelector('dialog.firmware-actions[open]') ||
-        performance.getEntriesByName('camera-engine-boot').length > 0,
-    );
-    const launch = page.getByRole('button', { name: 'Launch camera', exact: true });
-    if (await launch.isVisible()) await launch.click();
+    await page.getByRole('button', { name: 'Run unmodified in your browser', exact: true }).click();
     await page.waitForFunction(
       () => {
         const bar = document.querySelector<HTMLProgressElement>(

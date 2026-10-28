@@ -171,3 +171,47 @@ fn incompatible_session_or_corrupt_archive_is_refused_without_changing_live_stat
     assert!(target.import_snapshot(&bytes).is_err());
     assert_eq!(target.fingerprint().unwrap(), before);
 }
+
+#[test]
+fn serialized_checkpoint_resumes_a_fresh_session_and_checks_image_and_graph_identity() {
+    let definition = serde_json::json!({
+        "inputs": {
+            "update": {"size": 8, "sha256": "1111111111111111111111111111111111111111111111111111111111111111"},
+            "boot_rom": {"content": {"size": 4, "sha256": "2222222222222222222222222222222222222222222222222222222222222222"}}
+        },
+        "execution": {"processors": [{"model": "test-core"}]},
+        "devices": {"nodes": [{"id": "timer", "kind": "timer"}]},
+        "scene": {"images": []}
+    });
+    let (bytes, before, after) = {
+        let mut source = session();
+        source.definition = definition.clone();
+        source.board.run_for_instructions(13, 17).unwrap();
+        let checkpoint = source.checkpoint(None).unwrap();
+        let bytes = checkpoint.export().unwrap();
+        let (ticks, counts) = crate::checkpoint::Snapshot::inspect(&bytes).unwrap();
+        assert_eq!((ticks, counts), (checkpoint.now(), checkpoint.instruction_counts().to_vec()));
+        let before = source.fingerprint().unwrap();
+        source.board.run_for_instructions(200, 17).unwrap();
+        (bytes, before, source.fingerprint().unwrap())
+    };
+
+    let mut target = session();
+    target.definition = definition.clone();
+    let checkpoint = target.import_snapshot(&bytes).unwrap();
+    target.restore(&checkpoint).unwrap();
+    assert_eq!(target.fingerprint().unwrap(), before);
+    target.board.run_for_instructions(200, 17).unwrap();
+    assert_eq!(target.fingerprint().unwrap(), after);
+
+    let mut different_image = session();
+    different_image.definition = definition.clone();
+    different_image.definition["inputs"]["update"]["sha256"] =
+        serde_json::json!("3333333333333333333333333333333333333333333333333333333333333333");
+    assert!(different_image.import_snapshot(&bytes).is_err());
+
+    let mut different_graph = session();
+    different_graph.definition = definition;
+    different_graph.definition["devices"]["nodes"][0]["kind"] = serde_json::json!("other");
+    assert!(different_graph.import_snapshot(&bytes).is_err());
+}

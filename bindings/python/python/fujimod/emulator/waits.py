@@ -1,7 +1,7 @@
 """Read-set-bound host waits. Predicates observe; only Board.run executes."""
 from __future__ import annotations
 
-from collections.abc import Callable, Generator
+from collections.abc import Callable, Collection, Generator
 from dataclasses import dataclass
 from contextlib import contextmanager
 from contextvars import ContextVar
@@ -58,6 +58,7 @@ def wait_steps(board: WaitBoard, predicate: Callable[[], T], description: str, *
                instruction_limit: int = (1 << 63), deadline: int | None = None,
                until_tick: int | None = None,
                max_run_instructions: int | None = None,
+               ignored_devices: Collection[str] = (),
                after_run: Callable[[], object] | None = None,
                metrics: WaitMetrics | None = None) -> Generator[None, None, T]:
     """Yield at passive watch stops, returning the predicate's truthy result.
@@ -73,6 +74,9 @@ def wait_steps(board: WaitBoard, predicate: Callable[[], T], description: str, *
         raise ValueError('Wait tick must be a nonnegative integer')
     if max_run_instructions is not None and (type(max_run_instructions) is not int or max_run_instructions <= 0):
         raise ValueError('Wait continuation ceiling must be positive')
+    if isinstance(ignored_devices, str) or any(not isinstance(name, str) or not name for name in ignored_devices):
+        raise ValueError('Ignored device names must be a collection of nonempty strings')
+    ignored_devices = frozenset(ignored_devices)
     start, tick, wall = board.instructions, board.virtual_ticks, perf_counter()
     report = metrics if metrics is not None else WaitMetrics(description)
     try:
@@ -89,8 +93,8 @@ def wait_steps(board: WaitBoard, predicate: Callable[[], T], description: str, *
             if remaining <= 0 or (deadline is not None and board.virtual_ticks >= deadline):
                 raise TimeoutError('Native execution did not complete: ' + description)
             stores = [(int(lo), int(hi)) for lo, hi in reads['stores']]
-            devices = [str(name) for name in reads['devices']]
-            if not stores and not devices and until_tick is None:
+            devices = [str(name) for name in reads['devices'] if name not in ignored_devices]
+            if not stores and not devices and until_tick is None and max_run_instructions is None:
                 raise ValueError('Wait predicate reads nothing watchable; name until_tick: ' + description)
             if not stores and not devices and until_tick is not None and board.virtual_ticks >= until_tick:
                 raise ValueError('Wait predicate is false at its named tick: ' + description)
@@ -119,10 +123,12 @@ def wait_until(board: WaitBoard, predicate: Callable[[], T], description: str, *
                instruction_limit: int = (1 << 63), deadline: int | None = None,
                until_tick: int | None = None,
                max_run_instructions: int | None = None,
+               ignored_devices: Collection[str] = (),
                after_run: Callable[[], object] | None = None,
                metrics: WaitMetrics | None = None) -> T:
     steps = wait_steps(board, predicate, description, instruction_limit=instruction_limit,
                        deadline=deadline, until_tick=until_tick, max_run_instructions=max_run_instructions,
+                       ignored_devices=ignored_devices,
                        after_run=after_run, metrics=metrics)
     while True:
         try:

@@ -15,8 +15,7 @@ async function ready(page: Page, timeout = 240000) {
     await page.waitForFunction(
       () =>
         document.querySelector('#live-label')?.textContent === 'LIVE' ||
-        document.querySelector('#status')?.classList.contains('error') ||
-        document.querySelector('dialog.firmware-actions[open]'),
+        document.querySelector('#status')?.classList.contains('error'),
       undefined,
       { timeout },
     );
@@ -25,7 +24,7 @@ async function ready(page: Page, timeout = 240000) {
       live: document.querySelector('#live-label')?.textContent,
       status: document.querySelector('#status')?.textContent,
       fault: document.querySelector('#fault-raw')?.textContent,
-      prompt: document.querySelector('#firmware-prompt')?.textContent,
+      prompt: document.querySelector('label.file-drop-choose')?.textContent,
       dialogs: [...document.querySelectorAll('dialog')].map((dialog) => ({
         open: dialog.open,
         text: dialog.innerText,
@@ -34,8 +33,6 @@ async function ready(page: Page, timeout = 240000) {
     await page.screenshot({ path: new URL('boot-timeout.png', output).pathname });
     throw Error(`${String(error)} ${JSON.stringify(diagnostics)}`);
   }
-  if (await page.locator('dialog.firmware-actions[open]').count())
-    await page.getByRole('button', { name: 'Launch camera', exact: true }).click();
   await page.waitForFunction(
     () =>
       document.querySelector('#live-label')?.textContent === 'LIVE' ||
@@ -181,8 +178,9 @@ try {
   await page.locator('#viewer-tools[data-ready="true"]').waitFor({ state: 'attached' });
   await page.waitForFunction(() => performance.getEntriesByName('camera-catalog-ready').length);
   const chooser = page.waitForEvent('filechooser');
-  await page.locator('#firmware-prompt').click();
+  await page.locator('label.file-drop-choose').click();
   await (await chooser).setFiles(firmwarePath);
+  await page.getByRole('button', { name: 'Run unmodified in your browser', exact: true }).click();
   await ready(page, 60000);
   const initialCameras = await cameraRecords(page);
   assert.equal(initialCameras.length, 1);
@@ -207,16 +205,16 @@ try {
   await page.goto(appUrl.href, { waitUntil: 'domcontentloaded' });
   await page.locator('#viewer-tools[data-ready="true"]').waitFor({ state: 'attached' });
   await page.waitForFunction(() => performance.getEntriesByName('camera-catalog-ready').length);
-  await page.locator('.resume-camera').first().waitFor();
+  await page.locator('.start-fresh').waitFor();
   const afterReload = await cameraRecords(page);
   assert.equal(nodeAtPath(afterReload[0]?.layout, savedEdit.path)?.caption, 'Saved layout');
-  await page.locator('.resume-camera').first().click();
+  await page.getByRole('button', { name: 'Run unmodified in your browser', exact: true }).click();
   await ready(page);
   await page.waitForFunction(
     ({ binding, caption }) =>
-      [...document.querySelectorAll<HTMLElement>(`#controls .control-node[data-id="${binding}"]`)].some(
-        (node) => node.querySelector('.cap')?.textContent === caption,
-      ),
+      [
+        ...document.querySelectorAll<HTMLElement>(`#controls .control-node[data-id="${binding}"]`),
+      ].some((node) => node.querySelector('.cap')?.textContent === caption),
     { ...savedEdit, caption: 'Saved layout' },
   );
   assert.deepEqual(errors, []);

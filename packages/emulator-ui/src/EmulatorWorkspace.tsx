@@ -1,3 +1,4 @@
+import type { CardEntry } from 'fujimod/emulator';
 import type { JSX } from '@solidjs/web';
 import { Show, createSignal } from 'solid-js';
 import type { SessionState } from './session/state';
@@ -22,6 +23,7 @@ export function EmulatorWorkspace(props: {
   viewer(element: HTMLDivElement): void;
   lcd(element: HTMLCanvasElement): void;
   selectFile(file?: File): void;
+  canDownloadCardFile?: (entry: CardEntry) => boolean;
   toolbar: JSX.Element;
   children: JSX.Element;
   onLayoutChange?: (panel: DevicePanel) => void | Promise<void>;
@@ -92,6 +94,7 @@ export function EmulatorWorkspace(props: {
         <hr />
         <CardBrowser
           engine={props.runtime?.cardEngine()}
+          canDownload={props.canDownloadCardFile}
           present={(value) => props.runtime?.insertCard(value) ?? Promise.resolve()}
           format={() => props.runtime?.formatCard() ?? Promise.resolve()}
         />

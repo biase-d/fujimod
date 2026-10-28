@@ -7,10 +7,10 @@
 #![doc = include_str!("../README.md")]
 
 mod access;
-mod callback;
-pub mod flash;
 pub mod bulk;
+mod callback;
 pub mod debug_mode;
+pub mod flash;
 pub mod install;
 #[cfg(feature = "service-capture")]
 pub mod service_capture;

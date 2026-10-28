@@ -50,10 +50,25 @@ impl LeafShutter {
         drive_seconds: f64,
         reset_seconds: f64,
         aperture_squared: f64,
+        frame_seconds: f64,
     ) -> Result<f64, String> {
-        let interval = drive_seconds + self.closing_delay(aperture_squared)? - reset_seconds;
-        if !interval.is_finite() || interval <= 0. {
-            return Err("global reset occurs after declared optical shutter closure".into());
+        let closing_delay = self.closing_delay(aperture_squared)?;
+        if !frame_seconds.is_finite()
+            || frame_seconds <= closing_delay
+            || !drive_seconds.is_finite()
+            || !(0. ..frame_seconds).contains(&drive_seconds)
+            || !reset_seconds.is_finite()
+            || !(0. ..frame_seconds).contains(&reset_seconds)
+        {
+            return Err("leaf shutter timing exceeds its physical frame counter".into());
+        }
+        // Both positions are phases of the same repeating frame counter.
+        // Reset late in one frame can precede optical closure in the next.
+        // Include blade travel before choosing the following closure: the
+        // drive itself may precede reset even when closure follows it.
+        let interval = (drive_seconds + closing_delay - reset_seconds).rem_euclid(frame_seconds);
+        if interval == 0. {
+            return Err("global reset coincides with optical shutter closure".into());
         }
         Ok(interval)
     }
@@ -67,9 +82,12 @@ mod tests {
             closing_delay_seconds: vec![(2., 0.003), (4., 0.004)],
         })
         .unwrap();
-        assert!((s.integration(0.0002, 0.0022, 4.).unwrap() - 0.001).abs() < 1e-12);
-        assert!((s.integration(0.0002, 0.0027, 4.).unwrap() - 0.0005).abs() < 1e-12);
-        assert!((s.integration(0.0002, 0.0022, 16.).unwrap() - 0.002).abs() < 1e-12);
-        assert!(s.integration(0., 0.005, 4.).is_err());
+        assert!((s.integration(0.0002, 0.0022, 4., 0.02).unwrap() - 0.001).abs() < 1e-12);
+        assert!((s.integration(0.0002, 0.0027, 4., 0.02).unwrap() - 0.0005).abs() < 1e-12);
+        assert!((s.integration(0.0002, 0.0022, 16., 0.02).unwrap() - 0.002).abs() < 1e-12);
+        assert!((s.integration(0., 0.005, 4., 0.02).unwrap() - 0.018).abs() < 1e-12);
+        assert!(s.integration(0., 0.02, 4., 0.02).is_err());
+        assert!(s.integration(0.02, 0., 4., 0.02).is_err());
+        assert!(s.integration(0., 0., 4., 0.002).is_err());
     }
 }

@@ -39,6 +39,65 @@ fn extent(size: RegionSize, dram_bytes: u64, label: &str) -> Result<usize, Strin
     usize::try_from(bytes).map_err(|_| format!("{label} extent exceeds host address space"))
 }
 
+/// CPU apertures cover each processor's mapping pages; device bus windows retain
+/// their register bounds.
+fn peripheral_pages(
+    processors: &[factory::Processor],
+    mappings: Vec<factory::Peripheral>,
+) -> Result<Vec<factory::Peripheral>, String> {
+    let mut pages = BTreeMap::new();
+    for mapping in mappings {
+        let page = processors
+            .get(mapping.core)
+            .ok_or("peripheral mapping names an absent processor")?
+            .mapping_granule();
+        if mapping.size == 0 || mapping.address % page != mapping.physical % page {
+            return Err("peripheral mapping requires a nonempty, page-congruent range".into());
+        }
+        let start = mapping.address & !(page - 1);
+        let physical = mapping.physical & !(page - 1);
+        let end = mapping
+            .address
+            .checked_add(mapping.size as u64)
+            .and_then(|end| end.checked_add(page - 1))
+            .ok_or("peripheral page range overflows")?
+            & !(page - 1);
+        physical
+            .checked_add(end - start)
+            .ok_or("peripheral physical page range overflows")?;
+        for address in (start..end).step_by(page as usize) {
+            let physical = physical + (address - start);
+            if pages
+                .insert((mapping.core, address), (physical, page))
+                .is_some_and(|(old, _)| old != physical)
+            {
+                return Err("peripheral page has conflicting physical mappings".into());
+            }
+        }
+    }
+    let mut runs: Vec<factory::Peripheral> = Vec::new();
+    for ((core, address), (physical, page)) in pages {
+        if let Some(last) = runs.last_mut()
+            && last.core == core
+            && last.address + last.size as u64 == address
+            && last.physical + last.size as u64 == physical
+        {
+            last.size = last
+                .size
+                .checked_add(page as usize)
+                .ok_or("peripheral aperture exceeds host address space")?;
+        } else {
+            runs.push(factory::Peripheral {
+                core,
+                address,
+                physical,
+                size: page as usize,
+            });
+        }
+    }
+    Ok(runs)
+}
+
 fn register(register: ProcessorRegister) -> Register {
     match register {
         ProcessorRegister::Pc => Register::Pc,
@@ -205,7 +264,7 @@ pub fn assemble_with_starts(
             ));
         }
     }
-    let processors = soc
+    let processors: Vec<factory::Processor> = soc
         .processors
         .iter()
         .map(|processor| {
@@ -398,6 +457,7 @@ pub fn assemble_with_starts(
         })
         .collect::<Result<_, String>>()?;
     let (numerator, denominator) = (rate.numerator, rate.denominator);
+    let peripherals = peripheral_pages(&processors, peripherals)?;
     let graph = factory::Graph {
         processors,
         ram,
@@ -542,6 +602,112 @@ mod tests {
         AddressDecoder, Body, DecoderChoice, Firmware, MemoryKind, ProcessorCore, RProfileState,
         SocReset, TcmState,
     };
+
+    #[test]
+    fn exr2_image_transfer_maps_cpu_pages_and_keeps_device_register_bounds() {
+        // The image-transfer block occupies 32 bytes, smaller than a CPU page.
+        let prepared = crate::prepare("x70-110-rec", &[]).unwrap();
+        for core in 0..2 {
+            let aperture = prepared
+                .execution
+                .peripherals
+                .iter()
+                .find(|p| {
+                    p.core == core
+                        && p.address <= 0xfff64000
+                        && p.address + p.size as u64 >= 0xfff65000
+                })
+                .expect("both CPUs must map the image-transfer page");
+            assert_eq!(aperture.address % 0x1000, 0);
+            assert_eq!(aperture.physical % 0x1000, 0);
+            assert_eq!(aperture.size % 0x1000, 0);
+        }
+        let window = prepared.devices_value["nodes"]
+            .as_array()
+            .unwrap()
+            .iter()
+            .flat_map(|node| node["windows"].as_array().unwrap())
+            .find(|window| window["base"] == 0xfff64000u64)
+            .unwrap();
+        assert_eq!(window["size"], 0x20);
+    }
+
+    #[test]
+    fn peripheral_pages_merge_shared_pages_and_preserve_aliases() {
+        let mapping = |core, address, physical, size| factory::Peripheral {
+            core,
+            address,
+            physical,
+            size,
+        };
+        let processor = |model| factory::Processor {
+            model,
+            registers: vec![],
+            released: true,
+            mprofile: None,
+            rprofile: None,
+        };
+        let processors = [
+            processor(Model::CortexR5F),
+            processor(Model::CortexR5F),
+            processor(Model::ArmV8A),
+        ];
+        let pages = peripheral_pages(
+            &processors,
+            vec![
+                mapping(0, 0x1020, 0x8020, 0x20),
+                mapping(0, 0x1080, 0x8080, 0x1000),
+                mapping(1, 0x5020, 0x8020, 0x20),
+                mapping(2, 0x5020, 0x9020, 0x20),
+            ],
+        )
+        .unwrap();
+        assert_eq!(pages.len(), 3);
+        assert_eq!(
+            (
+                pages[0].core,
+                pages[0].address,
+                pages[0].physical,
+                pages[0].size
+            ),
+            (0, 0x1000, 0x8000, 0x2000)
+        );
+        assert_eq!(
+            (
+                pages[1].core,
+                pages[1].address,
+                pages[1].physical,
+                pages[1].size
+            ),
+            (1, 0x5000, 0x8000, 0x1000)
+        );
+        assert_eq!(
+            (
+                pages[2].core,
+                pages[2].address,
+                pages[2].physical,
+                pages[2].size
+            ),
+            (2, 0x4000, 0x8000, 0x4000)
+        );
+        // The 4 KiB-congruent alias is not congruent within a 16 KiB page.
+        assert!(peripheral_pages(&processors, vec![mapping(2, 0x5020, 0x8020, 0x20)]).is_err());
+        assert!(peripheral_pages(&processors, vec![mapping(3, 0x1000, 0x8000, 0x20)]).is_err());
+        assert!(peripheral_pages(&processors, vec![mapping(0, 0x1020, 0x8030, 0x20)]).is_err());
+        assert!(
+            peripheral_pages(
+                &processors,
+                vec![
+                    mapping(0, 0x1000, 0x8000, 0x20),
+                    mapping(0, 0x1020, 0x9020, 0x20)
+                ]
+            )
+            .is_err()
+        );
+        assert!(
+            peripheral_pages(&processors, vec![mapping(0, u64::MAX - 15, 0x8ff0, 0x20)]).is_err()
+        );
+    }
 
     fn r5(id: &str) -> ProcessorCore {
         ProcessorCore {
