@@ -2586,6 +2586,7 @@ class HardwareRegisterLayouts(TypedDict, total=False):
     spi: NotRequired[dict[str, HardwareSpi] | None]
     temperature: NotRequired[HardwareAdc | None]
     usb: NotRequired[HardwareUsbRegisters | None]
+    video_timing: NotRequired[HardwareVideoTiming | None]
 
 
 class HardwareRegisterWindow(TypedDict, total=False):
@@ -2748,6 +2749,12 @@ class HardwareUsbRegisters(TypedDict, total=False):
     dma_irq: Required[int]
     irq: Required[int]
     phy: Required[int]
+
+
+class HardwareVideoTiming(TypedDict, total=False):
+    basis: Required[str]
+    frame_ticks: Required[int]
+    outputs: Required[list[VideoTimingOutput]]
 
 
 class HardwareWindowAnalysis(TypedDict, total=False):
@@ -4995,6 +5002,11 @@ type VideoEncoderBackend = Literal["videotoolbox", "software"]
 
 
 type VideoLayout = Literal["yycbcr422"]
+
+
+class VideoTimingOutput(TypedDict, total=False):
+    base: Required[int]
+    frame_irq: Required[int]
 
 
 type WireSignal = Literal[

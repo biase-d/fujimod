@@ -42,6 +42,9 @@ pub struct Definition {
     pub xpp_storage: Option<XppStorage>,
     #[serde(default)]
     pub xpp_serial: Vec<u64>,
+    /// X-Processor Pro display timing outputs: (base, frame IRQ, frame ticks).
+    #[serde(default)]
+    pub xpp_video: Vec<(u64, u32, u64)>,
     #[serde(default)]
     pub cache_sizes: Option<(u32, u32, u32)>,
     #[serde(default)]

@@ -1280,6 +1280,31 @@ pub struct SerialPorts {
     pub basis: String,
 }
 
+/// Display timing outputs and their frame interrupts.
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+#[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
+#[serde(deny_unknown_fields)]
+#[cfg_attr(feature = "schema", schemars(rename = "HardwareVideoTiming"))]
+pub struct VideoTiming {
+    /// One entry per output.
+    pub outputs: Vec<VideoTimingOutput>,
+    /// Declared ticks between frames.
+    pub frame_ticks: u64,
+    /// Declared basis.
+    pub basis: String,
+}
+
+/// One display timing output.
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+#[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
+#[serde(deny_unknown_fields)]
+pub struct VideoTimingOutput {
+    /// Register base.
+    pub base: u64,
+    /// Frame interrupt line.
+    pub frame_irq: u32,
+}
+
 /// Declared io groups facts.
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
@@ -1479,6 +1504,9 @@ pub struct RegisterLayouts {
     /// Declared serial ports.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub serial_ports: Option<SerialPorts>,
+    /// Display timing outputs with a declared frame clock.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub video_timing: Option<VideoTiming>,
     /// Declared spi.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub spi: Option<BTreeMap<String, Spi>>,

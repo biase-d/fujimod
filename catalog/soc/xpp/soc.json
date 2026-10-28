@@ -403,6 +403,20 @@
               4294107136
             ],
             "basis": "Declared discovery input: a provisional status law without a peer. Sends complete at once and set done bit 2, writes to +0x2c clear status bits, bit 3 reads set and received words read zero. The attached peers are not identified."
+          },
+          "video_timing": {
+            "outputs": [
+              {
+                "base": 4294287360,
+                "frame_irq": 112
+              },
+              {
+                "base": 4294332416,
+                "frame_irq": 117
+              }
+            ],
+            "frame_ticks": 1000000,
+            "basis": "X-T20 2.11 waits for a frame callback after clearing bit 16 of +0 (0xcad290); the subscriber 0xc9dc38 registers handlers on interrupt descriptors 0x4c (output 0) and 0x49 (output 1) from table 0xee86e8, which are IRQs 112 and 117. The frame period is a synthetic discovery input; pixel timing and scanout are not modeled."
           }
         },
         "limits": [

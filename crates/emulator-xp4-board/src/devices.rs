@@ -727,6 +727,22 @@ impl Devices {
         self.windows.push((ranges[2].0, ranges[2].1, id + 1));
         Ok(())
     }
+    /// One X-Processor Pro display timing output with a discovery frame clock.
+    pub fn xpp_video(&mut self, base: u64, irq: u32, frame_ticks: u64) -> Result<(), String> {
+        use fujimod_emulator_xpp::video::{REGISTERS, VideoTiming};
+        if self
+            .windows
+            .iter()
+            .any(|&(lo, hi, _)| base < hi && lo < base + REGISTERS)
+        {
+            return Err("Overlapping X-Processor Pro video timing output".into());
+        }
+        let model = VideoTiming::new(base, irq, frame_ticks)?;
+        let id = self.models.len();
+        self.models.push(Some(Box::new(model)));
+        self.windows.push((base, base + REGISTERS, id));
+        Ok(())
+    }
     /// One X-Processor Pro serial port without a peer.
     pub fn xpp_serial(&mut self, base: u64) -> Result<(), String> {
         use fujimod_emulator_xpp::serial::{REGISTERS, DiscoveryPort};

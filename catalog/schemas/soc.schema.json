@@ -1954,6 +1954,17 @@
             }
           ],
           "description": "Declared usb."
+        },
+        "video_timing": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/HardwareVideoTiming"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Display timing outputs with a declared frame clock."
         }
       },
       "type": "object"
@@ -2377,6 +2388,35 @@
         "dma_irq",
         "irq",
         "phy"
+      ],
+      "type": "object"
+    },
+    "HardwareVideoTiming": {
+      "additionalProperties": false,
+      "description": "Display timing outputs and their frame interrupts.",
+      "properties": {
+        "basis": {
+          "description": "Declared basis.",
+          "type": "string"
+        },
+        "frame_ticks": {
+          "description": "Declared ticks between frames.",
+          "format": "uint64",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "outputs": {
+          "description": "One entry per output.",
+          "items": {
+            "$ref": "#/$defs/VideoTimingOutput"
+          },
+          "type": "array"
+        }
+      },
+      "required": [
+        "outputs",
+        "frame_ticks",
+        "basis"
       ],
       "type": "object"
     },
@@ -3235,6 +3275,29 @@
           "type": "string"
         }
       ]
+    },
+    "VideoTimingOutput": {
+      "additionalProperties": false,
+      "description": "One display timing output.",
+      "properties": {
+        "base": {
+          "description": "Register base.",
+          "format": "uint64",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "frame_irq": {
+          "description": "Frame interrupt line.",
+          "format": "uint32",
+          "minimum": 0,
+          "type": "integer"
+        }
+      },
+      "required": [
+        "base",
+        "frame_irq"
+      ],
+      "type": "object"
     }
   },
   "$id": "https://fujimod.com/schemas/soc.schema.json",

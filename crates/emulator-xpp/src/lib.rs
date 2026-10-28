@@ -8,3 +8,4 @@ pub mod flash;
 pub mod sd;
 pub mod serial;
 pub mod timer;
+pub mod video;

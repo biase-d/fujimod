@@ -930,6 +930,7 @@ impl Session {
             storage_irq,
             xpp_storage,
             xpp_serial,
+            xpp_video,
             cache_sizes,
             io_group_base,
             decompressor,
@@ -1047,6 +1048,11 @@ impl Session {
             devices
                 .get_or_insert_with(devices::Devices::empty)
                 .xpp_serial(base)?;
+        }
+        for (base, irq, frame_ticks) in xpp_video {
+            devices
+                .get_or_insert_with(devices::Devices::empty)
+                .xpp_video(base, irq, frame_ticks)?;
         }
         if let Some((inputs, sample_ticks)) = adc {
             devices
