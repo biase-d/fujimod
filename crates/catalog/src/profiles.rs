@@ -1061,6 +1061,22 @@ pub struct Decompressor {
     pub irq_route: Option<u64>,
 }
 
+/// Declared 2D graphics accelerator facts.
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+#[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
+#[serde(deny_unknown_fields)]
+#[cfg_attr(feature = "schema", schemars(rename = "HardwareGraphics2d"))]
+pub struct Graphics2d {
+    /// Declared base.
+    pub base: u64,
+    /// Declared basis.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub basis: Option<String>,
+    /// Declared irq route.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub irq_route: Option<u64>,
+}
+
 /// Declared dma facts.
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
@@ -1468,6 +1484,9 @@ pub struct RegisterLayouts {
     /// Declared gpio.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub gpio: Option<Gpio>,
+    /// Declared 2D graphics accelerator.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub graphics2d: Option<Graphics2d>,
     /// Declared imaging.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub imaging: Option<ImagingRegisters>,

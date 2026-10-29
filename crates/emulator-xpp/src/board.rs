@@ -87,6 +87,14 @@ pub enum Model {
         transfer_ticks: u64,
         nor: Vec<Nor>,
     },
+    Decompressor {
+        base: u64,
+        irq: u32,
+    },
+    Graphics2d {
+        base: u64,
+        irq: u32,
+    },
 }
 pub struct Built {
     pub board: Board,
@@ -332,6 +340,23 @@ pub fn build(
                 )?;
                 devices.register(dma, 0x1000, Box::new(engine))?;
                 id
+            }
+            Model::Decompressor { base, irq } => {
+                let high = std::sync::Arc::new(std::sync::Mutex::new([0; 2]));
+                devices.register(
+                    base,
+                    0x6c,
+                    Box::new(fujimod_emulator_devices::lz_osd::Decompressor::new(
+                        base, irq, high, None,
+                    )),
+                )?
+            }
+            Model::Graphics2d { base, irq } => {
+                devices.register(
+                    base,
+                    crate::graphics2d::REGISTERS,
+                    Box::new(crate::graphics2d::Graphics2d::new(base, irq)?),
+                )?
             }
         };
         nodes.insert(node.name, id);

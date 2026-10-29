@@ -28,7 +28,9 @@ impl Host for TestHost {
         self.now
     }
     fn schedule(&mut self, _: usize, _: u64, _: u64) {}
-    fn set_irq(&mut self, _: u32, _: bool) {}
+    fn set_irq(&mut self, line: u32, level: bool) {
+        let _ = self.set_core_irq(0, line, level);
+    }
     fn raise_irq(&mut self, c: usize, l: u32) -> Result<(), String> {
         self.effects.push("irq");
         self.irqs.push((c, l));

@@ -743,6 +743,22 @@ impl Devices {
         self.windows.push((base, base + REGISTERS, id));
         Ok(())
     }
+    /// One X-Processor Pro 2D graphics accelerator.
+    pub fn xpp_graphics2d(&mut self, base: u64, irq: u32) -> Result<(), String> {
+        use fujimod_emulator_xpp::graphics2d::{Graphics2d, REGISTERS};
+        if self
+            .windows
+            .iter()
+            .any(|&(lo, hi, _)| base < hi && lo < base + REGISTERS)
+        {
+            return Err("Overlapping X-Processor Pro 2D graphics accelerator".into());
+        }
+        let model = Graphics2d::new(base, irq)?;
+        let id = self.models.len();
+        self.models.push(Some(Box::new(model)));
+        self.windows.push((base, base + REGISTERS, id));
+        Ok(())
+    }
     /// One X-Processor Pro serial port without a peer.
     pub fn xpp_serial(&mut self, base: u64) -> Result<(), String> {
         use fujimod_emulator_xpp::serial::{REGISTERS, DiscoveryPort};

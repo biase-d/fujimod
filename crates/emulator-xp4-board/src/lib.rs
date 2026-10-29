@@ -931,6 +931,7 @@ impl Session {
             xpp_storage,
             xpp_serial,
             xpp_video,
+            xpp_graphics2d,
             cache_sizes,
             io_group_base,
             decompressor,
@@ -1053,6 +1054,14 @@ impl Session {
             devices
                 .get_or_insert_with(devices::Devices::empty)
                 .xpp_video(base, irq, frame_ticks)?;
+        }
+        if let Some((base, irq)) = xpp_graphics2d {
+            if base != 0xfff88000 || !(32..512).contains(&irq) {
+                return Err("Invalid X-Processor Pro 2D graphics wiring".to_owned());
+            }
+            devices
+                .get_or_insert_with(devices::Devices::empty)
+                .xpp_graphics2d(base, irq)?;
         }
         if let Some((inputs, sample_ticks)) = adc {
             devices
@@ -1184,8 +1193,8 @@ impl Session {
                 .io_groups(base);
         }
         if let Some((base, irq)) = decompressor {
-            if base != 0xfff79000 || !(32..512).contains(&irq) {
-                return Err("Invalid XP4 decompressor wiring".to_owned());
+            if (base != 0xfff79000 && base != 0xfff80000) || !(32..512).contains(&irq) {
+                return Err("Invalid decompressor wiring".to_owned());
             }
             devices
                 .get_or_insert_with(devices::Devices::empty)

@@ -10744,6 +10744,38 @@
       ],
       "type": "object"
     },
+    "HardwareGraphics2d": {
+      "additionalProperties": false,
+      "description": "Declared 2D graphics accelerator facts.",
+      "properties": {
+        "base": {
+          "description": "Declared base.",
+          "format": "uint64",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "basis": {
+          "description": "Declared basis.",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "irq_route": {
+          "description": "Declared irq route.",
+          "format": "uint64",
+          "minimum": 0,
+          "type": [
+            "integer",
+            "null"
+          ]
+        }
+      },
+      "required": [
+        "base"
+      ],
+      "type": "object"
+    },
     "HardwareImaging": {
       "additionalProperties": false,
       "description": "Declared imaging facts.",
@@ -11802,6 +11834,17 @@
             }
           ],
           "description": "Declared gpio."
+        },
+        "graphics2d": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/HardwareGraphics2d"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Declared 2D graphics accelerator."
         },
         "imaging": {
           "anyOf": [

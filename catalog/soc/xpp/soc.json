@@ -417,11 +417,21 @@
             ],
             "frame_ticks": 1000000,
             "basis": "X-T20 2.11 waits for a frame callback after clearing bit 16 of +0 (0xcad290); the subscriber 0xc9dc38 registers handlers on interrupt descriptors 0x4c (output 0) and 0x49 (output 1) from table 0xee86e8, which are IRQs 112 and 117. The frame period is a synthetic discovery input; pixel timing and scanout are not modeled."
+          },
+          "decompressor": {
+            "base": 4294443008,
+            "irq_route": 129,
+            "basis": "Streaming decompressor at 0xfff80000; completion IRQ 129."
+          },
+          "graphics2d": {
+            "base": 4294475776,
+            "irq_route": 92,
+            "basis": "2D graphics accelerator at 0xfff88000; completion IRQ 92."
           }
         },
         "limits": [
           "Two cores are a declared discovery input from a public dual Cortex-A7 listing; the count is not measured.",
-          "Storage covers the flash aperture and PL330 memory-to-memory programs only; no decompressor or display block is declared.",
+          "Storage covers the flash aperture, streaming decompressor and PL330 memory-to-memory programs only; no display block is declared.",
           "No boot ROM, reset-release controller or external peripheral replies are assumed."
         ],
         "cache_basis": "Declared discovery input: the XP4 Cortex-A7 capacities, unmeasured. Not a cache timing model."

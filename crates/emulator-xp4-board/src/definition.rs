@@ -45,6 +45,9 @@ pub struct Definition {
     /// X-Processor Pro display timing outputs: (base, frame IRQ, frame ticks).
     #[serde(default)]
     pub xpp_video: Vec<(u64, u32, u64)>,
+    /// X-Processor Pro 2D graphics accelerator: (base, IRQ).
+    #[serde(default)]
+    pub xpp_graphics2d: Option<(u64, u32)>,
     #[serde(default)]
     pub cache_sizes: Option<(u32, u32, u32)>,
     #[serde(default)]
