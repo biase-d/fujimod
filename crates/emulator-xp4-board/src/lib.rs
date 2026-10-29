@@ -1063,10 +1063,11 @@ impl Session {
                 .get_or_insert_with(devices::Devices::empty)
                 .xpp_graphics2d(base, irq)?;
         }
-        if let Some((inputs, sample_ticks)) = adc {
+        if let Some(adc_def) = adc {
+            let (base, inputs, sample_ticks) = adc_def.parts();
             devices
                 .get_or_insert_with(devices::Devices::empty)
-                .adc(inputs, sample_ticks)?;
+                .adc(base, inputs, sample_ticks)?;
         }
         if let Some((map, timing, read_gate, ibuf)) = imaging {
             devices

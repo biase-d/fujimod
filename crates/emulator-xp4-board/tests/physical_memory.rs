@@ -52,3 +52,16 @@ fn cpu_cannot_write_read_only_rom() {
     assert_eq!(u32::from_le_bytes(actual), 0xe3a0102a);
     assert!(session.state(false).failure.is_some());
 }
+
+#[test]
+fn adc_definition_with_base_and_default() {
+    let mut input = definition();
+    input["adc"] = json!([vec![0u16; 12], 16u64]);
+    let def: Definition = serde_json::from_value(input.clone()).unwrap();
+    assert!(Session::new(def, None).is_ok());
+
+    input["adc"] = json!([0xfff19000u64, vec![0u16; 12], 16u64]);
+    let def: Definition = serde_json::from_value(input).unwrap();
+    let session = Session::new(def, None).unwrap();
+    assert!(session.set_adc_input(3, 433).is_ok());
+}

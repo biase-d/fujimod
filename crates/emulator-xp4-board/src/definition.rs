@@ -59,7 +59,7 @@ pub struct Definition {
     #[serde(default)]
     pub dmp: Option<(u64, u32)>,
     #[serde(default)]
-    pub adc: Option<([u16; 12], u64)>,
+    pub adc: Option<AdcDefinition>,
     #[serde(default)]
     pub gpio: Option<[u16; 16]>,
     #[serde(default)]
@@ -133,4 +133,21 @@ pub struct XppNor {
     pub chip_select: u8,
     pub enhanced_volatile_reset: u8,
     pub write_ticks: u64,
+}
+
+/// ADC configuration with an optional base address override.
+#[derive(Clone, Debug, PartialEq, Eq, Deserialize)]
+#[serde(untagged)]
+pub enum AdcDefinition {
+    WithBase(u64, [u16; 12], u64),
+    Default([u16; 12], u64),
+}
+
+impl AdcDefinition {
+    pub fn parts(&self) -> (u64, [u16; 12], u64) {
+        match *self {
+            Self::WithBase(base, inputs, ticks) => (base, inputs, ticks),
+            Self::Default(inputs, ticks) => (fujimod_emulator_xp4_io::adc::BASE, inputs, ticks),
+        }
+    }
 }

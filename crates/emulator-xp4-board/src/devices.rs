@@ -259,16 +259,15 @@ impl Devices {
         self.spi_input(base, Box::new(part))
     }
 
-    pub fn adc(&mut self, inputs: [u16; 12], sample_ticks: u64) -> Result<(), String> {
-        let base = fujimod_emulator_xp4_io::adc::BASE;
+    pub fn adc(&mut self, base: u64, inputs: [u16; 12], sample_ticks: u64) -> Result<(), String> {
         if self
             .windows
             .iter()
             .any(|&(lo, hi, _)| base < hi && lo < base + 0x48)
         {
-            return Err("Overlapping XP4 ADC window".into());
+            return Err("Overlapping ADC window".into());
         }
-        let model = Arc::new(Mutex::new(Adc::new(inputs, sample_ticks)?));
+        let model = Arc::new(Mutex::new(Adc::with_base(base, inputs, sample_ticks)?));
         let id = self.models.len();
         self.models.push(Some(Box::new(Connected(model.clone()))));
         self.adc = Some((id, model));

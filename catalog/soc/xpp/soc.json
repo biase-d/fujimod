@@ -122,6 +122,27 @@
       "size": 256,
       "kind": "serial-controller",
       "clock_id": null
+    },
+    {
+      "id": "adc",
+      "base": 4294021120,
+      "size": 72,
+      "kind": "adc",
+      "clock_id": null
+    },
+    {
+      "id": "lcdc0",
+      "base": 4294418432,
+      "size": 4096,
+      "kind": "display-controller",
+      "clock_id": null
+    },
+    {
+      "id": "lcdc1",
+      "base": 4294610944,
+      "size": 4096,
+      "kind": "display-controller",
+      "clock_id": null
     }
   ],
   "interrupts": [],
@@ -427,7 +448,35 @@
             "base": 4294475776,
             "irq_route": 92,
             "basis": "2D graphics accelerator at 0xfff88000; completion IRQ 92."
-          }
+          },
+          "adc": {
+            "base": 4294021120,
+            "size": 72,
+            "sample_ticks": 16,
+            "basis": "Declared discovery input: 10-bit ADC at 0xfff19000."
+          },
+          "lcdc": [
+            {
+              "base": 4294418432,
+              "pixel_clock_ticks": 2,
+              "irq_routes": [
+                112,
+                113
+              ],
+              "basis": "Declared catalog input."
+            },
+            {
+              "base": 4294610944,
+              "pixel_clock_ticks": 2,
+              "irq_routes": [
+                117,
+                118
+              ],
+              "picture_layout": "bgra8888-straight",
+              "video_layout": "yycbcr422",
+              "basis": "Declared catalog input."
+            }
+          ]
         },
         "limits": [
           "Two cores are a declared discovery input from a public dual Cortex-A7 listing; the count is not measured.",

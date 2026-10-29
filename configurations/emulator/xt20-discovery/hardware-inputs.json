@@ -21,6 +21,25 @@
     "flash_aperture": {
       "contents": "registered-update",
       "basis": "Declared discovery input: the update image from its flash offset; bytes past it read erased. No flash capture exists."
+    },
+    "adc_input": {
+      "samples": [
+        0,
+        0,
+        0,
+        1023,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "ambient_celsius": 25,
+      "thermal_channels": [],
+      "basis": "Declared discovery input: channel 3 resistor ladder idle at 1023."
     }
   }
 }
